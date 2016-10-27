@@ -1,0 +1,52 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: copyright-footer_rss\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-12-12 11:48+0100\n"
+"PO-Revision-Date: 2014-04-01 09:20+0100\n"
+"Last-Translator: jelena kovacevic <jecajeca260@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: __;gettext;gettext_noop;_;_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-SearchPath-0: /home/tony/websites/www-dev/public/wp_plugins/"
+"copyright-footer-rss/plugin_1_0_2_next\n"
+
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:54
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:134
+#, php-format
+msgid "Original article: %1$s."
+msgstr "Artículo Original: %1$s."
+
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:79
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:80
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:96
+msgid "Copyright Footer RSS"
+msgstr "Copyright Footer RSS"
+
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:97
+msgid ""
+"Please write your own copyright for the footer of your posts in your RSS or "
+"ATOM feed. You can use any of these tags to customize the output:"
+msgstr ""
+"Por favor, escriba su propio derecho de autor para el pie de página de sus "
+"posts en su feed RSS o ATOM. Puede utilizar cualquiera de estas etiquetas "
+"para personalizar la salida:"
+
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:99
+#, php-format
+msgid "%1$s: title of the post."
+msgstr "%1$s: título de este post."
+
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:100
+#, php-format
+msgid "%1$s: URL of the post."
+msgstr "%1$s: URL de este post."
+
+#: /home/tony/websites/www-dev/public/wp_plugins/copyright-footer-rss/plugin_1_0_2_next/copyright-rss.php:124
+msgid "Copyright on the footer"
+msgstr "Derechos de autor en el pie de página"

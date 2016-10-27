@@ -1,0 +1,1212 @@
+/*
+Theme Name: Padres Public
+Author: Chris Bauer
+Author URI: http://chrisbauer.org
+Description: Thugs better scat when the gat goes click clat
+Version: 1.0
+License: GNU General Public License
+License URI: license.txt
+*/
+/* This file is generated using SASS. Do not edit the .css file, only the .scss file which can be processed into css
+
+/* Variables
+-------------------------------------------------------------- */
+/* =Content
+----------------------------------------------- */
+@font-face {
+  font-family: 'bree';
+  src: url('inc/fonts/BreeSerif-Regular-webfont.eot');
+  src: url('inc/fonts/BreeSerif-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('inc/fonts/BreeSerif-Regular-webfont.woff') format('woff'), url('inc/fonts/BreeSerif-Regular-webfont.ttf') format('truetype'), url('inc/fonts/BreeSerif-Regular-webfont.svg#BreeSerifRegular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'carto-gothic';
+  src: url('inc/fonts/CartoGothicStd-Book-webfont.eot');
+  src: url('inc/fonts/CartoGothicStd-Book-webfont.eot?#iefix') format('embedded-opentype'), url('inc/fonts/CartoGothicStd-Book-webfont.woff') format('woff'), url('inc/fonts/CartoGothicStd-Book-webfont.ttf') format('truetype'), url('inc/fonts/CartoGothicStd-Book-webfont.svg#CartoGothicStdBook') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'carto-gothic-bold';
+  src: url('inc/fonts/CartoGothicStd-Bold-webfont.eot');
+  src: url('inc/fonts/CartoGothicStd-Bold-webfont.eot?#iefix') format('embedded-opentype'), url('inc/fonts/CartoGothicStd-Bold-webfont.woff') format('woff'), url('inc/fonts/CartoGothicStd-Bold-webfont.ttf') format('truetype'), url('inc/fonts/CartoGothicStd-Bold-webfont.svg#CartoGothicStdBold') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  /* =Reset
+-------------------------------------------------------------- */
+}
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+  border: 0;
+  font-family: inherit;
+  font-size: 100%;
+  font-style: inherit;
+  font-weight: inherit;
+  margin: 0;
+  outline: 0;
+  padding: 0;
+  vertical-align: baseline;
+}
+html {
+  /* Corrects text resizing oddly in IE6/7 when body font-size is set using em units http://clagnut.com/blog/348/#c790 */
+  font-size: 62.5%;
+  /* Keeps page centred in all browsers regardless of content height */
+  overflow-y: scroll;
+  /* Prevents iOS text size adjust after orientation change, without disabling user zoom */
+  -webkit-text-size-adjust: 100%;
+  /* www.456bereastreet.com/archive/201012/controlling_text_size_in_safari_for_ios_without_disabling_user_zoom/ */
+  -ms-text-size-adjust: 100%;
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, nav, section {
+  display: block;
+}
+ol, ul {
+  list-style: none;
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+caption, th, td {
+  font-weight: normal;
+  text-align: left;
+}
+blockquote:before, blockquote:after, q:before, q:after {
+  content: "";
+}
+blockquote, q {
+  quotes: "" "";
+}
+a:focus {
+  outline: thin dotted;
+}
+a:hover, a:active {
+  outline: 0;
+}
+a img {
+  border: 0;
+  /* =Global
+----------------------------------------------- */
+}
+body {
+  padding-top: 10px;
+  background: url('images/bkg_body.png') repeat-x center top #bb7400;
+}
+#page {
+  width: 1000px;
+  margin: 0 auto;
+  border-top: 5px solid #463e31;
+  border-left: 5px solid rgba(187, 116, 0, .4);
+}
+body, button, input, select, textarea {
+  color: #463e31;
+  font-family: carto-gothic, "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+  font-size: 16px;
+  font-size: 1.7rem;
+  line-height: 1.6;
+  /* Headings */
+}
+h1, h2, h3, h4, h5, h6 {
+  clear: both;
+  font-family: bree, "Rockwell Extra Bold", "Rockwell Bold", monospace;
+  margin-bottom: 8px;
+}
+h1 {
+  font-size: 32px;
+  line-height: 42px;
+}
+h2 {
+  font-size: 26px;
+  line-height: 38px;
+}
+h3 {
+  font-size: 22px;
+  line-height: 26px;
+}
+hr {
+  background-color: #ccc;
+  border: 0;
+  height: 1px;
+  margin-bottom: 15px;
+  /* Text elements */
+}
+p {
+  margin-bottom: 15px;
+}
+ul, ol {
+  margin: 0 0 15px 30px;
+}
+ul {
+  list-style: disc;
+}
+ol {
+  list-style: decimal;
+}
+ul ul, ol ol, ul ol, ol ul {
+  margin-bottom: 0;
+  margin-left: 15px;
+}
+dt {
+  font-weight: bold;
+}
+dd {
+  margin: 0 15px 15px;
+}
+b, strong {
+  font-weight: bold;
+}
+dfn, cite, em, i {
+  font-style: italic;
+}
+blockquote {
+  margin: 0 35px 0 22px;
+  border-left: 5px solid rgba(226, 219, 201, .5);
+  padding-left: 8px;
+}
+address {
+  margin: 0 0 15px;
+}
+abbr, acronym {
+  border-bottom: 1px dotted #666;
+  cursor: help;
+}
+mark, ins {
+  background: #fff9c0;
+  text-decoration: none;
+}
+sup, sub {
+  font-size: 75%;
+  height: 0;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  bottom: 1ex;
+}
+sub {
+  top: 0.5ex;
+}
+small {
+  font-size: 75%;
+}
+big {
+  font-size: 125%;
+}
+figure {
+  margin: 0;
+}
+table {
+  margin: 0 0 15px;
+  width: 100%;
+}
+th {
+  font-weight: bold;
+}
+button, input, select, textarea {
+  /* Corrects font size not being inherited in all browsers */
+  font-size: 100%;
+  /* Addresses margins set differently in IE6/7, F3/4, S5, Chrome */
+  margin: 0;
+  /* Improves appearance and consistency in all browsers */
+  vertical-align: baseline;
+  /* Improves appearance and consistency in all browsers */
+  *vertical-align: middle;
+}
+button, input {
+  /* Addresses FF3/4 setting line-height using !important in the UA stylesheet */
+  line-height: normal;
+  /* Corrects inner spacing displayed oddly in IE6/7 */
+  *overflow: visible;
+}
+button, html input[type="button"], input[type="reset"], input[type="submit"] {
+  border: 1px solid #ccc;
+  border-color: #ccc #ccc #bbb #ccc;
+  background: #e6e6e6;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 15px 17px rgba(255, 255, 255, 0.5), inset 0 -5px 12px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 15px 17px rgba(255, 255, 255, 0.5), inset 0 -5px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 15px 17px rgba(255, 255, 255, 0.5), inset 0 -5px 12px rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, .8);
+  /* Improves usability and consistency of cursor style between image-type 'input' and others */
+  cursor: pointer;
+  /* Corrects inability to style clickable 'input' types in iOS */
+  -webkit-appearance: button;
+  font-size: 12px;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 15px 10px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+button:hover, html input[type="button"]:hover, input[type="reset"]:hover, input[type="submit"]:hover {
+  border-color: #ccc #bbb #aaa #bbb;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 15px 17px rgba(255, 255, 255, 0.8), inset 0 -5px 12px rgba(0, 0, 0, 0.02);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 15px 17px rgba(255, 255, 255, 0.8), inset 0 -5px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 15px 17px rgba(255, 255, 255, 0.8), inset 0 -5px 12px rgba(0, 0, 0, 0.02);
+}
+button:focus, html input[type="button"]:focus, input[type="reset"]:focus, input[type="submit"]:focus, button:active, html input[type="button"]:active, input[type="reset"]:active, input[type="submit"]:active {
+  border-color: #aaa #bbb #bbb #bbb;
+  -webkit-box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+input[type="checkbox"], input[type="radio"] {
+  /* Addresses box sizing set to content-box in IE8/9 */
+  box-sizing: border-box;
+  /* Addresses excess padding in IE8/9 */
+  padding: 0;
+}
+input[type="search"] {
+  /* Addresses appearance set to searchfield in S5, Chrome */
+  -webkit-appearance: textfield;
+  -moz-box-sizing: content-box;
+  /* Addresses box sizing set to border-box in S5, Chrome (include -moz to future-proof) */
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+button::-moz-focus-inner, input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+input[type=text], input[type=email], textarea {
+  color: #e2dbc9;
+  border: 1px solid #e2dbc9;
+}
+input[type=text]:focus, input[type=email]:focus, textarea:focus {
+  color: #111;
+}
+input[type=text], input[type=email] {
+  padding: 4px 4px 2px;
+  line-height: 24px;
+}
+textarea {
+  /* Removes default vertical scrollbar in IE6/7/8/9 */
+  overflow: auto;
+  padding-left: 3px;
+  /* Improves readability and alignment in all browsers */
+  vertical-align: top;
+  width: 98%;
+  /* tables */
+}
+thead th {
+  padding: 5px 3px 0px;
+  background: #e2dbc9;
+}
+table td {
+  padding: 5px 3px 0px 3px;
+  font-size: 14px;
+}
+tr:hover {
+  background-color: rgba(226, 219, 201, .5);
+  /* Links */
+}
+a {
+  color: #463e31;
+  text-decoration: none;
+}
+a:hover, a:focus, a:active {
+  text-decoration: none;
+}
+.entry-content a {
+  color: #bb7400;
+  -webkit-transition: color, 0.1s, ease;
+  -moz-transition: color, 0.1s, ease;
+  transition: color, 0.1s, ease;
+  /* Text meant only for screen readers */
+}
+.entry-content a:hover {
+  color: rgba(187, 116, 0, .5);
+}
+.assistive-text {
+  /* IE6, IE7 */
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  position: absolute !important;
+  font-size: 18px;
+  line-height: 18px;
+  /* icon font stuff */
+}
+i {
+  padding-right: 5px;
+}
+#post-1490 i {
+  padding-left: 5px;
+  position: relative;
+  top: 1px;
+  /* =Header
+----------------------------------------------- */
+}
+#masthead {
+  height: auto;
+  overflow: hidden;
+  margin-bottom: 1px;
+  background: #fff;
+  /* Menu */
+}
+#masthead .site-title {
+  margin: 0;
+  border-left: 1px solid #e2dbc9;
+}
+#masthead .site-title a {
+  height: 72px;
+  width: 72px;
+  padding: 10px 10px;
+  display: block;
+  background: url('images/logo.png') no-repeat no-repeat 10px 10px;
+  text-indent: 115%;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-transition: background 0.3s ease, color 0.3s linear;
+  -moz-transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+#masthead .site-title a:hover {
+  background-color: rgba(187, 116, 0, .7);
+}
+#masthead hgroup {
+  float: right;
+}
+#page .main-navigation {
+  display: block;
+  float: left;
+  padding: 0;
+}
+.main-navigation ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+  height: auto;
+  overflow: hidden;
+}
+.main-navigation li {
+  float: left;
+  position: relative;
+  border-right: 1px solid #e2dbc9;
+}
+.main-navigation a {
+  display: block;
+  text-decoration: none;
+  line-height: 98px;
+  height: 92px;
+  padding: 0 50px;
+  -webkit-transition: background 0.3s ease, color 0.3s linear;
+  -moz-transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.main-navigation a:hover {
+  background: rgba(187, 116, 0, .7);
+  color: #fff;
+}
+.main-navigation ul ul {
+  -moz-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
+  display: none;
+  float: left;
+  position: absolute;
+  top: 15px;
+  left: 0;
+  z-index: 99999;
+}
+.main-navigation ul ul ul {
+  left: 100%;
+  top: 0;
+}
+.main-navigation ul ul a {
+  width: 200px;
+}
+.main-navigation ul li:hover > ul {
+  display: block;
+}
+.menu-main-menu-container {
+  height: auto;
+  overflow: hidden;
+  /* Small menu */
+}
+.menu-toggle {
+  cursor: pointer;
+}
+.main-small-navigation .menu {
+  display: none;
+  /* =Sidebars
+----------------------------------------------- */
+}
+#secondary {
+  float: right;
+  width: 254px;
+  /* that pixel has to come from somehwere */
+  background: #fff;
+  margin-left: 1px;
+  padding-top: 20px;
+  border-bottom: 5px solid #463e31;
+  /* padding:20px 20px 20px 19px; */
+}
+.widget {
+  margin: 0 0 20px;
+  padding-left: 20px;
+  border-bottom: 1px solid #e2dbc9;
+  padding-bottom: 20px;
+}
+.widget a {
+  -webkit-transition: color, 0.1s, ease;
+  -moz-transition: color, 0.1s, ease;
+  transition: color, 0.1s, ease;
+  color: #463e31;
+}
+.widget a:hover {
+  color: #bb7400;
+}
+#text-4 {
+  border-top: 1px solid #e2dbc9;
+  /* yardbarker square badge */
+  border-bottom: 0;
+  margin-bottom: 0px;
+  padding: 8px 0 0 0;
+}
+#text-4 a {
+  margin: 0 auto;
+  width: 100px;
+  display: block;
+}
+#text-5 {
+  padding-left: 0;
+}
+#text-5 .textwidget {
+  width: 160px;
+  margin: 0 auto;
+  display: block;
+}
+#text-3 {
+  padding: 0;
+  /* yardbarker widget */
+  margin: 0;
+  /* Make sure select elements fit in widgets */
+}
+.widget select {
+  max-width: 100%;
+  /* Search widget */
+}
+#searchsubmit {
+  display: none;
+}
+.widget_search {
+  margin-bottom: 4px;
+  border-bottom: 0;
+  /* sm icons top right */
+}
+.widget_search .field {
+  width: 201px;
+  line-height: 36px;
+  padding: 10px 6px 3px;
+}
+#text-2 {
+  font-size: 25px;
+  border-bottom: 0;
+  margin-bottom: 6px;
+  padding-bottom: 0;
+  height: auto;
+  overflow: hidden;
+}
+#text-2 a {
+  display: block;
+  float: left;
+}
+#text-2 i {
+  margin: 0 23px;
+}
+.blog-cards {
+  border-top: 1px solid #e2dbc9;
+  border-bottom: 1px solid #e2dbc9;
+  margin-bottom: 20px;
+}
+#secondary .blog-card {
+  padding-left: 19px;
+  height: auto;
+  overflow: hidden;
+  -webkit-transition: background 0.3s ease, color 0.3s linear;
+  -moz-transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+#secondary .blog-card:hover {
+  background: rgba(187, 116, 0, .7);
+}
+#secondary .blog-card a:hover {
+  color: #fff;
+}
+#secondary .blog-card h3 {
+  float: left;
+  width: 159px;
+  font-size: 18px;
+  line-height: 52px;
+  padding-top: 6px;
+}
+#secondary .blog-card h3.long-name {
+  line-height: 27px;
+}
+#secondary .blog-card img {
+  float: right;
+}
+.post-type-archive-son-of-a-duck .blog-card.son-of-a-duck, .single-son-of-a-duck .blog-card.son-of-a-duck {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-left-coast-bias .blog-card.left-coast-bias, .single-left-coast-bias .blog-card.left-coast-bias {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-sacrifice-bunt .blog-card.sacrifice-bunt, .single-sacrifice-bunt .blog-card.sacrifice-bunt {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-rjs-fro .blog-card.rjs-fro, .single-rjs-fro .blog-card.rjs-fro {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-padres-trail .blog-card.padres-trail, .single-padres-trail .blog-card.padres-trail {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-400-in-94 .blog-card.four-hundred, .single-400-in-94 .blog-card.four-hundred {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-avenging-jack-murphy .blog-card.avenging-jack-murphy, .single-avenging-jack-murphy .blog-card.avenging-jack-murphy {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-woe-doctor .blog-card.woe-doctor, .single-woe-doctor .blog-card.woe-doctor {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-padres-prospects .blog-card.padres-prospects, .single-padres-prospects .blog-card.padres-prospects {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-vocal-minority .blog-card.vocal-minority, .single-vocal-minority .blog-card.vocal-minority {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-ghost-of-ray-kroc .blog-card.ghost-of-ray-kroc, .single-ghost-of-ray-kroc .blog-card.ghost-of-ray-kroc {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.post-type-archive-padres-and-pints .blog-card.padres-and-pints, .single-padres-and-pints .blog-card.padres-and-pints {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.category-padres-and-pints, .padres-and-pints {
+  /* =Banners
+----------------------------------------------- */
+}
+.category-padres-and-pints .blog-card.padres-pints, .padres-and-pints .blog-card.padres-pints {
+  background: rgba(226, 219, 201, .8);
+  box-shadow: inset 2px 2px 16px rgba(0, 0, 0, .4);
+}
+.category-padres-and-pints .blog-card.rjs-fro, .padres-and-pints .blog-card.rjs-fro {
+  background: none;
+  box-shadow: none;
+}
+#banner {
+  height: 140px;
+  width: 745px;
+  float: left;
+  background: url('images/banner_padres-public.jpg') no-repeat;
+  position: relative;
+}
+.home #banner {
+  background: url('images/banner_padres-public.jpg') no-repeat;
+}
+.post-type-archive-rjs-fro #banner, .single-rjs-fro #banner {
+  background: url('images/banner_rjs-fro.jpg') no-repeat #fff;
+}
+.post-type-archive-400-in-94 #banner, .single-400-in-94 #banner {
+  background: url('images/banner_400-in-94.jpg') no-repeat #fff;
+}
+.post-type-archive-sacrifice-bunt #banner, .single-sacrifice-bunt #banner {
+  background: url('images/banner_sacrifice-bunt.jpg') no-repeat #fff;
+}
+.post-type-archive-ghost-of-ray-kroc #banner, .single-ghost-of-ray-kroc #banner {
+  background: url('images/banner_ghost-of-ray-kroc.jpg') no-repeat #fff;
+}
+.post-type-archive-avenging-jack-murphy #banner, .single-avenging-jack-murphy #banner {
+  background: url('images/banner_avenging-jack-murphy.jpg') no-repeat #fff;
+}
+.post-type-archive-vocal-minority #banner, .single-vocal-minority #banner {
+  background: url('images/banner_vocal-minority.jpg') no-repeat #fff;
+}
+.post-type-archive-son-of-a-duck #banner, .single-son-of-a-duck #banner {
+  background: url('images/banner_son-of-a-duck.jpg') no-repeat #fff;
+}
+.post-type-archive-padres-trail #banner, .single-padres-trail #banner {
+  background: url('images/banner_padres-trail.jpg') no-repeat #fff;
+}
+.post-type-archive-padres-prospects #banner, .single-padres-prospects #banner {
+  background: url('images/banner_padres-prospects.jpg') no-repeat #fff;
+}
+.post-type-archive-padres-and-pints #banner, .single-padres-and-pints #banner {
+  background: url('images/banner_padres-and-pints.jpg') no-repeat #fff;
+}
+.home #primary .hentry {
+  min-height: 0;
+}
+#main:after {
+  content: ".";
+  height: 0;
+  overflow: hidden;
+  clear: both;
+  display: block;
+}
+.site-content {
+  background: #fff;
+  min-height: 1465px;
+}
+.entry-title {
+  margin-bottom: 15px;
+}
+#primary {
+  width: 745px;
+  float: left;
+  border-bottom: 5px solid #463e31;
+}
+#primary article {
+  padding: 20px;
+  background: #fff;
+  height: auto;
+  overflow: hidden;
+  border-bottom: 1px solid #e2dbc9;
+}
+#primary .entry-header {
+  width: 215px;
+  /* 235 - 20 padding */
+  float: left;
+}
+#primary .entry-header h2 {
+  margin-bottom: 20px;
+}
+#primary .hentry {
+  min-height: 300px;
+}
+#primary .entry-content, #primary .entry-summary {
+  width: 470px;
+  /* 490 - 20 padding */
+  float: right;
+  margin-bottom: 40px;
+  /* keep the category section on left column */
+}
+#primary .read-more {
+  display: block;
+}
+#primary .all-meta {
+  height: auto;
+  overflow: hidden;
+  width: 215px;
+  float: left;
+}
+#primary .entry-meta {
+  float: left;
+  font-size: 16px;
+  line-height: 18px;
+}
+#primary .entry-meta p {
+  margin-bottom: 5px;
+}
+#primary .entry-meta .cat-links a {
+  background: #e2dbc9;
+  color: #463e31;
+  padding: 3px 5px 0px;
+  margin: 0 2px 4px 0;
+  display: inline-block;
+}
+#primary footer.entry-meta {
+  font-size: 12px;
+  line-height: 17px;
+  border-top: 1px solid #e2dbc9;
+  padding-top: 8px;
+  width: 150px;
+}
+#primary .cat-links, #primary .tags-links, #primary .comments-link, #primary .edit-link {
+  margin-bottom: 10px;
+}
+#primary .more-link {
+  display: block;
+}
+.page-header {
+  padding: 20px 0 0 20px;
+  /* blog icons */
+}
+.home .hentry header .entry-meta {
+  padding-bottom: 70px;
+  margin-bottom: 12px;
+}
+.home .hentry.type-sacrifice-bunt header .entry-meta {
+  background: url('images/icon_sacrifice-bunt.png') left bottom no-repeat;
+}
+.home .hentry.type-left-coast-bias header .entry-meta {
+  background: url('images/icon_left-coast-bias.png') left bottom no-repeat;
+}
+.home .hentry.type-rjs-fro header .entry-meta {
+  background: url('images/icon_rjs-fro.png') left bottom no-repeat;
+}
+.home .hentry.type-padres-trail header .entry-meta {
+  background: url('images/icon_padres-trail.png') left bottom no-repeat;
+}
+.home .hentry.type-400-in-94 header .entry-meta {
+  background: url('images/icon_400-in-94.png') left bottom no-repeat;
+}
+.home .hentry.type-avenging-jack-murphy header .entry-meta {
+  background: url('images/icon_avenging-jack-murphy.png') left bottom no-repeat;
+}
+.home .hentry.type-woe-doctor header .entry-meta {
+  background: url('images/icon_woe-doctor.png') left bottom no-repeat;
+}
+.home .hentry.type-padres-prospects header .entry-meta {
+  background: url('images/icon_padres-prospects.png') left bottom no-repeat;
+}
+.home .hentry.type-ghost-of-ray-kroc header .entry-meta {
+  background: url('images/icon_ghost-of-ray-kroc.png') left bottom no-repeat;
+}
+.home .hentry.type-vocal-minority header .entry-meta {
+  background: url('images/icon_vocal-minority.png') left bottom no-repeat;
+}
+.home .hentry.type-son-of-a-duck header .entry-meta {
+  background: url('images/icon_son-of-a-duck.png') left bottom no-repeat;
+}
+.home .hentry.type-padres-and-pints header .entry-meta {
+  background: url('images/icon_padres-and-pints.png') left bottom no-repeat;
+}
+.home .hentry.type-post header .entry-meta {
+  background: url('images/logo.png') left bottom no-repeat;
+}
+.hentry {
+  margin: 0 0 1px;
+}
+.entry-content, .entry-summary {
+  margin: 15px 0 0;
+}
+.page-links {
+  clear: both;
+  margin: 0 0 15px;
+}
+.comment-instructions {
+  padding: 0 20px;
+  font-size: 13px;
+  font-style: italic;
+}
+#disqus_thread {
+  padding: 0 20px;
+  background: #fff;
+  /* archive pages */
+}
+.post-type-archive {
+  /* prospect updates page */
+}
+.post-type-archive #content .page-header {
+  padding: 0;
+}
+.post-type-archive .page-title {
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  margin-bottom: 0;
+  height: 0;
+}
+.page-id-3258 {
+  /* =Footer
+-----------------------------------------------*/
+}
+.page-id-3258 td {
+  font-size: 13px;
+}
+footer.site-footer {
+  background: #fff;
+  font-size: 12px;
+  width: 745px;
+  font-style: italic;
+  position: relative;
+  /* for bluepper image */
+  /* =Asides
+----------------------------------------------- */
+}
+footer.site-footer .footer-inner {
+  padding: 10px 20px;
+  height: auto;
+  overflow: hidden;
+}
+footer.site-footer .click {
+  float: right;
+}
+footer.site-footer a {
+  float: left;
+}
+.blog .format-aside .entry-title, .archive .format-aside .entry-title {
+  display: none;
+  /* =Media
+----------------------------------------------- */
+}
+.site-header img, .entry-content img, .comment-content img, .widget img {
+  /* Fluid images for posts, comments, and widgets */
+  max-width: 100%;
+}
+.site-header img, .entry-content img, img[class*="align"], img[class*="wp-image-"] {
+  /* Make sure images with WordPress-added height and width attributes are scaled correctly */
+  height: auto;
+}
+.site-header img, .entry-content img, img.size-full {
+  max-width: 100%;
+  /* Prevent stretching of full-size images with height and width attributes in IE8 */
+  width: auto;
+}
+.entry-content img.wp-smiley, .comment-content img.wp-smiley {
+  border: none;
+  margin-bottom: 0;
+  margin-top: 0;
+  padding: 0;
+}
+.wp-caption {
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+  max-width: 100%;
+}
+.wp-caption img[class*="wp-image-"] {
+  display: block;
+  margin: 1.2% auto 0;
+  max-width: 98%;
+}
+.wp-caption-text {
+  text-align: center;
+  font-size: 12px;
+}
+.wp-caption .wp-caption-text {
+  margin: 10px 0;
+}
+.site-content .gallery {
+  margin-bottom: 15px;
+}
+.alignleft {
+  float: left;
+  margin: 0 20px 5px 0;
+}
+.alignright {
+  float: right;
+  margin: 0 0 5px 20px;
+}
+.aligncenter {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.site-content .gallery a img {
+  border: none;
+  height: auto;
+  max-width: 90%;
+}
+.site-content .gallery dd {
+  margin: 0;
+}
+.site-content .gallery-columns-4 .gallery-item img {
+  /* Make sure embeds and iframes fit their containers */
+}
+embed, iframe, object {
+  max-width: 100%;
+  /* =Navigation
+----------------------------------------------- */
+}
+.site-navigation {
+  padding: 20px;
+}
+.site-content .site-navigation {
+  margin: 0px;
+  overflow: hidden;
+}
+.site-content .nav-previous {
+  float: left;
+  width: 50%;
+}
+.site-content .nav-next {
+  float: right;
+  text-align: right;
+  width: 50%;
+  /***
+ *     ######  #### ##    ##  ######   ##       ########    ########     ###     ######   ########
+ *    ##    ##  ##  ###   ## ##    ##  ##       ##          ##     ##   ## ##   ##    ##  ##
+ *    ##        ##  ####  ## ##        ##       ##          ##     ##  ##   ##  ##        ##
+ *     ######   ##  ## ## ## ##   #### ##       ######      ########  ##     ## ##   #### ######
+ *          ##  ##  ##  #### ##    ##  ##       ##          ##        ######### ##    ##  ##
+ *    ##    ##  ##  ##   ### ##    ##  ##       ##          ##        ##     ## ##    ##  ##
+ *     ######  #### ##    ##  ######   ######## ########    ##        ##     ##  ######   ########
+ */
+}
+.page-template-page-wider-content-php #primary .entry-header {
+  width: 100%;
+}
+.page-template-page-wider-content-php #primary .entry-content {
+  width: 100%;
+}
+.page-template-page-wider-content-php #primary .entry-content {
+  margin-bottom: 0;
+}
+.page-template-page-wider-content-php .page-footer {
+  font-style: italic;
+  padding: 10px;
+  font-size: 11px;
+  font-size: 14px;
+}
+body.attachment {
+  /* easter eggs and shit */
+}
+body.attachment footer {
+  float: right;
+  width: 215px;
+}
+.box {
+  display: none;
+  position: absolute;
+  bottom: 100px;
+  right: 102px;
+  width: 450px;
+  height: 573px;
+  background: url('images/bluepper.png') no-repeat;
+}
+.click {
+  background: url('images/logo_small.png') no-repeat;
+  width: 14px;
+  height: 18px;
+  cursor: pointer;
+}
+.block {
+  display: block;
+}
+.chickenschtick {
+  display: block;
+  width: 20px;
+  height: 25px;
+  position: absolute;
+  top: 103px;
+  left: 31px;
+  /* animationS */
+  /*
+==============================================
+bigEntrance
+==============================================
+*/
+}
+.bigEntrance {
+  animation-name: bigEntrance;
+  -webkit-animation-name: bigEntrance;
+  animation-duration: 1.6s;
+  -webkit-animation-duration: 1.6s;
+  animation-timing-function: ease-out;
+  -webkit-animation-timing-function: ease-out;
+  visibility: visible !important;
+}
+@keyframes bigEntrance {
+  0% {
+    transform: scale(0.3) rotate(6deg) translateX(-30%) translateY(30%);
+    opacity: 0.2;
+  }
+  30% {
+    transform: scale(1.03) rotate(-2deg) translateX(2%) translateY(-2%);
+    opacity: 1;
+  }
+  45% {
+    transform: scale(0.98) rotate(1deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1.01) rotate(-1deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(0.99) rotate(1deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  90% {
+    transform: scale(1.01) rotate(0deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+}
+@-webkit-keyframes bigEntrance {
+  /*
+==============================================
+tossing
+==============================================
+*/
+  0% {
+    -webkit-transform: scale(0.3) rotate(6deg) translateX(-30%) translateY(30%);
+    opacity: 0.2;
+  }
+  30% {
+    -webkit-transform: scale(1.03) rotate(-2deg) translateX(2%) translateY(-2%);
+    opacity: 1;
+  }
+  45% {
+    -webkit-transform: scale(0.98) rotate(1deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  60% {
+    -webkit-transform: scale(1.01) rotate(-1deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  75% {
+    -webkit-transform: scale(0.99) rotate(1deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  90% {
+    -webkit-transform: scale(1.01) rotate(0deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: scale(1) rotate(0deg) translateX(0%) translateY(0%);
+    opacity: 1;
+  }
+}
+.tossing {
+  animation-name: tossing;
+  -webkit-animation-name: tossing;
+  animation-duration: 2.5s;
+  -webkit-animation-duration: 2.5s;
+  animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+}
+@keyframes tossing {
+  0% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+  100% {
+    transform: rotate(-4deg);
+  }
+}
+@-webkit-keyframes tossing {
+  /***
+ *    ##     ##  #######  ########  #### ##       ########
+ *    ###   ### ##     ## ##     ##  ##  ##       ##
+ *    #### #### ##     ## ##     ##  ##  ##       ##
+ *    ## ### ## ##     ## ########   ##  ##       ######
+ *    ##     ## ##     ## ##     ##  ##  ##       ##
+ *    ##     ## ##     ## ##     ##  ##  ##       ##
+ *    ##     ##  #######  ########  #### ######## ########
+ */
+  /* =Responsination!
+----------------------------------------------- */
+  0% {
+    -webkit-transform: rotate(-4deg);
+  }
+  50% {
+    -webkit-transform: rotate(4deg);
+  }
+  100% {
+    -webkit-transform: rotate(-4deg);
+  }
+}
+@media only screen and (max-width: 1005px) {
+  #page {
+    width: 98%;
+    background: #fff;
+  }
+  #primary, #banner, #primary .all-meta, #primary .hentry .entry-header, #primary footer.entry-meta, #primary .entry-content {
+    width: 100%;
+  }
+  #masthead {
+    border-bottom: 1px solid #e2dbc9;
+  }
+  #secondary {
+    width: 100%;
+    float: left;
+  }
+  #secondary .blog-card {
+    width: 31%;
+    float: left;
+    height: 65px;
+    border-right: 1px solid #e2dbc9;
+    border-bottom: 1px solid #e2dbc9;
+  }
+  #secondary .blog-card.ghost-of-ray-kroc h3, #secondary .blog-card.padres-prospects h3 {
+    width: 135px;
+    line-height: 27px;
+  }
+  .home #primary header .entry-meta {
+    background-position: left top;
+    padding: 0 0 35px 85px;
+    margin-bottom: 0;
+    width: 100%;
+  }
+  #content .entry-content {
+    margin-bottom: 10px;
+  }
+  footer.site-footer {
+    width: 100%;
+    /* account for border-left again */
+    padding-left: 0;
+    padding-right: 0;
+  }
+  footer.site-footer a {
+    margin-left: 20px;
+  }
+  footer.site-footer .click {
+    margin-right: 20px;
+  }
+  footer.site-footer img.jerry {
+    width: 100%;
+    height: auto;
+  }
+  #yb-toolbar, #text-3, #text-5, #text-4 {
+    display: none;
+  }
+}
+@media only screen and (max-width: 820px) {
+  #masthead .site-navigation {
+    padding: 20px;
+    float: left;
+  }
+  #masthead .main-small-navigation {
+    font-family: bree, "Rockwell Extra Bold", "Rockwell Bold", monospace;
+  }
+  #masthead .main-small-navigation .menu-toggle {
+    font-size: 62px;
+    margin-bottom: 10px;
+  }
+  #masthead .main-small-navigation li {
+    list-style-type: none;
+    font-size: 28px;
+    margin: 10px 0 10px;
+  }
+}
+@media only screen and (max-width: 730px) {
+  .blog-card img {
+    display: none;
+  }
+  .home #banner {
+    background-position: 26%, center;
+  }
+  .main-navigation a {
+    padding: 0 27px;
+  }
+  .post-type-archive #banner, .single #banner {
+    background-position: 20% center;
+  }
+  .click, .box {
+    display: none;
+    /* don't load images on mobile */
+  }
+}
+@media only screen and (max-width: 600px) {
+  #primary .entry-content {
+    float: left;
+  }
+  #secondary {
+    display: none;
+  }
+  #banner {
+    background-color: #fff;
+  }
+}

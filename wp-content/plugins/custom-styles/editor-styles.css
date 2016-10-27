@@ -1,0 +1,17 @@
+blockquote.pullquote {	
+	margin: 20px;
+	padding: 20px 12px 20px 20px;
+	max-width: 235px;
+	border: none;
+	font-size: 20px;
+	line-height:26px;
+	font-weight: bold;
+	text-align: left;
+	float: right;
+	overflow: hidden;
+	background:#eee;
+	border-left:5px solid #ddd;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;   
+	box-sizing: border-box;  
+}
