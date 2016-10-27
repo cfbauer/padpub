@@ -3,6 +3,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 global $webdados_fb;
+
 ?>
 <div class="menu_containt_div" id="tabs-1">
 	<p><?php _e( 'General settings that will apply to all tags types.', 'wd-fb-og' ); ?></p>
@@ -21,6 +22,11 @@ global $webdados_fb;
 					<tr>
 						<td colspan="2" class="info">
 							- <?php _e( '0 (zero) or blank for no maximum length', 'wd-fb-og' );?>
+							<?php if ( $webdados_fb->is_yoast_seo_active() ) { ?>
+								<div class="fb_wpseoyoast_options">
+									- <?php _e( 'Because Yoast SEO integration is active, this value may be overwritten', 'wd-fb-og' );?>
+								</div>
+							<?php } ?>
 						</td>
 					</tr>
 					
@@ -29,7 +35,7 @@ global $webdados_fb;
 						<td>
 							<?php
 							$hide_home_description=false;
-							if (get_option( 'show_on_front' )=='page' ) {
+							if ( get_option( 'show_on_front' )=='page' ) {
 								$hide_home_description=true;
 								_e( 'The description of your front page:', 'wd-fb-og' );
 								echo ' <a href="'.get_edit_post_link(get_option( 'page_on_front' )).'" target="_blank">'.get_the_title(get_option( 'page_on_front' )).'</a>';
@@ -39,23 +45,58 @@ global $webdados_fb;
 									<option value=""<?php if (trim($options['fb_desc_homepage'])=='' ) echo ' selected="selected"'; ?>><?php _e( 'Website tagline', 'wd-fb-og' );?>&nbsp;</option>
 									<option value="custom"<?php if (trim($options['fb_desc_homepage'])=='custom' ) echo ' selected="selected"'; ?>><?php _e( 'Custom text', 'wd-fb-og' );?>&nbsp;</option>
 								</select>
-								<div id="fb_desc_homepage_customtext_div">
+								<div class="fb_desc_homepage_customtext_div">
 									<textarea name="wonderm00n_open_graph_settings[fb_desc_homepage_customtext]" id="fb_desc_homepage_customtext" rows="3" cols="50"><?php echo trim(esc_attr($options['fb_desc_homepage_customtext'])); ?></textarea>
-									<?php
-									if ( $webdados_fb->is_wpml_active() ) {
-										echo '<div class="info">- ';
-										printf(
-											__( 'WPML users: Set the default language description here, save changes and then go to <a href="%s" target="_blank">WPML &gt; String translation</a> to set it for other languages.', 'wd-fb-og' ),
-											'admin.php?page=wpml-string-translation/menu/string-translation.php&amp;context=wd-fb-og'
-										);
-										echo '</div>';											}
-									?>
 								</div>
 							</div>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" class="info">
+							<?php if ( $webdados_fb->is_yoast_seo_active() ) { ?>
+								<div class="fb_wpseoyoast_options">
+									- <?php _e( 'Because Yoast SEO integration is active, this value may be overwritten', 'wd-fb-og' );?>
+								</div>
+							<?php } ?>
+							<?php if ( $webdados_fb->is_wpml_active() ) { ?>
+								<div class="fb_desc_homepage_customtext_div">- 
+								<?php printf(
+									__( 'WPML users: Set the main language homepage description here, save changes and then go to <a href="%s" target="_blank">WPML &gt; String translation</a> to set it for other languages.', 'wd-fb-og' ),
+									'admin.php?page=wpml-string-translation/menu/string-translation.php&amp;context=wd-fb-og'
+								); ?>
+								</div>
+							<?php } ?>
+						</td>
+					</tr>
+					
+					<tr>
+						<th><?php _e( 'Default description', 'wd-fb-og' ); ?>:</th>
+						<td>
+							<select name="wonderm00n_open_graph_settings[fb_desc_default_option]" id="fb_desc_default_option">
+								<option value=""<?php if (trim($options['fb_desc_default_option'])=='' ) echo ' selected="selected"'; ?>><?php _e( 'Homepage description', 'wd-fb-og' );?>&nbsp;</option>
+								<option value="custom"<?php if (trim($options['fb_desc_default_option'])=='custom' ) echo ' selected="selected"'; ?>><?php _e( 'Custom text', 'wd-fb-og' );?>&nbsp;</option>
+							</select>
+							<div class="fb_desc_default_customtext_div">
+								<textarea name="wonderm00n_open_graph_settings[fb_desc_default]" id="fb_desc_default" rows="3" cols="50"><?php echo trim(esc_attr($options['fb_desc_default'])); ?></textarea>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" class="info">
+							- <?php _e( 'The default description to be used on any post / page / cpt / archive / search / ... that has a blank description', 'wd-fb-og' ); ?>
+							<?php if ( $webdados_fb->is_yoast_seo_active() ) { ?>
+								<div class="fb_wpseoyoast_options">
+									- <?php _e( 'Because Yoast SEO integration is active, this value may be overwritten', 'wd-fb-og' );?>
+								</div>
+							<?php } ?>
+							<?php if ( $webdados_fb->is_wpml_active() ) { ?>
+								<div class="fb_desc_default_customtext_div">- 
+								<?php printf(
+									__( 'WPML users: Set the main language default description here, save changes and then go to <a href="%s" target="_blank">WPML &gt; String translation</a> to set it for other languages.', 'wd-fb-og' ),
+									'admin.php?page=wpml-string-translation/menu/string-translation.php&amp;context=wd-fb-og'
+								); ?>
+								</div>
+							<?php } ?>
 						</td>
 					</tr>
 

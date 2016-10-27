@@ -26,14 +26,17 @@ class Webdados_FB_Admin {
 	/* Register settings and sanitization */
 	public function options_init() {
 		register_setting( 'wonderm00n_open_graph_settings', 'wonderm00n_open_graph_settings', array( $this, 'validate_options' ) );
-		// show option to disable sharing on particular page/post
-		//$post_types = get_post_types( array( 'public' => true ), 'names', 'and' );
-		//$post_types = array_unique( array_merge( $post_types, array( 'post', 'page' ) ) );
-		//foreach ( $post_types as $type ) {
-		//	add_meta_box( 'heateor_ogmt_meta', 'Open Graph Meta Tags', array( $this, 'custom_meta_setup' ), $type );
-		//}
-		// save sharing meta on post/page save
-		//add_action( 'save_post', array( $this, 'save_custom_meta' ) );
+	}
+
+	/* WPML - Options translation */
+	public function options_wpml($oldvalue, $newvalue, $option) {
+		global $webdados_fb;
+		if ( $webdados_fb->is_wpml_active() ) {
+			// Homepage description
+			icl_register_string( 'wd-fb-og', 'wd_fb_og_desc_homepage_customtext', trim($newvalue['fb_desc_homepage_customtext']) );
+			// Default description
+			icl_register_string( 'wd-fb-og', 'wd_fb_og_fb_desc_default', trim($newvalue['fb_desc_default']) );
+		}
 	}
 
 	/* Settings link on the plugins page */
@@ -226,8 +229,6 @@ class Webdados_FB_Admin {
 
 	/* Options page */
 	public function options_page() {
-		// message on saving options
-		//echo $this->settings_saved_notification();
 		$options = $this->options;
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/options-page.php';
 	}
@@ -267,7 +268,6 @@ class Webdados_FB_Admin {
 				}
 			}
 		}
-		//var_dump($options);
 		return $options;
 	}
 

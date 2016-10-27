@@ -30,7 +30,6 @@ class Webdados_FB_Public {
 
 	/* Insert the tags on the header */
 	function get_post( $post ) {
-		global $webdados_fb;
 		if ( is_singular() ) {
 			$this->post = $post;
 		}
@@ -41,7 +40,7 @@ class Webdados_FB_Public {
 
 	/* Insert the tags on the header */
 	public function insert_meta_tags() {
-		global $webdados_fb;
+		global $webdados_fb, $wp_query;
 
 		//Also set Title Tag? - Needed??
 		$fb_set_title_tag=0;
@@ -67,6 +66,23 @@ class Webdados_FB_Public {
 		$fb_publisher = trim($this->options['fb_publisher']);
 		$fb_publisher_schema = trim($this->options['fb_publisher_schema']);
 		$fb_publisher_twitteruser = trim($this->options['fb_publisher_twitteruser']);
+
+		//Homepage Description
+		switch( $this->options['fb_desc_homepage'] ) {
+			case 'custom':
+				$fb_desc_homepage = $this->options['fb_desc_homepage_customtext'];
+				//WPML?
+				if ( $webdados_fb->is_wpml_active() ) {
+					global $sitepress;
+					if ( ICL_LANGUAGE_CODE != $sitepress->get_default_language() ) {
+						$fb_desc_homepage = icl_t( 'wd-fb-og', 'wd_fb_og_desc_homepage_customtext', $fb_desc_homepage );
+					}
+				}
+				break;
+			default:
+				$fb_desc_homepage = get_bloginfo( 'description' );
+				break;
+		}
 
 		//Open tag
 		$html='
@@ -211,7 +227,6 @@ class Webdados_FB_Public {
 
 		} else {
 
-			global $wp_query;
 			//Other pages - Defaults
 			$fb_title = esc_attr( wp_strip_all_tags( stripslashes( get_bloginfo( 'name' ) ), true ) );
 			$fb_url = ( ( !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ) ? 'https://' : 'http://' ).$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];  //Not really canonical but will work for now
@@ -224,23 +239,6 @@ class Webdados_FB_Public {
 			$this->options['fb_author_show_linkrelgp'] = 0;
 			$this->options['fb_author_show_twitter'] = 0;
 			$this->options['fb_author_show_twitter'] = 0;
-
-			//Description
-			switch( $this->options['fb_desc_homepage'] ) {
-				case 'custom':
-					$fb_desc = $this->options['fb_desc_homepage_customtext'];
-					//WPML?
-					if ( $webdados_fb->is_wpml_active() ) {
-						global $sitepress;
-						if ( ICL_LANGUAGE_CODE != $sitepress->get_default_language() ) {
-							$fb_desc = icl_t( 'wd-fb-og', 'wd_fb_og_desc_homepage_customtext', $fb_desc );
-						}
-					}
-					break;
-				default:
-					$fb_desc = get_bloginfo( 'description' );
-					break;
-			}
 
 			//Category
 			if ( is_category() ) {
@@ -301,6 +299,7 @@ class Webdados_FB_Public {
 									if (is_front_page()) {
 										$fb_url = get_option('home').(intval($this->options['fb_url_add_trailing'])==1 ? '/' : '');
 										$fb_type = trim( $this->options['fb_type_homepage']=='' ? 'website' : $this->options['fb_type_homepage'] );
+										$fb_desc = $fb_desc_homepage;
 									} else {
 										//Others... Defaults already set up there
 									}
@@ -321,8 +320,30 @@ class Webdados_FB_Public {
 			}
 		}
 
+
+
+		//Default description, if empty until now
+		if ( trim($fb_desc)=='' ) {
+			switch( $this->options['fb_desc_default_option'] ) {
+				case 'custom':
+					$fb_desc = $this->options['fb_desc_default'];
+					//WPML?
+					if ( $webdados_fb->is_wpml_active() ) {
+						global $sitepress;
+						if ( ICL_LANGUAGE_CODE != $sitepress->get_default_language() ) {
+							$fb_desc = icl_t( 'wd-fb-og', 'wd_fb_og_fb_desc_default', $fb_desc );
+						}
+					}
+					break;
+				default:
+					$fb_desc = $fb_desc_homepage;
+					break;
+			}
+		}
+
 		//Trim description
-		$fb_desc = (
+		$fb_desc = trim( str_replace('&nbsp;', ' ', $fb_desc) ); //Non-breaking spaces are usefull on a meta description. We'll just convert them to normal spaces to really trim it
+		$fb_desc = trim(
 					intval($this->options['fb_desc_chars'])>0
 					?
 					mb_substr( wp_strip_all_tags( strip_shortcodes( stripslashes( $fb_desc ), true ) ), 0, intval($this->options['fb_desc_chars']) )
@@ -335,9 +356,10 @@ class Webdados_FB_Public {
 			if ( $webdados_fb->is_yoast_seo_active() ) {
 				$wpseo = WPSEO_Frontend::get_instance();
 				//Title
-				$fb_title = wp_strip_all_tags( $wpseo->title(false), true );
+				$fb_title_temp = $wpseo->title(false);
+				$fb_title = wp_strip_all_tags( trim($fb_title_temp)!='' ? trim($fb_title_temp) : $fb_title, true);
 				//Title - SubHeading plugin
-				if ( $this->options['fb_show_subheading']==1 ) {
+				if ( $fb_title_temp!='' && $this->options['fb_show_subheading']==1 ) {
 					if ( $webdados_fb->is_subheading_plugin_active() ) {
 						if ( isset($this->options['fb_subheading_position']) && $this->options['fb_subheading_position']=='before' ) {
 							$fb_title = trim( trim( get_the_subheading() ).' - '.trim($fb_title), ' -');
@@ -347,10 +369,63 @@ class Webdados_FB_Public {
 					}
 				}
 				//URL
-				$fb_url = $wpseo->canonical(false);
-				//Description - From WPSEO or our plugin? If coming from Yoat SEO we won't trim it
+				$fb_url_temp = $wpseo->canonical(false);
+				$fb_url = wp_strip_all_tags( trim($fb_url_temp)!='' ? trim($fb_url_temp) : $fb_url, true);
+				//Description
 				$fb_desc_temp = $wpseo->metadesc(false);
 				$fb_desc = wp_strip_all_tags( trim($fb_desc_temp)!='' ? trim($fb_desc_temp) : $fb_desc, true);
+			}
+		}
+
+		//All in One SEO Pack?
+		if ( $this->options['fb_show_aioseop']==1 ) {
+			if ( $webdados_fb->is_aioseop_active() ) {
+				global $aiosp;
+				//Title - Why are we getting the first post title on archives and homepage...?!?
+				$fb_title_temp = $aiosp->orig_title;
+				$fb_title = wp_strip_all_tags( trim($fb_title_temp)!='' ? trim($fb_title_temp) : $fb_title, true);
+				//Title - SubHeading plugin
+				if ( $fb_title_temp!='' && $this->options['fb_show_subheading']==1 ) {
+					if ( $webdados_fb->is_subheading_plugin_active() ) {
+						if ( isset($this->options['fb_subheading_position']) && $this->options['fb_subheading_position']=='before' ) {
+							$fb_title = trim( trim( get_the_subheading() ).' - '.trim($fb_title), ' -');
+						} else {
+							$fb_title = trim( trim( $fb_title ).' - '.trim( get_the_subheading() ), ' -');
+						}
+					}
+				}
+				//URL - See aioseop_class.php 3898 - We have a problem because wp_query is not the same right now
+				/*$fb_url_temp = '';
+				$aioseop_options = get_option( 'aioseop_options' );
+				$opts = $aiosp->meta_opts;
+				var_dump($wp_query);
+				$show_page = true;
+				if ( ! empty( $aioseop_options['aiosp_no_paged_canonical_links'] ) ) {
+					$show_page = false;
+				}
+				if ( $aioseop_options['aiosp_can'] ) {
+					if ( ! empty( $aioseop_options['aiosp_customize_canonical_links'] ) && ! empty( $opts['aiosp_custom_link'] ) ) {
+						$fb_url_temp = $opts['aiosp_custom_link'];
+					}
+					if ( empty( $url ) ) {
+						$fb_url_temp = $aiosp->aiosp_mrt_get_url( $wp_query, $show_page );
+					}
+		
+					$fb_url_temp = $aiosp->validate_url_scheme( $fb_url_temp );
+		
+					$fb_url_temp = apply_filters( 'aioseop_canonical_url', $fb_url_temp );
+				}
+				var_dump($fb_url_temp);
+				$fb_url = wp_strip_all_tags( trim($fb_url_temp)!='' ? trim($fb_url_temp) : $fb_url, true);*/
+				//Description - Why are we getting the first post description on archives and homepage...?!?
+				if ( is_home() && ! is_front_page() ) {
+					$post = aiosp_common::get_blog_page();
+				} else {
+					$post = $aiosp->get_queried_object();
+				}
+				$fb_desc_temp = apply_filters( 'aioseop_description', $aiosp->get_main_description( $post ) );
+				$fb_desc = wp_strip_all_tags( trim($fb_desc_temp)!='' ? trim($fb_desc_temp) : $fb_desc, true);
+
 			}
 		}
 
@@ -413,7 +488,7 @@ class Webdados_FB_Public {
 			}
 		}
 		
-		//If there's no description let's just add the title as a last resort
+		//If there's still no description let's just add the title as a last resort
 		if ( trim($fb_desc)=='' ) $fb_desc = $fb_title;
 
 		//Print tags

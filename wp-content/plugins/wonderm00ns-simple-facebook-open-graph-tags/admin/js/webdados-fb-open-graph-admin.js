@@ -40,6 +40,7 @@
 
 		//General
 		showDescriptionCustomText(false);
+		showDescriptionDefaultCustomText(false);
 		showImageOverlayOptions();
 		showUrlTrail();
 		//OG
@@ -56,12 +57,13 @@
 		showTypeSchemaOptions();
 		showPublisherSchemaOptions();
 		//3rd Party
+		showYoastSEOOptions();
 		showSubheadingOptions();
 
 		//Functions
 		function showDescriptionCustomText(focus) {
 			if ($('#fb_desc_homepage').val()=='custom') {
-				$('#fb_desc_homepage_customtext_div').show();
+				$('.fb_desc_homepage_customtext_div').show();
 				$('#fb_desc_homepage_customtext').val( $.trim($('#fb_desc_homepage_customtext').val()) );
 				if ( $('#fb_desc_homepage_customtext').val()=='' ) {
 					$('#fb_desc_homepage_customtext').addClass('error');
@@ -70,11 +72,29 @@
 				}
 				if (focus) $('#fb_desc_homepage_customtext').focus();
 			} else {
-				$('#fb_desc_homepage_customtext_div').hide();
+				$('.fb_desc_homepage_customtext_div').hide();
 			}
 		}
 		$('#fb_desc_homepage').on('change', function() {
 			showDescriptionCustomText(true);
+		});
+
+		function showDescriptionDefaultCustomText(focus) {
+			if ($('#fb_desc_default_option').val()=='custom') {
+				$('.fb_desc_default_customtext_div').show();
+				$('#fb_desc_default').val( $.trim($('#fb_desc_default').val()) );
+				if ( $('#fb_desc_default_option').val()=='' ) {
+					$('#fb_desc_default').addClass('error');
+				} else {
+					$('#fb_desc_default').removeClass('error');
+				}
+				if (focus) $('#fb_desc_default').focus();
+			} else {
+				$('.fb_desc_default_customtext_div').hide();
+			}
+		}
+		$('#fb_desc_default_option').on('change', function() {
+			showDescriptionDefaultCustomText(true);
 		});
 
 		function showImageOverlayOptions() {
@@ -245,6 +265,16 @@
 			showPublisherSchemaOptions();
 		});
 
+		function showYoastSEOOptions() {
+			if ($('#fb_show_wpseoyoast').is(':checked')) {
+				$('.fb_wpseoyoast_options').show();
+			} else {
+				$('.fb_wpseoyoast_options').hide();
+			}
+		}
+		$('#fb_show_wpseoyoast').on('click', function() {
+			showYoastSEOOptions();
+		});
 
 		function showSubheadingOptions() {
 			if ($('#fb_show_subheading').is(':checked')) {

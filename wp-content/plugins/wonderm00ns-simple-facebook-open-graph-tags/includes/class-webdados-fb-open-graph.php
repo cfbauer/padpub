@@ -21,7 +21,6 @@ class Webdados_FB {
 		//$this->plugin_slug = 'wonderm00ns-simple-facebook-open-graph-tags';
 		$this->version = $version;
 		$this->options = $this->load_options();
-		//var_dump($this->options);
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->call_global_hooks();
@@ -72,6 +71,7 @@ class Webdados_FB {
 			//...
 			//3rd party
 			'fb_show_wpseoyoast' => 1,
+			'fb_show_aioseop' => 0,
 			'fb_wc_useproductgallery' => 1,
 			'fb_subheading_position' => 'after',
 		);
@@ -119,6 +119,8 @@ class Webdados_FB {
 			'fb_desc_chars'						=>	'intval',
 			'fb_desc_homepage'					=>	'trim',
 			'fb_desc_homepage_customtext'		=>	'trim',
+			'fb_desc_default_option'			=>	'trim',
+			'fb_desc_default'					=>	'trim',
 			'fb_image_show'						=>	'intval',
 			'fb_image_size_show'				=>	'intval',
 			'fb_image_show_schema'				=>	'intval',
@@ -132,6 +134,7 @@ class Webdados_FB {
 			'fb_image_use_default'				=>	'intval',
 			'fb_image_min_size'					=>	'intval',
 			'fb_show_wpseoyoast'				=>	'intval',
+			'fb_show_aioseop'					=>	'intval',
 			'fb_show_subheading'				=>	'intval',
 			'fb_subheading_position'			=>	'trim',
 			'fb_show_businessdirectoryplugin'	=>	'intval',
@@ -205,19 +208,13 @@ class Webdados_FB {
 		$plugin_admin = new Webdados_FB_Admin( $this->options, $this->version );
 		// Menu
 		add_action( 'admin_menu', array( $plugin_admin, 'create_admin_menu' ) );
-		// set sanitization callback for plugin options - ???
+		// Register settings
 		add_action( 'admin_init', array( $plugin_admin, 'options_init' ) );
-		// check if BuddyPress is active - This should be global, no?
-		add_action( 'bp_include', array( $plugin_admin, 'is_bp_loaded' ) );
-		// add a "Settings" link to the Plugins page
+		// WPML - Translate options
+		add_action( 'update_option_wonderm00n_open_graph_settings', array( $plugin_admin, 'options_wpml' ), 10, 3 );
+		// Settings link on the Plugins list
 		add_filter( 'plugin_action_links_wonderm00ns-simple-facebook-open-graph-tags/wonderm00n-open-graph.php', array( $plugin_admin, 'place_settings_link' ) );
-		if ( intval( $this->options['fb_adv_notify_fb'] ) == 1 ) {
-			// try to clear Facebook open graph cache 
-			//add_action( 'save_post', array( $plugin_admin, 'clear_facebook_og_cache' ) );
-			// show notification in admin area, if Facebook Open Graph cache gets cleared successfully
-			//add_action( 'admin_notices', array( $plugin_admin, 'fb_og_cache_cleared_notification' ) );
-		}
-		// show custom options at author's profile page
+		// User Facebook, Google+ and Twitter profiles
 		add_action( 'user_contactmethods', array( $plugin_admin, 'user_contactmethods' ) );
 		// Add metabox to posts
 		add_action( 'add_meta_boxes', array( $plugin_admin, 'add_meta_boxes' ) );
@@ -293,6 +290,15 @@ class Webdados_FB {
 		}
 		return false;
 	}
+
+	/* 3rd Party - All in One SEO Pack */
+	public function is_aioseop_active() {
+		if ( defined( 'AIOSEOP_VERSION' ) ) {
+			return true;
+		}
+		return false;
+	}
+
 	/* 3rd Party - WooCommerce */
 	public function is_woocommerce_active() {
 		return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) );
