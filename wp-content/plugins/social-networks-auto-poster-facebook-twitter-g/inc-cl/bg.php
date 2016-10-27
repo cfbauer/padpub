@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts Blogger  Connection Class
-$nxs_snapAvNts[] = array('code'=>'BG', 'lcode'=>'bg', 'name'=>'Blogger');
+$nxs_snapAvNts[] = array('code'=>'BG', 'lcode'=>'bg', 'name'=>'Blogger', 'type'=>'Blogs/Publishing Platforms');
 
 if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = array('code'=>'BG', 'lcode'=>'bg', 'name'=>'Blogger', 'defNName'=>'ulName', 'tstReq' => true);
   //#### Show Common Settings  
@@ -14,7 +14,7 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
       $nto = $ntOpts[$ii]; $wprg = array();  $wprg['sslverify'] = false;
       if (isset($nto['APIKey'])){ echo "-="; prr($nto);// die();
         $tknURL = 'https://www.googleapis.com/oauth2/v3/token?code='.$at.'&redirect_uri='.urlencode($nxs_snapSetPgURL).'&scope=&client_id='.$nto['APIKey'].'&client_secret='.$nto['APISec'].'&grant_type=authorization_code';
-        $response  = wp_remote_post($tknURL, $wprg); prr($tknURL);      
+        $response  = nxs_remote_post($tknURL, $wprg); prr($tknURL);      
         if((is_object($response)&&(isset($response->errors)))){ prr($response); die(); }
         if (is_array($response)&& stripos($response['body'],'"error":')!==false){ prr($response['body']); prr(json_decode($response['body'],true)); die(); }
         $resp = json_decode($response['body'], true); prr($resp); if (!is_array($resp) || empty($resp['access_token'])) { prr($resp); die(); }
@@ -27,7 +27,7 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
             else $tknURL = 'https://www.googleapis.com/blogger/v3/blogs/'.$nto['bgBlogID'].'?access_token='.$nto['AccessToken']; 
         }
         
-        $response  = wp_remote_get($tknURL, $wprg); prr($tknURL); prr($response);  $user = json_decode($response['body'], true); prr($user);
+        $response  = nxs_remote_get($tknURL, $wprg); prr($tknURL); prr($response);  $user = json_decode($response['body'], true); prr($user);
        
         if (!empty($user['url'])) { $nto['blogURL'] = $user['url']; $nto['bgBlogID'] = $user['id']; $nto['blogInfo'] = $user['name']." [".$user['id']."] (".$user['url'].")"; nxs_save_glbNtwrks($ntInfo['lcode'],$ii,$nto,'*');            
           //if (function_exists('get_option')) $nxs_gOptions = get_option('NS_SNAutoPoster'); if(!empty($nxs_gOptions)) { $nxs_gOptions['bg'][$ii] = $nto; prr($nto); nxs_settings_save($nxs_gOptions); }
@@ -201,35 +201,35 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
       <?php  if ($post->post_status != "publish" && (int)$ntOpt['do']>0 && !empty($ntOpt['fltrsOn']) && $ntOpt['fltrsOn']=='1'){ ?>
        <input type="radio" id="rbtn<?php echo $ntU.$ii; ?>" value="2" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" checked="checked" class="nxsGrpDoChb" /> <?php } 
       else { ?>
-         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>" <?php if ($post->post_status == "publish") echo 'disabled="disabled"';?> type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
+         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>"  type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
       <?php }
       if ($post->post_status == "publish") { ?> <input type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" value="<?php echo $ntOpt['do'];?>"> <?php } ?> 
     <?php } ?>
-      <div class="nsx_iconedTitle" style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/bg16.png);">Blogger - <?php _e('publish to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)</div></th> <td style="min-width: 180px; width: 350px;" ><?php //## Only show RePost button if the post is "published"
+      <div class="nsx_iconedTitle" id="ldo<?php echo $ntU.$ii; ?>"  style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/bg16.png);">Blogger - <?php _e('publish to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)&nbsp;<span class="nxs_ldos" id="bldo<?php echo $ntU.$ii; ?>"><?php echo !empty($ntOpt['do'])?'[-]':'[+]'; ?></span></div></th> <td style="min-width: 180px; width: 350px;" ><?php //## Only show RePost button if the post is "published"
                     if ($post->post_status == "publish" && $isAvailBG) { ?><?php $ntName = $this->ntInfo['name']; ?>
                     <input alt="<?php echo $ii; ?>" style="float: right;" onmouseout="hidePopShAtt('SV');" onmouseover="showPopShAtt('SV', event);" onclick="return false;" data-ntname="<?php echo $ntName; ?>" type="button" class="button manualPostBtn" name="<?php echo $nt."-".$post->ID; ?>" value="<?php _e('Post to ', 'social-networks-auto-poster-facebook-twitter-g'); echo $ntName; ?>" />                    
                     <?php } ?>
                     
                     <?php  if (is_array($pMeta) && !empty($pMeta[$ii]) && is_array($pMeta[$ii]) && isset($pMeta[$ii]['pgID']) ) {                         
                         ?> <span id="pstdBG<?php echo $ii; ?>" style="float: right; padding-top: 4px; padding-right: 10px;">
-          <a style="font-size: 10px;" href="<?php echo $pMeta[$ii]['pgID']; ?>" target="_blank"><?php $nType="Blogger"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?><?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(" (".$pMeta[$ii]['pDate'].")"):""; ?></a>
+          <a style="font-size: 10px;" href="<?php echo $pMeta[$ii]['pgID']; ?>" target="_blank"><?php $nType="Blogger"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?><?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(nxs_adjTime($pMeta[$ii]['pDate'])):""; ?></a>
                     </span><?php } ?>                    
                     
                 </td></tr>
-                <?php if (!$isAvailBG) { ?><tr><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;"></th> <td><b><?php _e('Setup your Blogger Account to AutoPost to Blogger', 'social-networks-auto-poster-facebook-twitter-g') ?></b>
+                <?php if (!$isAvailBG) { ?><tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;"></th> <td><b><?php _e('Setup your Blogger Account to AutoPost to Blogger', 'social-networks-auto-poster-facebook-twitter-g') ?></b>
                 <?php }  else { if ($post->post_status != "publish" && function_exists('nxs_doSMAS5') ) { $ntOpt['postTime'] = get_post_time('U', false, $post_id); nxs_doSMAS5($nt, $ii, $ntOpt); } ?>
                 
                 <?php if ($ntOpt['rpstOn']=='1') { ?> 
                 
-                <tr id="altFormat1" style=""><th scope="row" class="nxsTHRow">
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" class="nxsTHRow">
                 <input value="0"  type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][rpstPostIncl]"/><input value="nxsi<?php echo $ii; ?>bg" type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][rpstPostIncl]"  <?php if (!empty($ntOpt['rpstPostIncl'])) echo "checked"; ?> /> 
                 </th>
                 <td> <?php _e('Include in "Auto-Reposting" to this network.', 'social-networks-auto-poster-facebook-twitter-g') ?>                
                 </td></tr> <?php } ?>
                 
-                 <tr id="altFormat1" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Title Format:', 'NS_SPAP') ?></th>
+                 <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Title Format:', 'NS_SPAP') ?></th>
                 <td><input class="nxs_postEditCtrl" value="<?php echo $bgMsgTFormat ?>" type="text" name="bg[<?php echo $ii; ?>][SNAPTformat]" style="width:60%;max-width: 610px;" onfocus="jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apBGTMsgFrmt<?php echo $ii; ?>');" onchange="nxs_svPostStAjax(this)"/><?php nxs_doShowHint("apBGTMsgFrmt".$ii, '', '58'); ?></td></tr>
-                <tr id="altFormat1" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Message Format:', 'NS_SPAP') ?></th>
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Message Format:', 'NS_SPAP') ?></th>
                 <td>
                 <textarea class="nxs_postEditCtrl"  cols="150" rows="1" id="bg<?php echo $ii; ?>SNAPformat" name="bg[<?php echo $ii; ?>][SNAPformat]"  style="width:60%;max-width: 610px;" onfocus="jQuery('#bg<?php echo $ii; ?>SNAPformat').attr('rows', 4); jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apBGMsgFrmt<?php echo $ii; ?>');"><?php echo $bgMsgFormat; ?></textarea>                
                 <?php nxs_doShowHint("apBGMsgFrmt".$ii, '', '58'); ?></td></tr>                
@@ -273,13 +273,13 @@ if (!function_exists("nxs_doPublishToBG")) { //## Second Function to Post to BG
       }
     }         
     
-    if ($postID=='0') { echo "Testing ... <br/><br/>"; $options['bgMsgTFormat'] = 'Test Post from '.htmlentities($blogTitle);  $link = home_url(); $options['bgMsgFormat'] = 'Test Post from '.$blogTitle. ' <a href="'.$link.'">'.$link.'</a>'; }
+    if ($postID=='0') { echo "Testing ... <br/><br/>"; $options['bgMsgTFormat'] = 'Test Post from '.htmlentities($blogTitle); $tags = 'test';  $link = home_url(); $options['bgMsgFormat'] = 'Test Post from '.$blogTitle. ' <a href="'.$link.'">'.$link.'</a>'; }
     else { $post = get_post($postID); if(!$post) return;  $options['bgMsgFormat'] = nsFormatMessage($options['bgMsgFormat'], $postID, $addParams); 
        $options['bgMsgTFormat'] = nsFormatMessage($options['bgMsgTFormat'], $postID, $addParams); nxs_metaMarkAsPosted($postID, $ntCd, $options['ii'], array('isPrePosted'=>'1')); 
     }
     $extInfo = ' | PostID: '.$postID." - ".(isset($post) && is_object($post)?$post->post_title:'');
     //## Actual POST Code
-    if ($options['bgInclTags']=='1'){$t = wp_get_post_tags($postID); $tggs = array(); foreach ($t as $tagA) {$tggs[] = $tagA->name;} $tags = implode('","',$tggs);  $tags = nsTrnc($tags, 195, ',', ''); }
+    if ($options['bgInclTags']=='1'){$t = wp_get_post_tags($postID); $tggs = array(); foreach ($t as $tagA) {$tggs[] = $tagA->name;} $tags = implode('","',$tggs);  $tags = nsTrnc($tags, 195, ',', ''); } else $tags = '';
     if (substr($tags, -1)=='"') $tags = substr($tags, 0, -1); if (substr($tags, -1)==',') $tags = substr($tags, 0, -1); if (substr($tags, -1)=='"') $tags = substr($tags, 0, -1);   
     //## Set Message
     $message = array('title'=>'', 'announce'=>'', 'text'=>'', 'url'=>'', 'surl'=>'', 'urlDescr'=>'', 'urlTitle'=>'', 'imageURL' => array(), 'videoCode'=>'', 'videoURL'=>'', 'siteName'=>$blogTitle, 'tags'=>$tags, 'cats'=>'', 'authorName'=>'');    

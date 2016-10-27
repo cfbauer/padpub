@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts Delicious Connection Class
-$nxs_snapAvNts[] = array('code'=>'DL', 'lcode'=>'dl', 'name'=>'Delicious');
+$nxs_snapAvNts[] = array('code'=>'DL', 'lcode'=>'dl', 'name'=>'Delicious', 'type'=>'Link Sharing/Boormarks');
 
 if (!class_exists("nxs_snapClassDL")) { class nxs_snapClassDL extends nxs_snapClassNT { 
   var $ntInfo = array('code'=>'DL', 'lcode'=>'dl', 'name'=>'Delicious', 'defNName'=>'uName', 'tstReq' => false, 'instrURL'=>'http://www.nextscripts.com/setup-installation-delicious-social-networks-auto-poster-wordpress/');    

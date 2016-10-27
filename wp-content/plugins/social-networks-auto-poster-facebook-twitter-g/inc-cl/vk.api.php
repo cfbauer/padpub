@@ -13,12 +13,12 @@ if (!class_exists("nxs_class_SNAP_VK")) { class nxs_class_SNAP_VK {
     }    
     function nxs_uplImgtoVK($imgURL, $options){
       $postUrl = 'https://api.vk.com/method/photos.getWallUploadServer?gid='.(str_replace('-','',$options['pgIntID'])).'&access_token='.$options['vkAppAuthToken'];
-      $response = wp_remote_get($postUrl); $thumbUploadUrl = $response['body'];    
+      $response = nxs_remote_get($postUrl); $thumbUploadUrl = $response['body'];    
       if (!empty($thumbUploadUrl)) { $thumbUploadUrlObj = json_decode($thumbUploadUrl); $VKuploadUrl = $thumbUploadUrlObj->response->upload_url; }   // prr($thumbUploadUrlObj); echo "UURL=====-----";
       if (!empty($VKuploadUrl)) {    
         // if (stripos($VKuploadUrl, '//pu.vkontakte.ru/c')!==false) { $c = 'c'.CutFromTo($VKuploadUrl, '.ru/c', '/'); $VKuploadUrl = str_ireplace('/pu.','/'.$c.'.',str_ireplace($c.'/','',$VKuploadUrl)); }
-        $remImgURL = urldecode($imgURL); $urlParced = pathinfo($remImgURL); $remImgURLFilename = $urlParced['basename']; $imgData = wp_remote_get($remImgURL); 
-        if(is_wp_error($imgData) || empty($imgData['body']) || (!empty($imgData['headers']['content-length']) && (int)$imgData['headers']['content-length']<200) || 
+        $remImgURL = urldecode($imgURL); $urlParced = pathinfo($remImgURL); $remImgURLFilename = $urlParced['basename']; $imgData = nxs_remote_get($remImgURL); 
+        if(is_nxs_error($imgData) || empty($imgData['body']) || (!empty($imgData['headers']['content-length']) && (int)$imgData['headers']['content-length']<200) || 
           $imgData['headers']['content-type'] == 'text/html' ||  $imgData['response']['code'] == '403' ) { $options['attchImg'] = 0; 
             nxs_addToLogN('E','Error',$logNT,'Could not get image ( '.$remImgURL.' ), will post without it - ', print_r($imgData, true)); return 'Image Upload Error, please see log';
         } $imgData = $imgData['body'];        
@@ -40,7 +40,7 @@ if (!class_exists("nxs_class_SNAP_VK")) { class nxs_class_SNAP_VK {
       
         if (!empty($uploadResultObj->server) && !empty($uploadResultObj->photo) && !empty($uploadResultObj->hash)) {
           $postUrl = 'https://api.vk.com/method/photos.saveWallPhoto?server='.$uploadResultObj->server.'&photo='.$uploadResultObj->photo.'&hash='.$uploadResultObj->hash.'&gid='.(str_replace('-','',$options['pgIntID'])).'&access_token='.$options['vkAppAuthToken'];
-          $response = wp_remote_get($postUrl);            
+          $response = nxs_remote_get($postUrl);            
           $resultObject = json_decode($response['body']); //prr($resultObject);
           if (isset($resultObject) && isset($resultObject->response[0]->id)) { return $resultObject->response[0]; } else { return 'Image Upload Error'; }
         }
@@ -80,8 +80,8 @@ if (!class_exists("nxs_class_SNAP_VK")) { class nxs_class_SNAP_VK {
       if ($postType!='A') { if( $options['addBackLink']=='1') $atts[] = $urlToGo; 
         if (is_array($atts)) $atts = implode(',', $atts); $postUrl = 'https://api.vk.com/method/wall.post';
         $postArr = array('owner_id'=>$options['pgIntID'], 'access_token'=>$options['vkAppAuthToken'], 'from_group'=>'1', 'message'=>$msg, 'attachment'=>$atts);
-        $response = wp_remote_post($postUrl, array('body' => $postArr)); // prr($postArr); prr($response);
-        if ( is_wp_error($response) || (is_object($response) && (isset($response->errors))) || (is_array($response) && stripos($response['body'],'"error":')!==false )) { 
+        $response = nxs_remote_post($postUrl, array('body' => $postArr)); // prr($postArr); prr($response);
+        if ( is_nxs_error($response) || (is_object($response) && (isset($response->errors))) || (is_array($response) && stripos($response['body'],'"error":')!==false )) { 
            $badOut['Error'] .= 'Error: '. print_r($response, true);
         } else { $respJ = json_decode($response['body'], true);  $ret = $options['pgIntID'].'_'.$respJ['response']['post_id'];   }
           

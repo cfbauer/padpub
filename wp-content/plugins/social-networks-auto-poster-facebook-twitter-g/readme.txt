@@ -2,32 +2,27 @@
 
 Contributors: NextScripts
 Donate link: http://www.nextscripts.com/social-networks-auto-poster-for-wordpress
-Tags: automation, autopost, auto-post, auto post, socialnetworks, socialnetwork, social networks, social network, facebook, Flipboard, google, google+, Flickr, twitter, google plus, pinterest, 500px, tumblr, blogger, blogspot, blogpost, linkedin, delicious, delicious.com, reddit, reddit.com, plugin, links, Post, posts, api, automatic, seo, scoop.it, integration, bookmark, bookmarks, admin, images, image, social, sharing, share, repost, re-post, wordpress.com, StumbleUpon, Diigo, vBulletin, Plurk, forums, vKontakte, open graph, LiveJournal, SETT, YouTube, Telegram, Instagram, xing, medium
+Tags: automation, autopost, auto-post, auto post, socialnetworks, socialnetwork, social networks, social network, facebook, Flipboard, google, google+, Flickr, twitter, google plus, pinterest, 500px, tumblr, blogger, blogspot, linkedin, delicious, delicious.com, reddit, reddit.com, plugin, links, Post, posts, api, automatic, seo, scoop.it, integration, bookmark, bookmarks, admin, images, image, social, sharing, share, repost, re-post, wordpress.com, StumbleUpon, Diigo, vBulletin, Plurk, forums, vKontakte, open graph, LiveJournal, SETT, YouTube, Telegram, Instagram, xing, medium, yo, Weibo, mailchimp, Odnoklassniki, ok.ru
 Requires at least: 3.4
-Tested up to: 4.5.3
-Stable tag: 3.6.5
+Tested up to: 4.6.1
+Stable tag: 3.7.5
 License: GPLv2 or later
 
-Automatically re-publishes blogposts to Facebook, Twitter, Google+, Pinterest, LinkedIn, Blogger, Tumblr, Delicious, Plurk, etc profiles and/or pages
+Automatically publishes blogposts to profiles/pages/groups on Facebook, Twitter, Instagram, Google+, Pinterest, LinkedIn, Blogger, Tumblr ... 22 more
 
 == Description ==
 
-**This plugin automatically publishes posts from your blog to your Social Network accounts** such as Facebook, Twitter, Google+(Google Plus), Blogger, Tumblr, Flickr, LiveJournal, Flipboard, Instagram, Telegram, DreamWidth, Delicious, Diigo, Instapaper, Stumbleupon, LinkedIn, Pinterest, Plurk, VKontakte(VK.com), YouTube, App.net, Scoop.It, Wordpress, XING etc. The whole process is completely automated. Just write a new post and either entire post or it's nicely formatted announcement with backlink will be published to all your configured social networks. You can reach the most audience and tell all your friends, readers and followers about your new post. Plugin works with profiles, business pages, community pages, groups, etc. Messages are 100% customizable and adopted for each network requirements.
+**This plugin automatically publishes posts from your blog to your Social Network accounts** such as Facebook, Twitter, Google+(Google Plus), Blogger, Tumblr, Flickr, LiveJournal, Flipboard, Instagram, Telegram, DreamWidth, Delicious, Diigo, Instapaper, Stumbleupon, LinkedIn, ok.ru, Pinterest, Plurk, VKontakte(VK.com), YouTube, App.net, Scoop.It, Wordpress, XING etc. The whole process is completely automated. Just write a new post and either entire post or it's nicely formatted announcement with backlink will be published to all your configured social networks. You can reach the most audience and tell all your friends, readers and followers about your new post. Plugin works with profiles, business pages, community pages, groups, etc. Messages are 100% customizable and adopted for each network requirements.
 
 **ALL NEW SNAP for Wordpress Version 4 is coming soon...**
 
 More V4 info: http://www.nextscripts.com/tag/v4/
 
-* **Latest version 3.6** - New networks - Medium, 500px. Filters (http://www.nextscripts.com/snap-features/filters/).
+* **Latest version 3.7** - New networks - MailChimp, ok.ru (Odnoklassniki), Weibo. Improved interface.
+* *Version 3.6* - New networks - Yo, Medium, 500px. Filters (http://www.nextscripts.com/snap-features/filters/).
 * *Version 3.5* - New networks - Telegram and Instagram. New publishing platform.
 * *Version 3.4* - New networks - XING, Kippt, compatibility with WP 3.9, 4.0, 4.1 and PHP 5.5. 
 * *Version 3.3* - Post to all social accounts without creating a Wordpress Post. New networks - Flickr, Flipboard, SETT and Scoop.It. 
-* *Version 3.0* - Auto-repost existing posts, autoposting query, select what image to use for autopost, "Custom URLs" for posts, New networks: App.net, Reddit and deviantart.com
-* *Version 2.7* - YouTube Support, FriendFeed support, Auto-import comments from Facebook and Twitter as Wordpress Comments, goo.gl and YOURLS support, ability to spin message text
-* *Version 2.6* - Better Interface, DreamWidth support, Instapaper support, ability to auto-import comments from social networks
-* *Version 2.5* - Export/Import Plugin settings, direct links to the published posts from the "Edit" page, ability to assign categories to each Social Network. LiveJournal Support.  
-* *Version 2.4* - "Image" posts for Facebook and Twitter, bit.ly support, Plurk Support
-* *Version 2.3* - Google+ image posts, delayed postings (Pro Only), new networks - Stumbleupon, vBulletin, Diigo
 
 = Supported Networks =
 
@@ -45,7 +40,9 @@ More V4 info: http://www.nextscripts.com/tag/v4/
 * **Google+** (*with third party API library*) - Autopost to your profile, business page or community. Ability to attach your blogpost to Google+ post. Ability to make "Image" posts.
 * **LinkedIn** - Autopost to your account. Ability to attach your blogpost to LinkedIn post. Autopost to LinkedIn Company pages and/or Groups (*with third party API library*)
 * **LiveJournal** - Auto-submit your blogpost to LiveJournal blog or community. "LiveJournal Engine" based website DreamWidth.org is also supported. 
+* [New]**MailChimp** -  One of the most popular email marketing tools. You can send your blogs as email campaigns to specific subscribers.
 * [New]**Medium** - Autopost to your profile or publications.
+* [New]**ok.ru (Odnoklassniki)** Autopost to your group/page. Ability to make text posts, image posts, share links.
 * **Pinterest** (*with third party API library*) - Pin your blogpost's featured image to your Pinterest board.
 * **Reddit** (*with third party API library*) - post to your subreddits.
 * **Scoop.It** - Autopost to your "Topics". Ability to attach your blogpost to scoop. Ability to make "Image" posts.
@@ -56,10 +53,12 @@ More V4 info: http://www.nextscripts.com/tag/v4/
 * **Twitter** - Autopost to your account. Ability to attach Image to tweets.
 * **Plurk**  - Autopost to your account. Ability to attach Image to messages.
 * **vBulletin** - Auto-submit your blogpost to vBulletin forums. Could create new threads or new posts.
-* **vKontakte(VK.com)** - Autopost to your profile or group page. Ability to attach your blogpost to vk.com post. Ability to make "Image" posts.
+* **vk.com (vKontakte)** - Autopost to your profile or group page. Ability to attach your blogpost to vk.com post. Ability to make "Image" posts.
+* [New]**Weibo** -  Biggest Chinese Microblogging Service. You can post your messages and images.
 * **Wordpress** - Auto-submit your blogpost to another blog based on Wordpress. This options includes Wordpress.com, Blog.com, etc..
-* **YouTube** (*with third party API library*) - Post messages to your YouTube channel feed. If blogpost has youtube reference it will be attached.
 * **XING** - Post text messages or share links.
+* **YouTube** (*with third party API library*) - Post messages to your YouTube channel feed. If blogpost has youtube reference it will be attached.
+* [New]**Yo** - Send notifications to your subscribers.
 * **500px** - Autopost images to your account.
 
 ... more networks are coming soon ...
@@ -167,6 +166,87 @@ Please see more <a href="http://www.nextscripts.com/faq/">Frequently asked quest
 4. Google+: Types of Post 
 
 == Changelog ==
+
+* **Latest version 3.7** - New networks - MailChimp, Weibo. Improved interface.
+* *Version 3.6* - New networks - Yo, Medium, 500px. Filters (http://www.nextscripts.com/snap-features/filters/).
+* *Version 3.5* - New networks - Telegram and Instagram. New publishing platform.
+* *Version 3.4* - New networks - XING, Kippt, compatibility with WP 3.9, 4.0, 4.1 and PHP 5.5. 
+* *Version 3.3* - Post to all social accounts without creating a Wordpress Post. New networks - Flickr, Flipboard, SETT and Scoop.It. 
+* *Version 3.0* - Auto-repost existing posts, autoposting query, select what image to use for autopost, "Custom URLs" for posts, New networks: App.net, Reddit and deviantart.com
+* *Version 2.7* - YouTube Support, FriendFeed support, Auto-import comments from Facebook and Twitter as Wordpress Comments, goo.gl and YOURLS support, ability to spin message text
+* *Version 2.6* - Better Interface, DreamWidth support, Instapaper support, ability to auto-import comments from social networks
+* *Version 2.5* - Export/Import Plugin settings, direct links to the published posts from the "Edit" page, ability to assign categories to each Social Network. LiveJournal Support.  
+* *Version 2.4* - "Image" posts for Facebook and Twitter, bit.ly support, Plurk Support
+* *Version 2.3* - Google+ image posts, delayed postings (Pro Only), new networks - Stumbleupon, vBulletin, Diigo
+
+= Details = 
+
+= 3.7.5 [10/25/2016] = 
+
+* New network "OK.RU" (Odnoklassniki) - The second biggest Russian social network. You can post messages, imagea and share links to your groups/pages.
+* Improvement/Bug Fix - Due to surprisingly high demand, we put compatibility with PHP 5.2 back. 
+* Improvement/Bug Fix - Better support for imported and shedulled posts.
+* Bug Fix - no more "Fatal error" messages if one of the API files is missing.
+
+= 3.7.4 [10/17/2016] = 
+
+* Improvement/Bug Fix - Updated Del.icio.us connector. It should make it more stable. 
+* Improvement - Better PHP7 compatibility. Fixes for most PHP7 "depreciated", "notice" and "warning" messages. 
+* Improvement - Better handling of LinkedIn messages and errors.
+* Some minor bug fixes.
+
+= 3.7.3 [10/04/2016] =
+
+* Improvement/Bug Fix - "Reset all SNAP data" button is back.
+* Improvement - [Twitter] Enjoy longer tweets! Added support for new character count rules. Images are no longer affect 140 character limit. 
+* Bug Fix - Fix for "Fatal error: Cannot use object of type nxs_Error as array"
+
+= 3.7.2 [09/16/2016] =
+
+* Bug Fix - [Critical] Fix for mixed up networks on the "Edit Post" page.
+* Bug Fix - "Post to All Checked Networks" and "Reset all SNAP data" buttons were visisble on "New post" page.
+
+= 3.7.1 [09/15/2016] =
+
+* New network "Weibo" - Biggest Chinese Microblogging Service. You can post your messages and images.
+* New network "MailChimp" -  One of the most popular email marketing tools. You can send your blogs as email campaigns to specific subscribers.
+* New/Improvement - Cleaner and less cluttered interface for both settings and new post page.
+* New - "Post to all checked networks" button on the published post page.
+* New - Categorized list of networks on the "Add New Network" page. (Could be activated in the settings).
+* Improvement - Dates in "Posted on" are now shown in local time and formatted according to WP settings.
+* Improvement - Better handling of images.
+* Improvement - Support for latest clk.im API.
+* Bug Fix - [500px] 400 - "Attachment not found" error.
+* Bug Fix - [Pinterest] "Call to a member function getHeaderValue() on a non-object" error.
+
+= 3.6.10 [08/30/2016] =
+
+* Improvement - Support for URLs with spaces.
+* Bug Fix - fix for fatal error: Cannot use object of type nxs_Error as array" error
+* Bug Fix - "500 error" and "no post no log" issue.
+
+= 3.6.9 [08/19/2016] =
+
+* Improvement - [Flipboard] Flipboard is now part of nxs-api and has new faster API connector.
+* Bug Fix - "Cannot use object of type WP_Post as array" error
+* Bug Fix - correct 500px instructions link.
+
+= 3.6.8 [08/17/2016] =
+
+* New/Improvement/Bug Fix - Compatibility with WordPress 4.6. WordPress 4.6 comes with new HTTP API that brakes almost all remote requests.
+* New - Mouseover on network with filters is showing what filters exactly are active.
+* Bug Fix - fix for "output started at line 310" problem.
+
+= 3.6.7 [08/10/2016] =
+
+* New network "Yo" - Send notifications to your users.
+* New - Support for "Spin content" in the "New post to Social Networks" form.
+* Bug Fix - [StumbleUpon] "Checking" message
+* Several small bugfixes for Pinterest, Delicious, Flipboard
+
+= 3.6.6 [07/26/2016] =
+
+* Improvement/Bug Fix - [StumbleUpon] Support for StumbleUpon API v 2.0. Post to accounts that were already switched to API 2.0 was causing "Something went wrong - ERROR"
 
 = 3.6.5 [07/06/2016] =
 

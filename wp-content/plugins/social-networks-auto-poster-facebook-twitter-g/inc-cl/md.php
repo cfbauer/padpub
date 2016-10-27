@@ -1,5 +1,5 @@
 <?php //## NextScripts Medium Connection Class
-$nxs_snapAvNts[] = array('code'=>'MD', 'lcode'=>'md', 'name'=>'Medium', 'type'=>'Blogs');
+$nxs_snapAvNts[] = array('code'=>'MD', 'lcode'=>'md', 'name'=>'Medium', 'type'=>'Blogs/Publishing Platforms');
 
 if (!class_exists("nxs_snapClassMD")) { class nxs_snapClassMD extends nxs_snapClassNT { 
   var $ntInfo = array('code'=>'MD', 'lcode'=>'md', 'name'=>'Medium', 'defNName'=>'', 'tstReq' => true, 'instrURL'=>'http://www.nextscripts.com/instructions/medium-auto-poster-setup-installation/');  

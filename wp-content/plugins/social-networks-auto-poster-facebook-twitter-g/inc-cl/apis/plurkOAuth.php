@@ -150,7 +150,7 @@ class wpPlurkOAuth{
       $url = $this->baseURL.PLURK_REQUEST_TOKEN_PATH.'?oauth_nonce='.$args['oauth_nonce'].'&oauth_timestamp='.$args['oauth_timestamp'].'&oauth_consumer_key='.$this->consumer_key.'&oauth_signature_method='.$args['oauth_signature_method'].'&oauth_version='.$args['oauth_version'].'&oauth_callback='.$cbu.'&oauth_signature='.$args['oauth_signature'];      
       echo "<br/>REQ Token URL: ".$url."<br/>";
       $hdrsArr = $this->makeHTTPHeaders($url); $ckArr = $nxs_vbCkArray;   
-      $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
+      $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
       if (is_nxs_error($response)){ $badOut = print_r($response, true)." - Connection ERROR"; return $badOut; }
       $this->http_code = $response['response']['code']; //  prr($response);
       if (stripos($response['body'],'oauth_token_secret=')===false) echo 'Bad oAuth Login:'.$response['body']; else return $this->oAuthRespToArr($response['body']);
@@ -172,8 +172,8 @@ class wpPlurkOAuth{
       $url = $this->baseURL.PLURK_ACCESS_TOKEN_PATH.'?oauth_nonce='.$args['oauth_nonce'].'&oauth_timestamp='.$args['oauth_timestamp'].'&oauth_token_secret='.$this->access_secret.'&oauth_signature_method='.$args['oauth_signature_method'].'&oauth_consumer_key='.$this->consumer_key.'&oauth_verifier='.$verifier.'&oauth_version='.$args['oauth_version'].'&oauth_token='.$this->access_token.'&oauth_signature='.$args['oauth_signature'];
       echo "<br/>REQ Token URL: ".$url."<br/>";
       $hdrsArr = $this->makeHTTPHeaders($url); $ckArr = $nxs_vbCkArray;   
-      $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
-      if ( is_wp_error($response) ) return $response;
+      $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
+      if ( is_nxs_error($response) ) return $response;
       $this->http_code = $response['response']['code']; 
       if (stripos($response['body'],'oauth_token_secret=')===false) echo 'Bad oAuth Login:'.$response['body']; else return $this->oAuthRespToArr($response['body']);        
     }
@@ -194,8 +194,8 @@ class wpPlurkOAuth{
       if (is_array($params)) { $params = nxspk_SigMethod_HMAC_SHA1::urlencode_rfc3986($params);   $args = array_merge($args, $params);} //prr($args);
       $argsStr = ''; $argsT = array(); foreach ($args as $arN=>$arV){$argsT[] = $arN.'='.$arV;} $argsStr = implode('&', $argsT); $url .= '?'.$argsStr;
       $hdrsArr = $this->makeHTTPHeaders($url);  $ckArr = '';  
-      $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr)); //  prr($response);
-      if ( is_wp_error($response) ) return $response;
+      $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr)); //  prr($response);
+      if ( is_nxs_error($response) ) return $response;
       $this->http_code = $response['response']['code']; 
       return json_decode($response['body'], true);   
     }

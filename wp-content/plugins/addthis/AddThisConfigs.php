@@ -505,13 +505,13 @@ if (!class_exists('AddThisConfigs')) {
             $pluginInfo = array();
             $pluginInfo['info_status'] = 'enabled';
             $pluginInfo['cms_name'] = $this->cmsInterface->getCmsName();
-            $pluginInfo['cms_version'] = $this->cmsInterface->getCmsVersion();
             $pluginInfo['plugin_name'] = $this->cmsInterface->plugin->getName();
             $pluginInfo['plugin_version'] = $this->cmsInterface->getPluginVersion();
             $pluginInfo['anonymous_profile_id'] = $this->getAnonymousProfileId();
 
             if (current_user_can('install_plugins')) {
                 $pluginInfo['php_version'] = phpversion();
+                $pluginInfo['cms_version'] = $this->cmsInterface->getCmsVersion();
             }
 
             // including select configs

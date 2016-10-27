@@ -1,18 +1,18 @@
 <?php    
 //## NextScripts App.net Connection Class
-$nxs_snapAvNts[] = array('code'=>'AP', 'lcode'=>'ap', 'name'=>'App.net');
+$nxs_snapAvNts[] = array('code'=>'AP', 'lcode'=>'ap', 'name'=>'App.net', 'type'=>'Social Networks');
 
 if (!class_exists("nxs_snapClassAP")) { class nxs_snapClassAP { var $ntInfo = array('code'=>'AP', 'lcode'=>'ap', 'name'=>'App.Net', 'defNName'=>'', 'tstReq' => true);
   //#### Show Common Settings
   function showGenNTSettings($ntOpts){  global $nxs_plurl, $nxs_snapSetPgURL, $nxs_gOptions;  $ntInfo = $this->ntInfo;
     if ( isset($_GET['code']) && $_GET['code']!='' && (isset($_GET['state']) && stripos($_GET['state'], 'ap-')!==false) ){  $at = $_GET['code'];  $to = explode('-', $_GET['state']); $_GET['acc'] = $to[1];
      echo "-= This is normal technical authorization info that will dissapear (Unless you get some errors) =- <br/><br/><br/>";
-     $fbo = $ntOpts[$_GET['acc']]; $wprg = array(); $response = wp_remote_get('https://graph.facebook.com/nextscripts', $wprg);
+     $fbo = $ntOpts[$_GET['acc']]; $wprg = array(); $response = nxs_remote_get('https://graph.facebook.com/nextscripts', $wprg);
      echo $nxs_snapSetPgURL.'&auth=ap&acc='.$_GET['acc']."||"; if(stripos($nxs_snapSetPgURL, 'page=NextScripts_SNAP.php')===false) { $newURL = explode('?', $nxs_snapSetPgURL); $nxs_snapSetPgURL = $newURL[0]; }
-     if( is_wp_error( $response) && isset($response->errors['http_request_failed']) && stripos($response->errors['http_request_failed'][0], 'SSL')!==false ) {  prr($response->errors); $wprg['sslverify'] = false; }
+     if( is_nxs_error( $response) && isset($response->errors['http_request_failed']) && stripos($response->errors['http_request_failed'][0], 'SSL')!==false ) {  prr($response->errors); $wprg['sslverify'] = false; }
      if (isset($fbo['appID'])){ echo "-="; prr($fbo);
        $wprg['body'] = array('client_id'=>$fbo['appID'], 'client_secret'=>$fbo['appSec'], 'grant_type'=>'authorization_code', 'redirect_uri'=>$nxs_snapSetPgURL, 'state'=>'ap-'.$_GET['acc'], 'code'=>$at); prr($wprg);  
-       $response = wp_remote_post('https://account.app.net/oauth/access_token', $wprg); 
+       $response = nxs_remote_post('https://account.app.net/oauth/access_token', $wprg); 
        if ( (is_object($response) && (isset($response->errors))) || (is_array($response) && stripos($response['body'],'"error":')!==false )) { prr($response); die(); }  
        $params = json_decode($response['body'], true);  $fbo['apAppAuthToken'] = $params['access_token']; if ($params['user_id']>0) { $fbo['appAppUserID'] = $params['user_id']; $fbo['appAppUserName'] = $params['username'];  }
        if ($params['user_id']>0) { nxs_save_glbNtwrks($ntInfo['lcode'],$_GET['acc'],$fbo,'*');            
@@ -129,11 +129,11 @@ if (!class_exists("nxs_snapClassAP")) { class nxs_snapClassAP { var $ntInfo = ar
       <?php  if ($post->post_status != "publish" && (int)$ntOpt['do']>0 && !empty($ntOpt['fltrsOn']) && $ntOpt['fltrsOn']=='1'){ ?>
        <input type="radio" id="rbtn<?php echo $ntU.$ii; ?>" value="2" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" checked="checked" class="nxsGrpDoChb" /> <?php } 
       else { ?>
-         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>" <?php if ($post->post_status == "publish") echo 'disabled="disabled"';?> type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
+         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>"  type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
       <?php }
       if ($post->post_status == "publish") { ?> <input type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" value="<?php echo $ntOpt['do'];?>"> <?php } ?> 
     <?php } ?> 
-      <div class="nsx_iconedTitle" style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/ap16.png);">App.Net - <?php _e('publish to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)</div></th> <td><?php //## Only show RePost button if the post is "published"
+      <div class="nsx_iconedTitle" id="ldo<?php echo $ntU.$ii; ?>"  style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/ap16.png);">App.Net - <?php _e('publish to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)&nbsp;<span class="nxs_ldos" id="bldo<?php echo $ntU.$ii; ?>"><?php echo !empty($ntOpt['do'])?'[-]':'[+]'; ?></span></div></th> <td><?php //## Only show RePost button if the post is "published"
                     if ($post->post_status == "publish" && $isAvailAP) { ?>
                     
                     
@@ -145,7 +145,7 @@ if (!class_exists("nxs_snapClassAP")) { class nxs_snapClassAP { var $ntInfo = ar
                     <?php  if (is_array($pMeta) && is_array($pMeta[$ii]) && isset($pMeta[$ii]['pgID']) ) { 
                         
                         ?> <span id="pstdAP<?php echo $ii; ?>" style="float: right;padding-top: 4px; padding-right: 10px;">
-                      <a style="font-size: 10px;" href="<?php echo $pMeta[$ii]['postURL']; ?>" target="_blank"><?php $nType="App.Net"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(" (".$pMeta[$ii]['pDate'].")"):""; ?></a>
+                      <a style="font-size: 10px;" href="<?php echo $pMeta[$ii]['postURL']; ?>" target="_blank"><?php $nType="App.Net"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(nxs_adjTime($pMeta[$ii]['pDate'])):""; ?></a>
                     </span><?php } ?>
                     
                 </td></tr>                
@@ -155,19 +155,19 @@ if (!class_exists("nxs_snapClassAP")) { class nxs_snapClassAP { var $ntInfo = ar
                 
                 <?php if ($ntOpt['rpstOn']=='1') { ?> 
                 
-                <tr id="altFormat1" style=""><th scope="row" class="nxsTHRow">
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" class="nxsTHRow">
                 <input value="0"  type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][rpstPostIncl]"/><input value="nxsi<?php echo $ii; ?>ap" type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][rpstPostIncl]"  <?php if (!empty($ntOpt['rpstPostIncl'])) echo "checked"; ?> /> 
                 </th>
                 <td> <?php _e('Include in "Auto-Reposting" to this network.', 'social-networks-auto-poster-facebook-twitter-g') ?>
                 </td></tr> <?php } ?>
                 
      
-                <tr id="altFormat1" style=""><th scope="row" style="vertical-align:top;  padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Text Format:', 'social-networks-auto-poster-facebook-twitter-g') ?></th><td>                
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" style="vertical-align:top;  padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Text Format:', 'social-networks-auto-poster-facebook-twitter-g') ?></th><td>                
                 
                 <textarea cols="150" rows="1" id="ap<?php echo $ii; ?>SNAPformat" name="ap[<?php echo $ii; ?>][SNAPformat]"  style="width:60%;max-width: 610px;" onfocus="jQuery('#ap<?php echo $ii; ?>SNAPformat').attr('rows', 4); jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apAPMsgFrmt<?php echo $ii; ?>');"><?php echo $apMsgFormat ?></textarea>
                 
                 </td></tr>
-                <tr><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 5px; padding-right:10px;">
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 5px; padding-right:10px;">
                  <input value="0"  type="hidden" name="ap[<?php echo $ii; ?>][attchImg]"/>
                  <input value="1" type="checkbox" name="ap[<?php echo $ii; ?>][attchImg]"  <?php if ((int)$ntOpt['attchImg'] == 1) echo "checked"; ?> /> </th><td><strong>Attach Image to App.net Post</strong></td> </tr>      
                  <?php /* ## Select Image & URL ## */ nxs_showImgToUseDlg($nt, $ii, $imgToUse);  ?>

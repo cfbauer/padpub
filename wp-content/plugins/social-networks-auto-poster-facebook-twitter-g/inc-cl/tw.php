@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts Twitter Connection Class
-$nxs_snapAvNts[] = array('code'=>'TW', 'lcode'=>'tw', 'name'=>'Twitter');
+$nxs_snapAvNts[] = array('code'=>'TW', 'lcode'=>'tw', 'name'=>'Twitter', 'type'=>'Social Networks');
 
 if (!class_exists("nxs_snapClassTW")) { class nxs_snapClassTW {var $ntInfo = array('code'=>'TW', 'lcode'=>'tw', 'name'=>'Twitter', 'defNName'=>'dlUName', 'tstReq' => true); 
   //#### Show Common Settings  
@@ -125,12 +125,12 @@ if (!class_exists("nxs_snapClassTW")) { class nxs_snapClassTW {var $ntInfo = arr
       <?php  if ($post->post_status != "publish" && (int)$ntOpt['do']>0 && !empty($ntOpt['fltrsOn']) && $ntOpt['fltrsOn']=='1'){ ?>
         <input type="radio" id="rbtn<?php echo $ntU.$ii; ?>" value="2" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" checked="checked" class="nxsGrpDoChb" /> <?php } 
       else { ?>
-         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>" <?php if ($post->post_status == "publish") echo 'disabled="disabled"';?> type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
+         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>"  type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
       <?php }
       if ($post->post_status == "publish") { ?> <input type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" value="<?php echo $ntOpt['do'];?>"> <?php } ?> 
     <?php } ?>
       
-      <div class="nsx_iconedTitle" style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/tw16.png);">Twitter - <?php _e('autopost to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)
+      <div class="nsx_iconedTitle" id="ldo<?php echo $ntU.$ii; ?>"  style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/tw16.png);">Twitter - <?php _e('autopost to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)&nbsp;<span class="nxs_ldos" id="bldo<?php echo $ntU.$ii; ?>"><?php echo !empty($ntOpt['do'])?'[-]':'[+]'; ?></span>
       </div></th><td><?php //## Only show RePost button if the post is "published"
       if ($post->post_status == "publish" && $isAvailTW) { ?><?php $ntName = $this->ntInfo['name']; ?>
                     <input alt="<?php echo $ii; ?>" style="float: right;" onmouseout="hidePopShAtt('SV');" onmouseover="showPopShAtt('SV', event);" onclick="return false;" data-ntname="<?php echo $ntName; ?>" type="button" class="button manualPostBtn" name="<?php echo $nt."-".$post->ID; ?>" value="<?php _e('Post to ', 'social-networks-auto-poster-facebook-twitter-g'); echo $ntName; ?>" />
@@ -139,26 +139,26 @@ if (!class_exists("nxs_snapClassTW")) { class nxs_snapClassTW {var $ntInfo = arr
        <input alt="<?php echo $ii; ?>" style="float: right; " onclick="return false;" type="button" class="button" name="riToTW_repostButton" id="riToTW_button" value="<?php _e('Import Replies/Mentions from Twitter', 'social-networks-auto-poster-facebook-twitter-g') ?>" />
     <?php }  } ?>
                     <?php  if (is_array($pMeta) && isset($pMeta[$ii]) && is_array($pMeta[$ii]) && isset($pMeta[$ii]['pgID'])) { ?> <span style="float: right;padding-top: 4px; padding-right: 10px;">
-                      <a id="pstdTW<?php echo $ii; ?>" style="font-size: 10px;" href="<?php echo $ntOpt['twURL'].'/status/'.$pMeta[$ii]['pgID'];  ?>" target="_blank"><?php $nType="Twitter"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(" (".$pMeta[$ii]['pDate'].")"):""; ?></a>
+                      <a id="pstdTW<?php echo $ii; ?>" style="font-size: 10px;" href="<?php echo $ntOpt['twURL'].'/status/'.$pMeta[$ii]['pgID'];  ?>" target="_blank"><?php $nType="Twitter"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(nxs_adjTime($pMeta[$ii]['pDate'])):""; ?></a>
                     </span><?php } ?>
                 </td></tr>
                 
-                <?php if (!$isAvailTW) { ?><tr><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;"></th> <td><b>Setup your Twitter Account to AutoPost to Twitter</b>
+                <?php if (!$isAvailTW) { ?><tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;"></th> <td><b>Setup your Twitter Account to AutoPost to Twitter</b>
                 <?php }else {  if ($post->post_status != "publish" && function_exists('nxs_doSMAS5') ) { $ntOpt['postTime'] = get_post_time('U', false, $post_id); nxs_doSMAS5($nt, $ii, $ntOpt); } ?>
                 
                 <?php if ($ntOpt['rpstOn']=='1') { ?> 
                 
-                <tr id="altFormat1" style=""><th scope="row" class="nxsTHRow">
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" class="nxsTHRow">
                 <input value="0"  type="hidden" name="tw[<?php echo $ii; ?>][rpstPostIncl]"/><input value="nxsi<?php echo $ii; ?>tw" type="checkbox" name="tw[<?php echo $ii; ?>][rpstPostIncl]"  <?php if (!empty($ntOpt['rpstPostIncl'])) echo "checked"; ?> /> 
                 </th>
                 <td> <?php _e('Include in "Auto-Reposting" to this network.', 'social-networks-auto-poster-facebook-twitter-g') ?>
                 </td></tr> <?php } ?>
                 
-                <tr id="altFormat1" style=""><th scope="row" class="nxsTHRow"><?php _e('Message Format:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"  style=""><th scope="row" class="nxsTHRow"><?php _e('Message Format:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
                 <td><textarea cols="150" rows="2" id="tw<?php echo $ii; ?>SNAPformat" name="tw[<?php echo $ii; ?>][SNAPformat]"  style="width:60%;max-width: 610px;" onfocus="jQuery('#tw<?php echo $ii; ?>SNAPformat').attr('rows', 4); jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apTWMsgFrmt<?php echo $ii; ?>');"><?php echo $twMsgFormat ?></textarea>                
                 </td></tr>
                 
-<tr><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 5px; padding-right:10px;">
+<tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 5px; padding-right:10px;">
                  <input value="0"  type="hidden" name="tw[<?php echo $ii; ?>][attchImg]"/>
                  <input value="1" type="checkbox" name="tw[<?php echo $ii; ?>][attchImg]"  <?php if ((int)$isAttchImg == 1) echo "checked"; ?> /> </th><td><strong>Attach Image to Twitter Post</strong></td> </tr>                  
                  
@@ -188,8 +188,8 @@ if (!function_exists("nxs_getBackTWCommentsList")) { function nxs_getBackTWComme
 if (!function_exists("nxs_getBackTWComments")) { function nxs_getBackTWComments($postID, $options, $po, $twList) { $impCmnts = get_post_meta($postID, 'snapImportedComments', true);  
     if(!is_array($impCmnts)) $impCmnts = array(); $twsToImp = array(); $lastID = '';
     //## Do Replies
-    foreach ($twList as $tw) if ($tw['in_reply_to_status_id_str'] == $po['pgID']) $twsToImp[] = $tw;
-    if (is_array($twsToImp) && count($twsToImp)>0)
+    if (!empty($twList) && is_array($twList)) foreach ($twList as $tw) if ($tw['in_reply_to_status_id_str'] == $po['pgID']) $twsToImp[] = $tw;
+    if (!empty($twList) && is_array($twsToImp) && count($twsToImp)>0)
       foreach ($twsToImp as $comment){ $cid = $comment['id_str']; if (trim($cid)=='' || in_array('twxcw'.$cid, $impCmnts)) continue; else $impCmnts[] = 'twxcw'.$cid;  // prr($impCmnts);
         $commentdata = array( 'comment_post_ID' => $postID, 'comment_author' => $comment['user']['name'], 'comment_agent' => "SNAP||".str_ireplace('_normal.','_bigger.',$comment['user']['profile_image_url_https']), 
           'comment_author_email' => $comment['user']['screen_name'].'@twitter.com', 'comment_author_url' => 'http://twitter.com/'.$comment['user']['screen_name'], 
@@ -245,13 +245,14 @@ if (!function_exists("nxs_doPublishToTW")) { //## Second Function to Post to TW
     if ($options['attchImg']=='1') { if (!empty($options['imgToUse'])) $imgURL = $options['imgToUse']; else $imgURL = nxs_getPostImage($postID);  if (preg_match("/noImg.\.png/i", $imgURL)) $imgURL = '';  
       if(trim($imgURL)=='') $options['attchImg'] = 0; else { $imgURL = str_replace(' ', '%20', $imgURL);
         $hdrsArr['User-Agent']='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:32.0) Gecko/20100101 Firefox/32.0'; $advSet=array('headers'=>$hdrsArr,'httpversion'=>'1.1','timeout'=>45,'sslverify'=>false);              
-        $imgData = wp_remote_get($imgURL, $advSet); 
-        if(is_wp_error($imgData) || empty($imgData['body']) || (!empty($imgData['headers']['content-length']) && (int)$imgData['headers']['content-length']<200) || 
+        $imgData = nxs_remote_get($imgURL, $advSet); 
+        if(is_nxs_error($imgData) || empty($imgData['body']) || (!empty($imgData['headers']['content-length']) && (int)$imgData['headers']['content-length']<200) || 
           $imgData['headers']['content-type'] == 'text/html' ||  $imgData['response']['code'] == '403' ) { $options['attchImg'] = 0; 
             nxs_addToLogN('E','Error',$logNT,'Could not get image ('.$imgURL.'), will post without it - ', print_r($imgData, true)); 
         } else $imgData = $imgData['body']; 
       }      
-    } if ($options['attchImg']=='1' && $imgData!='') $twLim = 116; else $twLim = 140;
+    } // if ($options['attchImg']=='1' && $imgData!='') $twLim = 116; else 
+    $twLim = 140;
     if ($postID=='0') { echo "Testing ... <br/><br/>"; $msg = 'Test Post from '.nsTrnc($blogTitle, $twLim - 24)." - ".rand(1, 155); $uln = nxs_strLen($msg);}  
      else{ $post = get_post($postID); if(!$post) return; $twMsgFormat = $options['twMsgFormat'];  nxs_metaMarkAsPosted($postID, $ntCd, $options['ii'], array('isPrePosted'=>'1'));    
         $extInfo = ' | PostID: '.$postID." - ".$post->post_title.' |'.$options['pType'];        
@@ -267,7 +268,7 @@ if (!function_exists("nxs_doPublishToTW")) { //## Second Function to Post to TW
         $pText = (empty($gOptions['brokenCntFilters']))?apply_filters('the_content', $exrText):$exrText;      
         $pRawText = nxs_doQTrans($post->post_content); $pFullText = (empty($gOptions['brokenCntFilters']))?apply_filters('the_content', $pRawText):$pRawText;    
         if (stripos($twMsgFormat, '%XTAGS%')!==false || stripos($twMsgFormat, '%HTAGS%')!==false) {
-          $t = wp_get_object_terms($postID, 'product_tag'); if ( empty($t) || is_wp_error($pt) || !is_array($t) ) $t = wp_get_post_tags($postID);
+          $t = wp_get_object_terms($postID, 'product_tag'); if ( empty($t) || is_nxs_error($pt) || !is_array($t) ) $t = wp_get_post_tags($postID);
           $tggs = array(); foreach ($t as $tagA) { $frmTag =  trim(str_replace(' ', $htS, preg_replace('/xC2xA0/',$htS, preg_replace('/[^a-zA-Z0-9\p{L}\p{N}\s]/u', '', trim(ucwords(str_ireplace('&','',str_ireplace('&amp;','',$tagA->name))))))));
               if (preg_match('/\b'.$frmTag.'\b/iu', $pTitle)) $pTitle = trim(preg_replace('/\b'.$frmTag.'\b/iu', '#'.$frmTag, $pTitle)); 
               if (preg_match('/\b'.$frmTag.'\b/iu', $pFullText)) $pFullText = trim(preg_replace('/\b'.$frmTag.'\b/iu', '#'.$frmTag, $pFullText)); 

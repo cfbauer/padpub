@@ -75,7 +75,7 @@ if (!class_exists("nxs_class_SNAP_ST")) { class nxs_class_SNAP_ST {
     
     function createFile($imgURL) {
       $remImgURL = urldecode($imgURL); $urlParced = pathinfo($remImgURL); $remImgURLFilename = $urlParced['basename']; 
-      $imgData = wp_remote_get($remImgURL); if (is_wp_error($imgData)) { $badOut['Error'] = print_r($imgData, true)." - ERROR"; return $badOut; }          
+      $imgData = nxs_remote_get($remImgURL); if (is_nxs_error($imgData)) { $badOut['Error'] = print_r($imgData, true)." - ERROR"; return $badOut; }          
       $imgData = $imgData['body'];
       $tmp=array_search('uri', @array_flip(stream_get_meta_data($GLOBALS[mt_rand()]=tmpfile())));  
       if (!is_writable($tmp)) return "Your temporary folder or file (file - ".$tmp.") is not witable. Can't upload images to Flickr";
@@ -309,7 +309,8 @@ if (!class_exists('nxs_AesCtr')) { class nxs_AesCtr extends nxs_Aes {
     $a &= 0xffffffff; $b &= 0x1f;  // (bounds check)
     if ($a&0x80000000 && $b>0) {   // if left-most bit set
       $a = ($a>>1) & 0x7fffffff;   //   right-shift one bit & clear left-most bit
-      $a = $a >> ($b-1);           //   remaining right-shifts
+      $c = $b-1;
+      $a = $a >> ($c);           //   remaining right-shifts
     } else {                       // otherwise
       $a = ($a>>$b);               //   use normal right-shift
     } 

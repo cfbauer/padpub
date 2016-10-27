@@ -32,21 +32,21 @@ if (!class_exists("nxs_class_SNAP_DL")) { class nxs_class_SNAP_DL {
       
       $link = $message['url']; $desc = substr($msgT, 0, 250); $ext = substr($msg, 0, 1000);      
       //$hdrsArr = $this->getHeaders('http://del.icio.us','http://del.icio.us',true); $flds = array('username'=>$email, 'password'=>base64_encode(strrev($pass)));      
-      $hdrsArr = $this->getHeaders('http://del.icio.us','http://del.icio.us',true); $flds = array('username'=>$email, 'password'=>$pass);      
-      $advSet = nxs_mkRemOptsArr($hdrsArr, '', $flds); $cnt = wp_remote_post( 'http://del.icio.us/login', $advSet ); 
+      $hdrsArr = $this->getHeaders('https://del.icio.us','https://del.icio.us',true); $flds = array('username'=>$email, 'password'=>$pass);      
+      $advSet = nxs_mkRemOptsArr($hdrsArr, '', $flds); $cnt = nxs_remote_post( 'https://del.icio.us/login', $advSet ); 
       if (is_nxs_error($cnt)) {  $badOut = "ERROR (Login Form): ".print_r($cnt, true); return $badOut; } $rep = json_decode($cnt['body'], true);       
       if ($rep['status']!='success') { $badOut = "ERROR (Login): ".print_r($cnt, true); return $badOut; } $ck = $cnt['cookies']; $ckk = explode('=', $rep['session']);      
       $ckX = new WP_Http_Cookie( array( 'name' => $ckk[0], 'value' => $ckk[1] )); $ck[] = $ckX; foreach ($ck as $ci=>$cc) $ck[$ci]->value = str_replace(' ','+', $cc->value);      
-      $hdrsArr = $this->getHeaders('http://del.icio.us/',''); $hdrsArr['Accept'] = '*/*';
-      $advSet = nxs_mkRemOptsArr($hdrsArr, $ck); $cnt = wp_remote_get( 'http://del.icio.us/save/get_iframe_savelink?url=&title=&notes=', $advSet ); 
+      $hdrsArr = $this->getHeaders('https://del.icio.us/',''); $hdrsArr['Accept'] = '*/*';
+      $advSet = nxs_mkRemOptsArr($hdrsArr, $ck); $cnt = nxs_remote_get( 'https://del.icio.us/save/get_iframe_savelink?url=&title=&notes=', $advSet ); 
       if (is_nxs_error($cnt)) {  $badOut = "ERROR (Login Form): ".print_r($cnt, true); return $badOut; } $ct = CutFromTo($cnt['body'],'csrf_token="','"'); 
       $ck = $cnt['cookies'];  $ck[] = $ckX; foreach ($ck as $ci=>$cc) $ck[$ci]->value = str_replace(' ','+', $cc->value);
       $flds = array('url'=>$link, 'description'=>$desc, 'tags'=>$tags, 'note'=>$ext, 'replace'=>'true', 'private'=>'false', 'share'=>'', 'csrf_token'=>$ct);      
-      $hdrsArr = $this->getHeaders('http://del.icio.us/save/get_iframe_savelink?url=&title=&notes=','http://del.icio.us',true, true);  $hdrsArr['Accept']='application/json, text/javascript, */*; q=0.01';
-      $advSet = nxs_mkRemOptsArr($hdrsArr, $ck, $flds);  $cnt = wp_remote_post( 'http://del.icio.us/save/bookmark', $advSet );// prr($advSet);
+      $hdrsArr = $this->getHeaders('https://del.icio.us/save/get_iframe_savelink?url=&title=&notes=','https://del.icio.us',true, true);  $hdrsArr['Accept']='application/json, text/javascript, */*; q=0.01';
+      $advSet = nxs_mkRemOptsArr($hdrsArr, $ck, $flds);  $cnt = nxs_remote_post( 'https://del.icio.us/save/bookmark', $advSet );// prr($advSet);
       if (is_nxs_error($cnt)) {  $badOut = "ERROR (Post Form): ".print_r($rep, true); return $badOut; } $rep = json_decode($cnt['body'], true);// prr($rep);
-      if ($rep['save_status']!='new' && $rep['save_status']!='update' ) { $badOut = "ERROR (Post): ".print_r($cnt, true); return $badOut; } 
-      return array('postID'=>md5($message['url']), 'isPosted'=>1, 'postURL'=>'http://del.icio.us/url/'.md5($message['url']), 'pDate'=>date('Y-m-d H:i:s'));  
+      if (empty($rep['save_status']) || ($rep['save_status']!='new' && $rep['save_status']!='update')) { $badOut = "ERROR (Post): ".print_r($cnt, true); return $badOut; } 
+      return array('postID'=>md5($message['url']), 'isPosted'=>1, 'postURL'=>'https://del.icio.us/url/'.md5($message['url']), 'pDate'=>date('Y-m-d H:i:s'));  
    }    
 }}
 ?>

@@ -1,13 +1,13 @@
 <?php    
 //## NextScripts Diigo Connection Class
-$nxs_snapAvNts[] = array('code'=>'DI', 'lcode'=>'di', 'name'=>'Diigo');
+$nxs_snapAvNts[] = array('code'=>'DI', 'lcode'=>'di', 'name'=>'Diigo', 'type'=>'Link Sharing/Boormarks');
 
 if (!class_exists("nxs_snapClassDI")) { class nxs_snapClassDI extends nxs_snapClassNT { 
   var $ntInfo = array('code'=>'DI', 'lcode'=>'di', 'name'=>'Diigo', 'defNName'=>'uName', 'tstReq' => false, 'instrURL'=>'http://www.nextscripts.com/setup-installation-diigo-social-networks-auto-poster-wordpress/');    
   
   function toLatestVer($ntOpts){ if( !empty($ntOpts['v'])) $v = $ntOpts['v']; else $v = 340; $ntOptsOut = '';  switch ($v) {
       case 340: $ntOptsOut = $this->toLatestVerNTGen($ntOpts); $ntOptsOut['do'] = $ntOpts['do'.$this->ntInfo['code']]; $ntOptsOut['nName'] = $ntOpts['nName'];  $ntOptsOut['inclTags'] = $ntOpts['diInclTags'];
-        $ntOptsOut['msgTFormat'] = $ntOpts['diMsgTFormat']; $ntOptsOut['msgFormat'] = $ntOpts['diMsgFormat'];  $ntOptsOut['uName'] = $ntOpts['diUName'];  $ntOptsOut['uPass'] = $ntOpts['diPass']; $ntOptsOut['apiKey'] = $ntOpts['diAPIKey']; 
+        $ntOptsOut['msgTFormat'] = $ntOpts['diMsgTFormat']; $ntOptsOut['msgFormat'] = $ntOpts['diMsgFormat'];  $ntOptsOut['uName'] = $ntOpts['diUName'];  $ntOptsOut['uPass'] = $ntOpts['diPass']; $ntOptsOut['apiKey'] = $ntOpts['diAPIKey']; $ntOptsOut['isUpdd'] = '1'; 
       break;
     }
     return !empty($ntOptsOut)?$ntOptsOut:$ntOpts; 

@@ -33,7 +33,7 @@ if (!class_exists("nxs_class_SNAP_FL")) { class nxs_class_SNAP_FL {
 
     function createFile($imgURL) {
       $remImgURL = urldecode($imgURL); $urlParced = pathinfo($remImgURL); $remImgURLFilename = $urlParced['basename'];
-      $imgData = wp_remote_get($remImgURL, array('timeout' => 45)); if (is_wp_error($imgData)) { $badOut['Error'] = print_r($imgData, true)." - ERROR"; return $badOut; }
+      $imgData = nxs_remote_get($remImgURL, array('timeout' => 45)); if (is_nxs_error($imgData)) { $badOut['Error'] = print_r($imgData, true)." - ERROR"; return $badOut; }
       if (isset($imgData['content-type'])) $cType = $imgData['content-type']; $imgData = $imgData['body'];
       $tmp=array_search('uri', @array_flip(stream_get_meta_data($GLOBALS[mt_rand()]=tmpfile())));
       if (!is_writable($tmp))  { $badOut['Error'] = "Your temporary folder or file (file - ".$tmp.") is not witable. Can't upload images to Flickr"; return $badOut; }

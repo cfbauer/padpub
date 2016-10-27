@@ -35,7 +35,7 @@ if (!class_exists("nxs_class_SNAP_TG")) { class nxs_class_SNAP_TG {
         }//  $contents = $imgRes['body']; $resp = json_decode($contents, true);     prr($resp);
       }  $msg = str_ireplace('<strong>','<b>',str_ireplace('</strong>','</b>',str_ireplace('<em>','<i>',str_ireplace('</em>','<i>',$msg)))); $msg = nsTrnc(strip_tags($msg, '<b><i><a><code><pre>'), 3000); $url = 'https://api.telegram.org/bot'.$options['botTkn'].'/sendMessage'; 
 	  $flds = array('chat_id' => $options['whToPost'], 'text' => $msg, 'parse_mode' => 'HTML', 'disable_web_page_preview' => false); $hdrsArr = $this->nxs_getHeaders('https://api.telegram.org', true);
-	  $advSet = nxs_mkRemOptsArr($hdrsArr, '', $flds); $ret = wp_remote_post( $url, $advSet); if (is_nxs_error($ret)) {  $badOut = print_r($ret, true)." - ERROR"; return $badOut; }       
+	  $advSet = nxs_mkRemOptsArr($hdrsArr, '', $flds); $ret = nxs_remote_post( $url, $advSet); if (is_nxs_error($ret)) {  $badOut = print_r($ret, true)." - ERROR"; return $badOut; }       
 	  $contents = $ret['body']; $resp = json_decode($contents, true);	//  prr($resp);
 	  if (is_array($resp) && !empty($resp['ok']) && $resp['ok'] == 1 ) { if (empty($resp['result']['chat']['username'])) $purl = 'https://web.telegram.org/#/im?p='.str_replace('-','g',$resp['result']['chat']['id']); else $purl = 'http://telegram.me/'.$resp['result']['chat']['username'];
           return array('postID'=>$resp['result']['message_id'], 'isPosted'=>1, 'postURL'=>$purl, 'pDate'=>date('Y-m-d H:i:s'));  

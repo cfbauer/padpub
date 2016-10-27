@@ -1,9 +1,9 @@
 <?php    
 //## NextScripts Diigo Connection Class
-$nxs_snapAvNts[] = array('code'=>'SU', 'lcode'=>'su', 'name'=>'StumbleUpon');
+$nxs_snapAvNts[] = array('code'=>'SU', 'lcode'=>'su', 'name'=>'StumbleUpon', 'type'=>'Link Sharing/Boormarks');
 
 if (!class_exists("nxs_snapClassSU")) { class nxs_snapClassSU extends nxs_snapClassNT { 
-  var $ntInfo = array('code'=>'SU', 'lcode'=>'su', 'name'=>'StumbleUpon', 'defNName'=>'uName', 'tstReq' => false, 'instrURL'=>'http://www.nextscripts.com/setup-installation-suigo-social-networks-auto-poster-wordpress/');    
+  var $ntInfo = array('code'=>'SU', 'lcode'=>'su', 'name'=>'StumbleUpon', 'defNName'=>'uName', 'tstReq' => false, 'instrURL'=>'http://www.nextscripts.com/setup-installation-stumbleupon-social-networks-auto-poster-wordpress/');    
   
   function toLatestVer($ntOpts){ if( !empty($ntOpts['v'])) $v = $ntOpts['v']; else $v = 340; $ntOptsOut = '';  switch ($v) {
       case 340: $ntOptsOut = $this->toLatestVerNTGen($ntOpts); $ntOptsOut['do'] = $ntOpts['do'.$this->ntInfo['code']]; $ntOptsOut['nName'] = $ntOpts['nName'];  
@@ -52,7 +52,7 @@ if (!class_exists("nxs_snapClassSU")) { class nxs_snapClassSU extends nxs_snapCl
          
         $this->nxs_tmpltAddPostMeta($post, $ntOpt, $pMeta); ?>
         <?php  $this->elemEdMsgFormat($ii, __('Message Format:', 'social-networks-auto-poster-facebook-twitter-g'),$msgFormat); ?>
-        <tr id="altFormat1" style=""><th scope="row" style="text-align:right; width:60px; padding-right:10px;">Category:</th> <td><div id="altFormat" style="">  
+        <tr style=""><th scope="row" style="text-align:right; width:60px; padding-right:10px;">Category:</th> <td><div id="altFormat" style="">  
           <select name="su[<?php echo $ii; ?>][suCat]"><option value="error" selected="selected" disabled="">Select default StumbleUpon Category</option>
             <?php $suCats = $this->suCats(); if (isset($ntOpt['suCat']) && $ntOpt['suCat']!='') $suCats = str_replace('"'.$ntOpt['suCat'].'"', '"'.$ntOpt['suCat'].'" selected="selected"', $suCats);  echo $suCats; ?>
           </select> <input value="0" type="hidden" name="su[<?php echo $ii; ?>][nsfw]" /> <input value="1" type="checkbox" name="su[<?php echo $ii; ?>][nsfw]"  <?php if ((int)$ntOpt['nsfw'] == 1) echo "checked"; ?> /> <strong>NSFW</strong>            

@@ -43,14 +43,14 @@ if (!class_exists("nxs_class_SNAP_BG")) { class nxs_class_SNAP_BG {
         if (function_exists('get_option')) $currTime = time() + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ); else  $currTime = time();
         if ($options['AccessTokenExp']<$currTime){
           $tknURL = 'https://www.googleapis.com/oauth2/v3/token?refresh_token='.$options['RefreshToken'].'&client_id='.$options['APIKey'].'&client_secret='.$options['APISec'].'&grant_type=refresh_token';
-          $response  = wp_remote_post($tknURL); $resp = json_decode($response['body'], true); $options['AccessToken'] = $resp['access_token']; $options['AccessTokenExp'] = $currTime + $resp['expires_in'];
+          $response  = nxs_remote_post($tknURL); $resp = json_decode($response['body'], true); $options['AccessToken'] = $resp['access_token']; $options['AccessTokenExp'] = $currTime + $resp['expires_in'];
           nxs_save_glbNtwrks('bg', $options['ii'], $resp['access_token'], 'AccessTokenExp'); nxs_save_glbNtwrks('bg', $options['ii'], $options['AccessTokenExp'], 'AccessTokenExp');   
           //nxs_addToLogN('S', 'Test', $logNT, 'Token Refreshed '.date('Y-m-d H:i:s',$options['AccessTokenExp'])."|".$tknURL.$options['AccessToken'].print_r($response, true));
         } 
         //## Post
         $post = array("kind"=>"blogger#post", "blog"=>array("id"=>$blogID), "title"=> $msgT,  "content" => $msg ); $post = json_encode($post); // prr($post);        
         $hdrsArr = array('Content-Type'=>'application/json'); $advSet = array('headers' => $hdrsArr, 'httpversion' => '1.1', 'timeout' => 45, 'redirection' => 0, 'body' => $post);         
-        $tknURL = 'https://www.googleapis.com/blogger/v3/blogs/'.$blogID.'/posts?access_token='.$options['AccessToken'].''; $ret = ''; $response  = wp_remote_post($tknURL, $advSet); //prr($tknURL); prr($response);      
+        $tknURL = 'https://www.googleapis.com/blogger/v3/blogs/'.$blogID.'/posts?access_token='.$options['AccessToken'].''; $ret = ''; $response  = nxs_remote_post($tknURL, $advSet); //prr($tknURL); prr($response);      
         if ((is_object($response) && isset($response->errors))) $badOut['Error'] = print_r($response, true); else $ret = json_decode($response['body'], true);  //prr($ret);
         if (is_array($ret) && !empty($ret['id'])) return array('postID'=>$ret['id'], 'isPosted'=>1, 'postURL'=>$ret['url'], 'pDate'=>date('Y-m-d H:i:s')); 
           else { $badOut['Error'].= "Error: ".print_r($ret, true); return $badOut;}        

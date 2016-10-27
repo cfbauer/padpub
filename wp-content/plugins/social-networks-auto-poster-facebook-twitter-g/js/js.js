@@ -20,15 +20,51 @@ jQuery(document).ready(function() {
   jQuery('#nxs_ntType').ddslick({ width: 200, imagePosition: "left", selectText: "Select network", onSelected: function (data) {doShowFillBlockX(data.selectedData.value);}});  
   jQuery('.nxs_acctcb').iCheck({checkboxClass: 'icheckbox_minimal-blue', radioClass: 'iradio_minimal-blue', increaseArea: '20%'});
   jQuery('.nxsGrpDoChb').iCheck({checkboxClass: 'icheckbox_minimal-blue', radioClass: 'iradio_minimal-blue', increaseArea: '20%'});
-  jQuery('.nxsGrpDoChb').on('ifClicked', function(event){ console.log("ifClickedX"); if (jQuery(this).attr('type')=='radio') {  jQuery(this).attr('type', 'checkbox'); jQuery(this).val('1'); jQuery(this).iCheck('destroy'); 
+  jQuery('.nxsGrpDoChb').on('ifClicked', function(event){  if (jQuery(this).attr('type')=='radio') {  jQuery(this).attr('type', 'checkbox'); jQuery(this).val('1'); jQuery(this).iCheck('destroy'); 
     jQuery(this).iCheck({checkboxClass: 'icheckbox_minimal-blue', radioClass: 'iradio_minimal-blue', increaseArea: '20%'}); 
     jQuery(this).attr('id', jQuery(this).attr('id').replace('rbtn','do'));
+    jQuery('.nxsGrpDoChb').on('ifChanged', function(event){ console.log("ifChangedXRadio");  nxs_showHideMetaBoxBlocks(); }); 
   } });
+  
+  //## Show/Hide Metabx Blocks
+  nxs_showHideMetaBoxBlocks();  
+  
+  jQuery('.nxsGrpDoChb').on("change", function(e) { jQuery('.nxstbl'+e.target.id).toggle(); });    
+  //jQuery('.nxsGrpDoChb').on('ifChanged', function(event){ console.log("ifChanged"+event.target.id);  nxs_showHideMetaBoxBlocks(); });
+  
+  jQuery('.nxsGrpDoChb').on('ifChanged', function(event){ 
+      if (jQuery(this).is(":checked")) { jQuery('.nxstbl'+event.target.id).show();  jQuery('#l'+event.target.id).find('span').html('[-]'); } else { jQuery('.nxstbl'+event.target.id).hide();  jQuery('#l'+event.target.id).find('span').html('[+]'); } 
+  });
+    
+  jQuery('.nsx_iconedTitle').on("click", function(e) { 
+   jQuery(this).find('span').html(jQuery(this).find('span').html() == '[-]' ? '[+]' : '[-]');  jQuery('.nxstb'+jQuery(this).prop('id')).toggle(); 
+  });    
+  //jQuery('.nsx_iconedTitle').find('span').on("click", function(e) {  alert('b'); jQuery(this).html(jQuery(this).html() == '[-]' ? '[+]' : '[-]'); jQuery('.nxst'+e.target.id).toggle(); });    
+  jQuery('.nsx_iconedTitle').on("click", function(e) {    
+   // var curr = jQuery(e.target);  var prev = curr.prev(); console.log( prev ); if (typeof(prev[0].id)=='undefined') prev = prev.prev(); console.log( prev) ; jQuery('.nxstbl'+prev[0].id).toggle();
+  });
+  
+   
+  //## Handle radiobutton for filters
+  jQuery('.iradio_minimal-blue').on('ifChanged', function(event){  nxs_showHideMetaBoxBlocks(); });
+  jQuery( ".iCheck-helper" ).mouseover(function() { 
+    if (jQuery(this).parent().hasClass('iradio_minimal-blue')) nxs_showPopUpInfo('popShAttFLT', event, jQuery(this).parent().find("input").data('fltinfo'));
+  });
+  jQuery( ".iCheck-helper" ).mouseout(function() { nxs_hidePopUpInfo('popShAttFLT'); });
+  
+  jQuery( ".nxs_acctcbR" ).mouseover(function() {  nxs_showPopUpInfo('popShAttFLT', event, jQuery(this).parent().find("input").data('fltinfo')); });
+  jQuery( ".nxs_acctcbR" ).mouseout(function() { nxs_hidePopUpInfo('popShAttFLT'); });
+  
+  jQuery( ".nxsShowQmark" ).mouseover(function() { console.log("DD|"+jQuery(this).attr('longdesc')); nxs_showPopUpInfo(jQuery(this).attr('longdesc'), event);});
+  jQuery( ".nxsShowQmark" ).mouseout(function() { nxs_hidePopUpInfo(jQuery(this).attr('longdesc')); });
+  
   //## End of jQuery(document).ready(function()
 });
 
-function nxs_showHideMetaBoxBlocks(){ console.log("nxs_showHideMetaBoxBlocks:");
-    jQuery('.nxsGrpDoChb').each( function( i, e ) { console.log(":"+e.id+"|"); if (jQuery(this).is(":checked")) jQuery('.nxstbl'+e.id).show(); else jQuery('.nxstbl'+e.id).hide(); });
+
+
+function nxs_showHideMetaBoxBlocks(){ 
+    jQuery('.nxsGrpDoChb').each( function( i, e ) { if (jQuery(this).is(":checked")) { jQuery('.nxstbl'+e.id).show();  jQuery('#l'+e.id).find('span').html('[-]'); } else { jQuery('.nxstbl'+e.id).hide();  jQuery('#l'+e.id).find('span').html('[+]'); } });
 }
 function nxs_hideMetaBoxBlocks(){ console.log("nxs_hideMetaBoxBlocks");
     jQuery('.nxsGrpDoChb').each( function( i, e ) { jQuery('.nxstbl'+e.id).hide(); });
@@ -37,8 +73,14 @@ function nxs_hideMetaBoxBlocks(){ console.log("nxs_hideMetaBoxBlocks");
 (function($) {
   $(function() {
      jQuery('#nxs_snapAddNew').bind('click', function(e) { e.preventDefault(); jQuery('#nxs_spPopup').bPopup({ modalClose: false, appendTo: '#nsStForm', opacity: 0.6, follow: [false, false], position: [65, 50]}); });
+     jQuery('.nxs_snapAddNew').bind('click', function(e) { e.preventDefault(); var tk = jQuery(this).data('nt'); var gk = jQuery('#nxs_ntType ul li').index( jQuery('#nxs_ntType ul li input[value="'+tk+'"]').parent().parent()); 
+       jQuery('#nxs_ntType').ddslick('select', {index: gk }); jQuery('.clNewNTSets').hide(); jQuery('#do'+tk+'Div').show();  jQuery('#nxs_spPopup').bPopup({ modalClose: false, appendTo: '#nsStForm', opacity: 0.6, amsl:400, follow: [false, false], position: [65,'auto']}); 
+     });
      jQuery('#showLic').bind('click', function(e) { e.preventDefault(); jQuery('#showLicForm').bPopup({ modalClose: false, appendTo: '#nsStForm', opacity: 0.6, follow: [false, false]}); });                                 
      jQuery('#showLic2').bind('dblclick', function(e) { e.preventDefault(); jQuery('#showLicForm').bPopup({ modalClose: false, appendTo: '#wpbody', opacity: 0.6, follow: [false, false]}); });                                 
+     
+     jQuery('#showLic2x').bind('click', function(e) { e.preventDefault(); jQuery('#showLicForm').bPopup({ modalClose: false, appendTo: '#wpbody', opacity: 0.6, follow: [false, false]}); });                                 
+     jQuery('#checkAPI2x').bind('click', function(e) { e.preventDefault(); jQuery("#checkAPI2xLoadingImg").show(); doLic(); });                                      
      
      jQuery('#nxs_resetSNAPInfoPosts').bind('click', function(e) { e.preventDefault(); var r = confirm("Are you sure?"); if (r == true) nxs_doAJXPopup('resetSNAPInfoPosts','','','Please wait....','')  });
      jQuery('#nxs_deleteAllSNAPInfo').bind('click', function(e) { e.preventDefault(); var r = confirm("Are you sure?"); if (r == true) nxs_doAJXPopup('deleteAllSNAPInfo','','','Please wait....','')  });
@@ -113,7 +155,7 @@ function nxs_makeTimeTxt(){ var m=new Array();m[0]="January";m[1]="February";m[2
 //## Select/Unselect Categories
 function nxs_chAllCatsL(ch, divID){ jQuery("#"+divID+" input:checkbox[name='post_category[]']").attr('checked', ch==1); }
 
-function nxs_showPopUpInfo(pid, e){ if (!jQuery('div#'+pid).is(":visible")) jQuery('div#'+pid).show().css('top', e.pageY+5).css('left', e.pageX+25).appendTo('body'); }
+function nxs_showPopUpInfo(pid, e, info){ if (info!='undefined') jQuery('div#'+pid).html(jQuery('div#'+pid).data('text')+info); if (!jQuery('div#'+pid).is(":visible")) jQuery('div#'+pid).show().css('top', e.pageY+5).css('left', e.pageX+25).appendTo('body'); }
 function nxs_hidePopUpInfo(pid){ jQuery('div#'+pid).hide(); }
 
 function showPopShAtt(imid, e){ if (!jQuery('div#popShAtt'+imid).is(":visible")) jQuery('div#popShAtt'+imid).show().css('top', e.pageY+5).css('left', e.pageX+25).appendTo('body'); }
@@ -633,12 +675,393 @@ b=c.id,g=-p+"%",d=100+2*p+"%",d={position:"absolute",top:g,left:g,display:"block
 A(a,!1,!0)}else B&&(/ut|nd/.test(d)?(h[_remove](v),e[_remove](w)):(h[_add](v),e[_add](w)));if(_mobile)b.stopPropagation();else return!1}});a.on(_click+".i focus.i blur.i keyup.i keydown.i keypress.i",function(b){var d=b[_type];b=b.keyCode;if(d==_click)return!1;if("keydown"==d&&32==b)return c[_type]==r&&c[k]||(c[k]?q(a,k):x(a,k)),!1;if("keyup"==d&&c[_type]==r)!c[k]&&x(a,k);else if(/us|ur/.test(d))h["blur"==d?_remove:_add](s)});d.on(_click+" mousedown mouseup mouseover mouseout "+_touch,function(b){var d=
 b[_type],e=/wn|up/.test(d)?t:v;if(!c[n]){if(d==_click)A(a,!1,!0);else{if(/wn|er|in/.test(d))h[_add](e);else h[_remove](e+" "+t);if(z.length&&B&&e==v)z[/ut|nd/.test(d)?_remove:_add](w)}if(_mobile)b.stopPropagation();else return!1}})})}})(window.jQuery||window.Zepto);
   
-  /*! ddslick v2 http://designwithpc.com/Plugins/ddSlick, MIT Licensed */
-(function (a) { function g(a, b) { var c = a.data("ddslick"); var d = a.find(".dd-selected"), e = d.siblings(".dd-selected-value"), f = a.find(".dd-options"), g = d.siblings(".dd-pointer"), h = a.find(".dd-option").eq(b), k = h.closest("li"), l = c.settings, m = c.settings.data[b]; a.find(".dd-option").removeClass("dd-option-selected"); h.addClass("dd-option-selected"); c.selectedIndex = b; c.selectedItem = k; c.selectedData = m; if (l.showSelectedHTML) { d.html((m.imageSrc ? '<img class="dd-selected-image' + (l.imagePosition == "right" ? " dd-image-right" : "") + '" src="' + m.imageSrc + '" />' : "") + (m.text ? '<label class="dd-selected-text">' + m.text + "</label>" : "") + (m.description ? '<small class="dd-selected-description dd-desc' + (l.truncateDescription ? " dd-selected-description-truncated" : "") + '" >' + m.description + "</small>" : "")) } else d.html(m.text); e.val(m.value); c.original.val(m.value); a.data("ddslick", c); i(a); /* j(a); */ if (typeof l.onSelected == "function") { l.onSelected.call(this, c) } } function h(b) { var c = b.find(".dd-select"), d = c.siblings(".dd-options"), e = c.find(".dd-pointer"), f = d.is(":visible"); a(".dd-click-off-close").not(d).slideUp(50); a(".dd-pointer").removeClass("dd-pointer-up"); if (f) { d.slideUp("fast"); e.removeClass("dd-pointer-up") } else { d.slideDown("fast"); e.addClass("dd-pointer-up") } k(b) } function i(a) { a.find(".dd-options").slideUp(50); a.find(".dd-pointer").removeClass("dd-pointer-up").removeClass("dd-pointer-up") } function j(a) { var b = a.find(".dd-select").css("height"); var c = a.find(".dd-selected-description"); var d = a.find(".dd-selected-image"); if (c.length <= 0 && d.length > 0) { a.find(".dd-selected-text").css("lineHeight", b) } } function k(b) { b.find(".dd-option").each(function () { var c = a(this); var d = c.css("height"); var e = c.find(".dd-option-description"); var f = b.find(".dd-option-image"); if (e.length <= 0 && f.length > 0) { c.find(".dd-option-text").css("lineHeight", d) } }) } a.fn.ddslick = function (c) { if (b[c]) { return b[c].apply(this, Array.prototype.slice.call(arguments, 1)) } else if (typeof c === "object" || !c) { return b.init.apply(this, arguments) } else { a.error("Method " + c + " does not exists.") } }; var b = {}, c = { data: [], keepJSONItemsOnTop: false, width: 260, height: null, background: "#eee", selectText: "", defaultSelectedIndex: null, truncateDescription: true, imagePosition: "left", showSelectedHTML: true, clickOffToClose: true, onSelected: function () { } }, d = '<div class="dd-select"><input class="dd-selected-value" type="hidden" /><a class="dd-selected"></a><span class="dd-pointer dd-pointer-down"></span></div>', e = '<ul class="dd-options"></ul>', f = '<style id="css-ddslick" type="text/css">' + ".dd-select{ border-radius:2px; border:solid 1px #ccc; position:relative; cursor:pointer;}" + ".dd-desc { color:#aaa; display:block; overflow: hidden; font-weight:normal; line-height: 1.4em; }" + ".dd-selected{ overflow:hidden; display:block; padding:5px; font-weight:bold;}" + ".dd-pointer{ width:0; height:0; position:absolute; right:10px; top:50%; margin-top:-3px;}" + ".dd-pointer-down{ border:solid 5px transparent; border-top:solid 5px #000; }" + ".dd-pointer-up{border:solid 5px transparent !important; border-bottom:solid 5px #000 !important; margin-top:-8px;}" + ".dd-options{ border:solid 1px #ccc; border-top:none; list-style:none; box-shadow:0px 1px 5px #ddd; display:none; position:absolute; z-index:2000; margin:0; padding:0;background:#fff; overflow:auto;}" + ".dd-option{ padding:5px; display:block; border-bottom:solid 1px #ddd; overflow:hidden; text-decoration:none; color:#333; cursor:pointer;-webkit-transition: all 0.25s ease-in-out; -moz-transition: all 0.25s ease-in-out;-o-transition: all 0.25s ease-in-out;-ms-transition: all 0.25s ease-in-out; }" + ".dd-options > li:last-child > .dd-option{ border-bottom:none;}" + ".dd-option:hover{ background:#f3f3f3; color:#000;}" + ".dd-selected-description-truncated { text-overflow: ellipsis; white-space:nowrap; }" + ".dd-option-selected { background:#f6f6f6; }" + ".dd-option-image, .dd-selected-image { vertical-align:middle; float:left; margin-right:5px; max-width:64px;}" + ".dd-image-right { float:right; margin-right:15px; margin-left:5px;}" + ".dd-container{ position:relative;}​ .dd-selected-text { font-weight:bold}​</style>"; if (a("#css-ddslick").length <= 0) { a(f).appendTo("head") } b.init = function (b) { var b = a.extend({}, c, b); return this.each(function () { var c = a(this), f = c.data("ddslick"); if (!f) { var i = [], j = b.data; c.find("option").each(function () { var b = a(this), c = b.data(); i.push({ text: a.trim(b.text()), value: b.val(), selected: b.is(":selected"), description: c.description, imageSrc: c.imagesrc }) }); if (b.keepJSONItemsOnTop) a.merge(b.data, i); else b.data = a.merge(i, b.data); var k = c, l = a('<div id="' + c.attr("id") + '"></div>'); c.replaceWith(l); c = l; c.addClass("dd-container").append(d).append(e); var i = c.find(".dd-select"), m = c.find(".dd-options"); m.css({ width: b.width }); i.css({ width: b.width, background: b.background }); c.css({ width: b.width }); if (b.height != null) m.css({ height: b.height, overflow: "auto" }); a.each(b.data, function (a, c) { if (c.selected) b.defaultSelectedIndex = a; m.append("<li>" + '<a class="dd-option">' + (c.value ? ' <input class="dd-option-value" type="hidden" value="' + c.value + '" />' : "") + (c.imageSrc ? ' <img class="dd-option-image' + (b.imagePosition == "right" ? " dd-image-right" : "") + '" src="' + c.imageSrc + '" />' : "") + (c.text ? ' <label class="dd-option-text">' + c.text + "</label>" : "") + (c.description ? ' <small class="dd-option-description dd-desc">' + c.description + "</small>" : "") + "</a>" + "</li>") }); var n = { settings: b, original: k, selectedIndex: -1, selectedItem: null, selectedData: null }; c.data("ddslick", n); if (b.selectText.length > 0 && b.defaultSelectedIndex == null) { c.find(".dd-selected").html(b.selectText) } else { var o = b.defaultSelectedIndex != null && b.defaultSelectedIndex >= 0 && b.defaultSelectedIndex < b.data.length ? b.defaultSelectedIndex : 0; g(c, o) } c.find(".dd-select").on("click.ddslick", function () { h(c) }); c.find(".dd-option").on("click.ddslick", function () { g(c, a(this).closest("li").index()) }); if (b.clickOffToClose) { m.addClass("dd-click-off-close"); c.on("click.ddslick", function (a) { a.stopPropagation() }); a("body").on("click", function () { a(".dd-click-off-close").slideUp(50).siblings(".dd-select").find(".dd-pointer").removeClass("dd-pointer-up") }) } } }) }; b.select = function (b) { return this.each(function () { if (b.index) g(a(this), b.index) }) }; b.open = function () { return this.each(function () { var b = a(this), c = b.data("ddslick"); if (c) h(b) }) }; b.close = function () { return this.each(function () { var b = a(this), c = b.data("ddslick"); if (c) i(b) }) }; b.destroy = function () { return this.each(function () { var b = a(this), c = b.data("ddslick"); if (c) { var d = c.original; b.removeData("ddslick").unbind(".ddslick").replaceWith(d) } }) } })(jQuery)
-
 /* jquery.quickselect.min.js - https://github.com/dcparker/jquery_plugins/tree/master/quickselect */
 function object(d){var s=function(){};s.prototype=d;return new s();}var QuickSelect;(function($){QuickSelect=function(d,f){var self=this;d=$(d);d.attr('autocomplete','off');self.options=f;self.AllItems={};var g=false,h=-1,j=false,k,l,m,n=false,o,p;if(/MSIE (\d+\.\d+);/.test(navigator.userAgent)){if(Number(RegExp.$1)<=7)n=true;}o=$('<div class="'+f.resultsClass+'" style="display:block;position:absolute;z-index:9999;"></div>').hide();p=$('<iframe />');p.css({border:'none',position:'absolute'});if(f.width>0){o.css("width",f.width);p.css("width",f.width);}$('body').append(o);o.hide();if(n)$('body').append(p);self.getLabel=function(A){return A.label||(typeof(A)==='string'?A:A[0])||'';};var r=function(A){return A.values||(A.value?[A.value]:(typeof(A)==='string'?[A]:A))||[];};var t=function(A){var B=$('li',o);if(!B)return;if(typeof(A)==="number")h=h+A;else h=B.index(A);if(h<0)h=0;else if(h>=B.size())h=B.size()-1;B.removeClass(f.selectedClass);$(B[h]).addClass(f.selectedClass);if(f.autoFill&&self.last_keyCode!=8){d.val(l+$(B[h]).text().substring(l.length));var C=l.length,D=d.val().length,E=d.get(0);if(E.createTextRange){var F=E.createTextRange();F.collapse(true);F.moveStart("character",C);F.moveEnd("character",D);F.select();}else if(E.setSelectionRange){E.setSelectionRange(C,D);}else if(E.selectionStart){E.selectionStart=C;E.selectionEnd=D;}E.focus();}};var u=function(){if(m){clearTimeout(m);}d.removeClass(f.loadingClass);if(o.is(":visible"))o.hide();if(p.is(":visible"))p.hide();h=-1;};self.selectItem=function(A,B){if(!A){A=document.createElement("li");A.item='';}var C=self.getLabel(A.item),D=r(A.item);d.lastSelected=C;d.val(C);l=C;o.empty();$(f.additionalFields).each(function(i,E){$(E).val(D[i+1]);});if(!B)u();if(f.onItemSelect)setTimeout(function(){f.onItemSelect(A);},1);return true;};var v=function(){var A=$("li."+f.selectedClass,o).get(0);if(A){return self.selectItem(A);}else{if(f.exactMatch){d.val('');$(f.additionalFields).each(function(i,B){$(B).val('');});}return false;}};var w=function(A){o.empty();if(!j||A===null||A.length===0)return u();var B=document.createElement("ul"),C=A.length,D=function(){t(this);},E=function(){},F=function(e){e.preventDefault();e.stopPropagation();self.selectItem(this);};o.append(B);if(f.maxVisibleItems>0&&f.maxVisibleItems<C)C=f.maxVisibleItems;for(var i=0;i<C;i++){var G=A[i],H=document.createElement("li");o.append(H);$(H).text(f.formatItem?f.formatItem(G,i,C):self.getLabel(G));H.item=G;if(G.className)H.className=G.className;B.appendChild(H);$(H).hover(D,E).click(F);}d.removeClass(f.loadingClass);return true;};var x=function(q,A){f.finderFunction.apply(self,[q,function(B){w(f.matchMethod.apply(self,[q,B]));A();}]);};var y=function(){var A=d.offset(),B=(f.width>0?f.width:d.width()),C=$('li',o);o.css({width:parseInt(B,10)+"px",top:A.top+d.height()+5+"px",left:A.left+"px"});if(n){p.css({width:parseInt(B,10)-2+"px",top:A.top+d.height()+6+"px",left:A.left+1+"px",height:o.height()-2+'px'}).show();}o.show();if(f.autoSelectFirst||(f.selectSingleMatch&&C.length==1))t(C.get(0));};var z=function(){if(k>=9&&k<=45){return;}var q=d.val();if(q==l)return;l=q;if(q.length>=f.minChars){d.addClass(f.loadingClass);x(q,y);}else{if(q.length===0&&(f.onBlank?f.onBlank():true))$(f.additionalFields).each(function(i,A){A.value='';});d.removeClass(f.loadingClass);o.hide();p.hide();}};o.mousedown(function(e){if(e.srcElement)g=e.srcElement.tagName!='DIV';});d.keydown(function(e){k=e.keyCode;switch(e.keyCode){case 38:e.preventDefault();t(-1);break;case 40:e.preventDefault();if(!o.is(":visible")){y();t(0);}else{t(1);}break;case 13:if(v()){e.preventDefault();d.select();}break;case 9:break;case 27:if(h>-1&&f.exactMatch&&d.val()!=$($('li',o).get(h)).text()){h=-1;}$('li',o).removeClass(f.selectedClass);u();e.preventDefault();break;default:if(m){clearTimeout(m);}m=setTimeout(z,f.delay);break;}}).focus(function(){j=true;}).blur(function(e){if(h>-1){v();}j=false;if(m){clearTimeout(m);}m=setTimeout(function(){u();if(f.exactMatch&&d.val()!=d.lastSelected){self.selectItem(null,true);}},200);});};QuickSelect.matchers={quicksilver:function(q,d){var f,g,self=this;f=(self.options.matchCase?q:q.toLowerCase());self.AllItems[f]=[];for(var i=0;i<d.length;i++){g=(self.options.matchCase?self.getLabel(d[i]):self.getLabel(d[i]).toLowerCase());if(g.score(f)>0){self.AllItems[f].push(d[i]);}}return self.AllItems[f].sort(function(a,b){a=(self.options.matchCase?self.getLabel(a):self.getLabel(a).toLowerCase());b=(self.options.matchCase?self.getLabel(b):self.getLabel(b).toLowerCase());a=a.score(f);b=b.score(f);return(a>b?-1:(b>a?1:0));});},contains:function(q,d){var f,g,self=this;f=(self.options.matchCase?q:q.toLowerCase());self.AllItems[f]=[];for(var i=0;i<d.length;i++){g=(self.options.matchCase?self.getLabel(d[i]):self.getLabel(d[i]).toLowerCase());if(g.indexOf(f)>-1){self.AllItems[f].push(d[i]);}}return self.AllItems[f].sort(function(a,b){a=(self.options.matchCase?self.getLabel(a):self.getLabel(a).toLowerCase());b=(self.options.matchCase?self.getLabel(b):self.getLabel(b).toLowerCase());var h=a.indexOf(f);var j=b.indexOf(f);return(h>j?-1:(h<j?1:(a>b?-1:(b>a?1:0))));});},startsWith:function(q,d){var f,g,self=this;f=(self.options.matchCase?q:q.toLowerCase());self.AllItems[f]=[];for(var i=0;i<d.length;i++){g=(self.options.matchCase?self.getLabel(d[i]):self.getLabel(d[i]).toLowerCase());if(g.indexOf(f)===0){self.AllItems[f].push(d[i]);}}return self.AllItems[f].sort(function(a,b){a=(self.options.matchCase?self.getLabel(a):self.getLabel(a).toLowerCase());b=(self.options.matchCase?self.getLabel(b):self.getLabel(b).toLowerCase());return(a>b?-1:(b>a?1:0));});}};QuickSelect.finders={data:function(q,d){d(this.options.data);},ajax:function(q,d){var f=this.options.ajax+"?q="+encodeURI(q);for(var i in this.options.ajaxParams){if(this.options.ajaxParams.hasOwnProperty(i)){f+="\x26"+i+"\x3d"+encodeURI(this.options.ajaxParams[i]);}}$.getJSON(f,d);}};$.fn.quickselect=function(d,f){if(d=='instance'&&$(this).data('quickselect'))return $(this).data('quickselect');d=d||{};d.data=(typeof(d.data)==="object"&&d.data.constructor==Array)?d.data:undefined;d.ajaxParams=d.ajaxParams||{};d.delay=d.delay||400;if(!d.delay)d.delay=(!d.ajax?400:10);d.minChars=d.minChars||1;d.cssFlavor=d.cssFlavor||'quickselect';d.inputClass=d.inputClass||d.cssFlavor+"_input";d.loadingClass=d.loadingClass||d.cssFlavor+"_loading";d.resultsClass=d.resultsClass||d.cssFlavor+"_results";d.selectedClass=d.selectedClass||d.cssFlavor+"_selected";d.finderFunction=d.finderFunction||QuickSelect.finders[!d.data?'ajax':'data'];if(d.finderFunction==='data'||d.finderFunction==='ajax')d.finderFunction=QuickSelect.finders[d.finderFunction];d.matchMethod=d.matchMethod||QuickSelect.matchers[(typeof(''.score)==='function'&&'\x6c'.score('\x6c')==1?'quicksilver':'contains')];if(d.matchMethod==='quicksilver'||d.matchMethod==='contains'||d.matchMethod==='startsWith')d.matchMethod=QuickSelect.matchers[d.matchMethod];if(d.matchCase===undefined)d.matchCase=false;if(d.exactMatch===undefined)d.exactMatch=false;if(d.autoSelectFirst===undefined)d.autoSelectFirst=true;if(d.selectSingleMatch===undefined)d.selectSingleMatch=true;if(d.additionalFields===undefined)d.additionalFields=$('nothing');d.maxVisibleItems=d.maxVisibleItems||-1;if(d.autoFill===undefined||d.matchMethod!='startsWith'){d.autoFill=false;}d.width=parseInt(d.width,10)||0;return this.each(function(){var g=this,h=object(d);if(g.tagName=='INPUT'){var j=new QuickSelect(g,h);$(g).data('quickselect',j);}else if(g.tagName=='SELECT'){h.delay=h.delay||10;h.finderFunction='data';var name=g.name,k=g.id,l=g.className,m=$(g).attr('accesskey'),n=$(g).attr('tabindex'),o=$("option:selected",g).get(0);h.data=[];$('option',g).each(function(i,t){h.data.push({label:$(t).text(),values:[t.value,t.value],className:t.className});});var p=$("<input type='text' class='"+l+"' id='"+k+"_quickselect' accesskey='"+m+"' tabindex='"+n+"' />");if(o){p.val($(o).text());}var r=$("<input type='hidden' id='"+k+"' name='"+g.name+"' />");if(o){r.val(o.value);}h.additionalFields=r;$(g).after(p).after(r).remove();p.quickselect(h);}});};})(jQuery);
 
 // String Scoring Algorithm 0.1.22 | (c) 2009-2015 Joshaven Potter <yourtech@gmail.com>
 // MIT License: http://opensource.org/licenses/MIT | https://github.com/joshaven/string_score
 String.prototype.score=function(e,f){if(this===e)return 1;if(""===e)return 0;var d=0,a,g=this.toLowerCase(),n=this.length,h=e.toLowerCase(),k=e.length,b;a=0;var l=1,m,c;f&&(m=1-f);if(f)for(c=0;c<k;c+=1)b=g.indexOf(h[c],a),-1===b?l+=m:(a===b?a=.7:(a=.1," "===this[b-1]&&(a+=.8)),this[b]===e[c]&&(a+=.1),d+=a,a=b+1);else for(c=0;c<k;c+=1){b=g.indexOf(h[c],a);if(-1===b)return 0;a===b?a=.7:(a=.1," "===this[b-1]&&(a+=.8));this[b]===e[c]&&(a+=.1);d+=a;a=b+1}d=.5*(d/n+d/k)/l;h[0]===g[0]&&.85>d&&(d+=.15);return d};
+
+// DDslick
+(function (factory) {
+
+    if (typeof define === "function" && define.amd) {
+        /** AMD. Register as an anonymous module. */
+        define(["jquery"], factory);
+    } else if (typeof module === "object" && module.exports) {
+        /** Node/CommonJS */
+        module.exports = factory(require("jquery"));
+    } else {
+        /** Browser globals */
+        factory(window.jQuery);
+    }
+
+}(function ($) {
+
+    $.fn.ddslick = function (method) {
+        if (methods[method]) {
+            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else if (typeof method === "object" || !method) {
+            return methods.init.apply(this, arguments);
+        } else {
+            $.error("Method " + method + " does not exists.");
+        }
+    };
+
+    var methods = {};
+    var settingsMap = {};
+    var defaults = {
+        data: [],
+        keepJSONItemsOnTop: false,
+        animationTime: 50,
+        width: 260,
+        height: null,
+        background: "#eee",
+        selectText: "",
+        defaultSelectedIndex: null,
+        truncateDescription: true,
+        imagePosition: "left",
+        showSelectedHTML: true,
+        clickOffToClose: true,
+        embedCSS: true,
+        onSelected: function() { }
+    };
+
+    var closeListenerInitialized = false;
+    var ddSelectHtml = "<div class='dd-select'><input class='dd-selected-value' type='hidden' /><a class='dd-selected'></a><span class='dd-pointer dd-pointer-down'></span></div>";
+    var ddOptionsHtml = "<ul class='dd-options'></ul>";
+
+    //CSS for ddSlick
+    var ddslickCSS = "<style id='css-ddslick' type='text/css'>" +
+        ".dd-select{ border-radius:2px; border:solid 1px #ccc; position:relative; cursor:pointer;}" +
+        ".dd-desc { color:#aaa; display:block; overflow: hidden; font-weight:normal; line-height: 1.4em; }" +
+        ".dd-selected{ overflow:hidden; display:block; padding:10px;  font-weight:bold;}" +
+        ".dd-pointer{ width:0; height:0; position:absolute; right:10px; top:50%; margin-top:-3px;}" +
+        ".dd-pointer-down{ border:solid 5px transparent; border-top:solid 5px #000; }" +
+        ".dd-pointer-up{border:solid 5px transparent !important; border-bottom:solid 5px #000 !important; margin-top:-8px;}" +
+        ".dd-options{ border:solid 1px #ccc; border-top:none; list-style:none; box-shadow:0px 1px 5px #ddd; display:none; position:absolute; z-index:2000; margin:0; padding:0;background:#fff; overflow:auto;}" +
+        ".dd-option, .dd-title{ padding:10px; display:block; border-bottom:solid 1px #ddd; overflow:hidden; text-decoration:none; color:#333; cursor:pointer;-webkit-transition: all 0.25s ease-in-out; -moz-transition: all 0.25s ease-in-out;-o-transition: all 0.25s ease-in-out;-ms-transition: all 0.25s ease-in-out; }" +
+        ".dd-options > li:last-child > .dd-option{ border-bottom:none;}" +
+        ".dd-option:hover{ background:#f3f3f3; color:#000;}" +
+        ".dd-selected-description-truncated { text-overflow: ellipsis; white-space:nowrap; }" +
+        ".dd-option-selected { background:#f6f6f6; }" +
+        ".dd-option { padding-left:30px} .dd-option-image, .dd-selected-image { vertical-align:middle; float:left; margin-right:5px; max-width:64px;}" +
+        ".dd-image-right { float:right; margin-right:15px; margin-left:5px;}" +
+        ".dd-container{ position:relative;} .dd-selected-text { font-weight:bold}</style>";
+
+    //Public methods
+    methods.init = function (userOptions) {
+        //Preserve the original defaults by passing an empty object as the target
+        //The object is used to get global flags like embedCSS.
+        var options = $.extend({}, defaults, userOptions);
+
+        //CSS styles are only added once.
+        if ($("#css-ddslick").length <= 0 && options.embedCSS) {
+            $(ddslickCSS).appendTo("head");
+        }
+
+        //Apply on all selected elements
+        return this.each(function() {
+            //Preserve the original defaults by passing an empty object as the target
+            //The object is used to save drop-down"s corresponding settings and data.
+            var options = $.extend({}, defaults, userOptions);
+
+            var obj = $(this),
+                data = obj.data("ddslick");
+            //If the plugin has not been initialized yet
+            if (!data) {
+
+                var ddSelect = [];
+
+                //Get data from HTML select options
+                obj.find("option").each(function() {
+                    var $this = $(this), thisData = $this.data();
+                    ddSelect.push({
+                        text: $.trim($this.text()),
+                        value: $this.val(),
+                        title: thisData.title,
+                        selected: $this.is(":selected"),
+                        description: thisData.description,
+                        imageSrc: thisData.imagesrc //keep it lowercase for HTML5 data-attributes
+                    });
+                });
+
+                //Update Plugin data merging both HTML select data and JSON data for the dropdown
+                if (options.keepJSONItemsOnTop)
+                    $.merge(options.data, ddSelect);
+                else options.data = $.merge(ddSelect, options.data);
+
+                //Replace HTML select with empty placeholder, keep the original
+                var original = obj, placeholder = $("<div>").attr("id", obj.attr("id"));
+                obj.replaceWith(placeholder);
+                obj = placeholder;
+
+                // Save options
+                var settingsId = "ID_" + (new Date()).getTime();
+                $(obj).attr("data-settings-id", settingsId);
+                settingsMap[settingsId] = {};
+                $.extend(settingsMap[settingsId], options);
+
+                //Add classes and append ddSelectHtml & ddOptionsHtml to the container
+                obj.addClass("dd-container").append(ddSelectHtml).append(ddOptionsHtml);
+
+                // Inherit name attribute from original element
+                obj.find("input.dd-selected-value")
+                    .attr("id", $(original).attr("id"))
+                    .attr("name", $(original).attr("name"));
+
+                //Get newly created ddOptions and ddSelect to manipulate
+                var ddOptions = obj.find(".dd-options");
+                ddSelect = obj.find(".dd-select");
+
+                //Set widths
+                ddOptions.css({ width: options.width });
+                ddSelect.css({ width: options.width, background: options.background });
+                obj.css({ width: options.width });
+
+                //Set height
+                if (options.height !== null)
+                    ddOptions.css({ height: options.height, overflow: "auto" });
+
+                //Add ddOptions to the container. Replace with template engine later.
+                $.each(options.data, function (index, item) {
+                    if (item.selected) options.defaultSelectedIndex = index;
+                    
+                    if (item.title) ddOptions.append('<li class="dd-title"><strong>'+item.text+'</strong></li>'); else {
+                    
+                    var ddList = $("<li>").append($("<a>").addClass("dd-option"));
+                    var ddOption = ddList.find("a");
+                    if(item.value) ddOption.append($("<input>").addClass("dd-option-value").attr("type", "hidden").val(item.value));
+                    if(item.imageSrc) ddOption.append($("<img>").attr("src", item.imageSrc).addClass("dd-option-image" + (options.imagePosition === "right" ? " dd-image-right" : "")));
+                    if(item.text) ddOption.append($("<label>").addClass("dd-option-text").text(item.text));
+                    if(item.description) ddOption.append($("<small>").addClass("dd-option-description dd-desc").text(item.description));
+                    ddOptions.append(ddList);
+                    
+                   }
+                });
+
+                //Save plugin data.
+                var pluginData = {
+                    settings: options,
+                    original: original,
+                    selectedIndex: -1,
+                    selectedItem: null,
+                    selectedData: null
+                };
+
+                obj.data("ddslick", pluginData);
+
+                //Check if needs to show the select text, otherwise show selected or default selection
+                if (options.selectText.length > 0 && options.defaultSelectedIndex === null) {
+                    obj.find(".dd-selected").html(options.selectText);
+                }
+                else {
+                    var index = (options.defaultSelectedIndex != null && options.defaultSelectedIndex >= 0 && options.defaultSelectedIndex < options.data.length)
+                                ? options.defaultSelectedIndex
+                                : 0;
+                    selectIndex(obj, index, false);
+                }
+
+                //EVENTS
+                //Displaying options
+                obj.find(".dd-select").on("click.ddslick", function() {
+                    open(obj);
+                });
+
+                //Selecting an option
+                obj.find(".dd-option").on("click.ddslick", function() {
+                    selectIndex(obj, $(this).closest("li").index(), true);
+                });
+
+                //Click anywhere to close
+                if (options.clickOffToClose) {
+                    ddOptions.addClass("dd-click-off-close");
+                    obj.on("click.ddslick", function (e) { e.stopPropagation(); });
+                    // Close listener needs to be added only once
+                    if(!closeListenerInitialized) {
+                        closeListenerInitialized = true;
+                        $("body").on("click", function () {
+                            $(".dd-open").removeClass("dd-open");
+                            $(".dd-click-off-close").slideUp(options.animationTime).siblings(".dd-select").find(".dd-pointer").removeClass("dd-pointer-up");
+                        });
+                    }
+                }
+            }
+        });
+    };
+
+    //Public method to select an option by its index
+    methods.select = function (options) {
+        return this.each(function() {
+            if (options.index !== undefined)
+                selectIndex($(this), options.index);
+            if (options.value !== undefined)
+                selectValue($(this), options.value);
+            if (options.id !== undefined)
+                selectValue($(this), options.id);
+        });
+    };
+
+    //Public method to open drop down
+    methods.open = function() {
+        return this.each(function() {
+            var $this = $(this),
+                pluginData = $this.data("ddslick");
+
+            //Check if plugin is initialized
+            if (pluginData)
+                open($this);
+        });
+    };
+
+    //Public method to close drop down
+    methods.close = function() {
+        return this.each(function() {
+            var $this = $(this),
+                pluginData = $this.data("ddslick");
+
+            //Check if plugin is initialized
+            if (pluginData)
+                close($this);
+        });
+    };
+
+    //Public method to destroy. Unbind all events and restore the original Html select/options
+    methods.destroy = function() {
+        return this.each(function() {
+            var $this = $(this),
+                pluginData = $this.data("ddslick");
+
+            //Check if already destroyed
+            if (pluginData) {
+                var originalElement = pluginData.original;
+                $this.removeData("ddslick").unbind(".ddslick").replaceWith(originalElement);
+            }
+        });
+    };
+
+    //Private: Select by value
+    function selectValue(obj, value) {
+        var index = obj.find(".dd-option-value[value= '" + value + "']").parents("li").prevAll().length;
+        selectIndex(obj, index);
+    }
+
+    //Private: Select index
+    function selectIndex(obj, index, callbackOnSelection) {
+
+        //Get plugin data
+        var pluginData = obj.data("ddslick");
+
+        //Get required elements
+        var ddSelected = obj.find(".dd-selected"),
+            ddSelectedValue = ddSelected.siblings(".dd-selected-value"),
+            selectedOption = obj.find(".dd-option").eq(index),
+            selectedLiItem = selectedOption.closest("li"),
+            settings = pluginData.settings,
+            selectedData = pluginData.settings.data[index];
+
+        //Highlight selected option
+        obj.find(".dd-option").removeClass("dd-option-selected");
+        selectedOption.addClass("dd-option-selected");
+
+        //Update or Set plugin data with new selection
+        pluginData.selectedIndex = index;
+        pluginData.selectedItem = selectedLiItem;
+        pluginData.selectedData = selectedData;
+
+        //If set to display to full html, add html
+        if (settings.showSelectedHTML) {
+            var ddSelectedData = $("<div>");
+            if(selectedData.imageSrc) ddSelectedData.append($("<img>").addClass("dd-selected-image" + (settings.imagePosition === "right" ? " dd-image-right" : "")).attr("src", selectedData.imageSrc));
+            if(selectedData.text) ddSelectedData.append($("<label>").addClass("dd-selected-text").text(selectedData.text));
+            if(selectedData.description) ddSelectedData.append($("<small>").addClass("dd-selected-description dd-desc" + (settings.truncateDescription ? " dd-selected-description-truncated" : "")).text(selectedData.description));
+            ddSelected.html(ddSelectedData.html());
+        }
+        //Else only display text as selection
+        else ddSelected.html(selectedData.text);
+
+        //Updating selected option value
+        ddSelectedValue.val(selectedData.value);
+
+        //BONUS! Update the original element attribute with the new selection
+        pluginData.original.val(selectedData.value);
+        obj.data("ddslick", pluginData);
+
+        //Close options on selection
+        close(obj);
+
+        //Adjust appearence for selected option
+        adjustSelectedHeight(obj);
+
+        //Callback function on selection
+        if (callbackOnSelection && typeof settings.onSelected == "function") {
+            settings.onSelected.call(this, pluginData);
+        }
+    }
+
+    //Private: Close the drop down options
+    function open(obj) {
+
+        var $this = obj.find(".dd-select"),
+            ddOptions = $this.siblings(".dd-options"),
+            ddPointer = $this.find(".dd-pointer"),
+            wasOpen = ddOptions.is(":visible"),
+            settings = settingsMap[obj.attr("data-settings-id")];
+
+        //Close all open options (multiple plugins) on the page
+        $(".dd-click-off-close").not(ddOptions).slideUp(settings.animationTime);
+        $(".dd-pointer").removeClass("dd-pointer-up");
+        $this.removeClass("dd-open");
+
+        if (wasOpen) {
+            ddOptions.slideUp(settings.animationTime);
+            ddPointer.removeClass("dd-pointer-up");
+            $this.removeClass("dd-open");
+        }
+        else {
+            $this.addClass("dd-open");
+            ddOptions.slideDown(settings.animationTime);
+            ddPointer.addClass("dd-pointer-up");
+        }
+
+        //Fix text height (i.e. display title in center), if there is no description
+        adjustOptionsHeight(obj);
+    }
+
+    //Private: Close the drop down options
+    function close(obj) {
+        //Close drop down and adjust pointer direction
+        var settings = settingsMap[obj.attr("data-settings-id")];
+        obj.find(".dd-select").removeClass("dd-open");
+        obj.find(".dd-options").slideUp(settings.animationTime);
+        obj.find(".dd-pointer").removeClass("dd-pointer-up").removeClass("dd-pointer-up");
+    }
+
+    //Private: Adjust appearence for selected option (move title to middle), when no desripction
+    function adjustSelectedHeight(obj) { return;
+
+        //Get height of dd-selected
+        var lSHeight = obj.find(".dd-select").css("height");
+
+        //Check if there is selected description
+        var descriptionSelected = obj.find(".dd-selected-description");
+        var imgSelected = obj.find(".dd-selected-image");
+        if (descriptionSelected.length <= 0 && imgSelected.length > 0) {
+            obj.find(".dd-selected-text").css("lineHeight", lSHeight);
+        }
+    }
+
+    //Private: Adjust appearence for drop down options (move title to middle), when no desripction
+    function adjustOptionsHeight(obj) {
+        obj.find(".dd-option").each(function() {
+            var $this = $(this);
+            var lOHeight = $this.css("height");
+            var descriptionOption = $this.find(".dd-option-description");
+            var imgOption = obj.find(".dd-option-image");
+            if (descriptionOption.length <= 0 && imgOption.length > 0) {
+                $this.find(".dd-option-text").css("lineHeight", lOHeight);
+            }
+        });
+    }
+
+}));

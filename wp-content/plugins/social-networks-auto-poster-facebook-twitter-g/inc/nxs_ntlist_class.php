@@ -13,32 +13,36 @@ class nxs_snapClassNT {
       return $out;
     }
     
-    public function showNTGroup() { $cbo = count($this->nt); $this->doAuth();  ?> <div class="nxs_box">
+    public function showNTGroup() { $cbo = count($this->nt); $this->doAuth();  ?> <div class="nxs_box" onmouseover="jQuery('.addMore<?php echo $this->ntInfo['code']; ?>').show();" onmouseout="jQuery('.addMore<?php echo $this->ntInfo['code']; ?>').hide();">
         <div class="nxs_box_header">
           <div class="nsx_iconedTitle" style="margin-bottom:1px;background-image:url(<?php echo NXS_PLURL;?>img/<?php echo (!empty($this->ntInfo['imgcode']))?$this->ntInfo['imgcode']:$this->ntInfo['lcode']; ?>16.png);"><?php echo $this->ntInfo['name']; ?>
             <?php if ($cbo>1){ ?><div class="nsBigText"><?php echo "(".$cbo." "; _e('accounts', 'social-networks-auto-poster-facebook-twitter-g'); echo ")"; ?></div><?php } ?>
+            <span style="display: none;" class="addMore<?php echo $this->ntInfo['code']; ?>">&nbsp;&nbsp;&nbsp;<a data-nt="<?php echo $this->ntInfo['code'].(1+max(array_keys($this->nt))); ?>" style="font-size: 12px; text-decoration: none;" href="#" class="nxs_snapAddNew">[Add New <?php echo $this->ntInfo['name']; ?> account]</a></span>
           </div>
         </div>
-        <div class="nxs_box_inside"><?php if(!$this->checkIfFunc()) echo $this->noFuncMsg; else foreach ($this->nt as $indx=>$pbo){ $this->showNTLine($indx, $pbo); } ?></div>
+        <div class="nxs_box_inside"><?php $jj = 0;  if(!$this->checkIfFunc()) echo $this->noFuncMsg; else { uasort($this->nt, 'nxsLstSort'); foreach ($this->nt as $indx=>$pbo){ $jj++; $pbo['jj']=$jj; $pbo['cbo']=$cbo; $this->showNTLine($indx, $pbo); }}
+          if ($jj>7) { ?> <div style="padding-left:5px;padding-top:5px;"><a href="#" onclick="jQuery('.showMore<?php echo $this->ntInfo['code']; ?>').show(); jQuery(this).parent().hide(); return false;">Show More[<?php echo ($cbo-5); ?>]</a></div>  <?php } ?>        
+        </div>
       </div> <?php
     }
-    public function showNTLine($indx, $pbo) { if (!isset($pbo['aName'])) $pbo['aName'] = ''; if (!isset($pbo['do']) && isset($pbo['do'.$this->ntInfo['code']])) $pbo['do'] = $pbo['do'.$this->ntInfo['code']]; 
+    public function showNTLine($indx, $pbo) { if (!isset($pbo['aName'])) $pbo['aName'] = ''; if (!isset($pbo['do']) && isset($pbo['do'.$this->ntInfo['code']])) $pbo['do'] = $pbo['do'.$this->ntInfo['code']]; $jj = $pbo['jj']; $cbo = $pbo['cbo'];
       if (empty($pbo['nName'])) $pbo['nName'] = $pbo['aName']; if (empty($pbo[$this->ntInfo['lcode'].'OK'])) $pbo[$this->ntInfo['lcode'].'OK'] = $this->checkIfSetupFinished($pbo); ?>
-      <div id="dom<?php echo $this->ntInfo['code'].$indx; ?>Div">
+      <div id="dom<?php echo $this->ntInfo['code'].$indx; ?>Div" style="padding-bottom: 3px;<?php echo ($cbo>7 && $jj>5)?'display:none;" class="showMore'.$this->ntInfo['code'].'"':'"'; ?>  onmouseover="jQuery('.showInlineMenu<?php echo $this->ntInfo['code'].$indx; ?>').show();jQuery(this).addClass('nxsHiLightBorder');" onmouseout="jQuery('.showInlineMenu<?php echo $this->ntInfo['code'].$indx; ?>').hide();jQuery(this).removeClass('nxsHiLightBorder');"">
         <div style="margin:0px;margin-left:5px;"> <img id="<?php echo $this->ntInfo['code'].$indx;?>LoadingImg" style="display: none;" src='<?php echo NXS_PLURL; ?>img/ajax-loader-sm.gif' />
-          <?php if ((int)$pbo['do'] > 0 && ((isset($pbo['fltrsOn']) && (int)$pbo['fltrsOn'] == 1))) { ?> 
-            <input type="radio" id="rbtn<?php echo $this->ntInfo['lcode'].$indx; ?>" value="2" name="<?php echo $this->ntInfo['lcode']; ?>[<?php echo $indx; ?>][do]" checked="checked" class="nxs_acctcb" onmouseout="nxs_hidePopUpInfo('popOnlyCat');" onmouseover="nxs_showPopUpInfo('popOnlyCat', event);" /> 
+          <?php if ((int)$pbo['do'] > 0 && ((isset($pbo['fltrsOn']) && (int)$pbo['fltrsOn'] == 1))) { $fltInfo = nxsAnalyzePostFilters($pbo['fltrs']); ?> 
+            <input type="radio" id="rbtn<?php echo $this->ntInfo['lcode'].$indx; ?>" value="2" name="<?php echo $this->ntInfo['lcode']; ?>[<?php echo $indx; ?>][do]" checked="checked" class="nxs_acctcb" data-fltinfo="<?php echo $fltInfo; ?>" /> 
           <?php } else { ?>            
             <input value="0" name="<?php echo $this->ntInfo['lcode']; ?>[<?php echo $indx; ?>][do]" type="hidden" />             
             <input value="1" name="<?php echo $this->ntInfo['lcode']; ?>[<?php echo $indx; ?>][do]" type="checkbox" class="nxs_acctcb" <?php if ((int)$pbo['do'] > 0) echo "checked"; ?> />             
           <?php } ?>              
             <strong><?php  _e('Auto-publish to', 'social-networks-auto-poster-facebook-twitter-g'); ?> <?php echo $this->ntInfo['name']; ?> <i style="color: #005800;"><?php if($pbo['nName']!='') echo "(".$pbo['nName'].")"; ?></i></strong>
             &nbsp;&nbsp;<?php if ($this->ntInfo['tstReq'] && empty($pbo[$this->ntInfo['lcode'].'OK'])){ ?><b style="color: #800000"><?php  _e('Attention required. Unfinished setup', 'social-networks-auto-poster-facebook-twitter-g'); ?> ==&gt;</b><?php } ?>              
+            <span style="padding-left: 0px; display: none;" class="showInlineMenu<?php echo $this->ntInfo['code'].$indx; ?>">
             <a id="do<?php echo $this->ntInfo['code'].$indx; ?>AG" href="#" onclick="doGetHideNTBlock('<?php echo $this->ntInfo['code'];?>' , '<?php echo $indx; ?>');return false;">[<?php  _e('Show Settings', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>&nbsp;&nbsp;          
             <a href="#" onclick="doDelAcct('<?php echo $this->ntInfo['lcode']; ?>', '<?php echo $indx; ?>', '<?php if (isset($pbo['bgBlogID'])) echo $pbo['nName']; ?>');return false;">[<?php  _e('Remove', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>&nbsp;&nbsp;          
-            <a href="#" onclick="doDuplAcct('<?php echo $this->ntInfo['lcode']; ?>', '<?php echo $indx; ?>', '<?php if (isset($pbo['bgBlogID'])) echo $pbo['nName']; ?>');return false;">[<?php  _e('Duplicate', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>
+            <a href="#" onclick="doDuplAcct('<?php echo $this->ntInfo['lcode']; ?>', '<?php echo $indx; ?>', '<?php if (isset($pbo['bgBlogID'])) echo $pbo['nName']; ?>');return false;">[<?php  _e('Duplicate', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a></span>
         </div><div id="nxsNTSetDiv<?php echo $this->ntInfo['code'].$indx; ?>"></div> 
-      </div><?php
+      </div><?php 
     }
        
     function showNoAPIMsg($ii, $options){ ?> <div id="do<?php echo $this->ntInfo['code'].$ii; ?>Div" class="insOneDiv<?php echo " clNewNTSets"; ?>"><div style="border: 2px solid darkred; padding: 25px 15px 15px 15px; margin: 3px; background-color: #fffaf0;"> 
@@ -111,8 +115,8 @@ class nxs_snapClassNT {
       <div style="width:100%;"><b style="font-size: 14px;"><?php echo $lKey; echo $aurl; ?> </b></div><input name="<?php echo $nt; ?>[<?php echo $ii; ?>][<?php echo $fnKey; ?>]" id="<?php echo $fnKey.$ii; ?>" style="width: 30%;" value="<?php echo htmlentities($key, ENT_COMPAT, "UTF-8"); ?>" />  
       <div style="width:100%;"><b style="font-size: 14px;"><?php echo $lSec; ?>:</b></div><input name="<?php echo $nt; ?>[<?php echo $ii; ?>][<?php echo $fnSec; ?>]" id="<?php echo $fnSec.$ii; ?>" style="width: 30%;" value="<?php echo htmlentities($sec, ENT_COMPAT, "UTF-8"); ?>" /><?php                
     }
-    public function elemURL() {
-                        
+    public function elemURL($ii,$fn,$val,$lbl,$subLbl) { $nt = $this->ntInfo['lcode']; $ntU = $this->ntInfo['code'];?>
+      <div style="width:100%;"><strong><?php echo $lbl; ?>:</strong><i><?php  echo $subLbl; ?></i></div><input name="<?php echo $nt; ?>[<?php echo $ii; ?>][<?php echo $fn; ?>]" style="width: 50%;" value="<?php echo htmlentities($val, ENT_COMPAT, "UTF-8"); ?>" /><br/><?php
     }
     public function elemMsgFormat($ii,$l,$fn,$val,$isVisible=true) { $nt = $this->ntInfo['lcode']; ?>
       <div class="nxsMsgFormatDiv" style="display:<?php echo ($isVisible)?"block":"none"; ?>;"> 
@@ -128,12 +132,12 @@ class nxs_snapClassNT {
     
     //## Edit post Elements
     public function elemEdTitleFormat($ii,$l,$msgTFormat) { $nt = $this->ntInfo['lcode']; ?>
-      <tr class="<?php echo 'nxstbldo'.strtoupper($nt).$ii; ?>" ><th scope="row" class="nxsTHRow"><?php echo $l; ?></th><td>                
+      <tr><th scope="row" class="nxsTHRow"><?php echo $l; ?></th><td>                
           <input name="<?php echo $nt; ?>[<?php echo $ii; ?>][msgTFormat]" id="<?php echo $nt.$ii; ?>SNAPformatT" style="width: 50%;" value="<?php echo htmlentities($msgTFormat, ENT_COMPAT, "UTF-8"); ?>" onfocus="nxs_showFrmtInfo('msgFrmtT<?php echo $nt.$ii; ?>');" /><?php nxs_doShowHint("msgFrmtT".$nt.$ii); ?></td>
         </tr><?php                        
     }
     public function elemEdMsgFormat($ii,$l,$msgFormat) { $nt = $this->ntInfo['lcode']; ?>
-      <tr class="<?php echo 'nxstbldo'.strtoupper($nt).$ii; ?>" ><th scope="row" class="nxsTHRow"><?php echo $l; ?></th><td>                
+      <tr><th scope="row" class="nxsTHRow"><?php echo $l; ?></th><td>                
           <textarea cols="150" rows="2" id="<?php echo $nt.$ii; ?>msgFormat" name="<?php echo $nt; ?>[<?php echo $ii; ?>][msgFormat]"  style="width:60%;max-width: 610px;" onfocus="jQuery('#<?php echo $nt.$ii; ?>msgFormat').attr('rows', 4); jQuery('.nxs_FRMTHint').hide();nxs_showFrmtInfo('msgFormat<?php echo $nt.$ii; ?>');"><?php echo $msgFormat; ?></textarea> <?php nxs_doShowHint("msgFormat".$nt.$ii); ?></td>
         </tr><?php                        
     }
@@ -226,14 +230,14 @@ class nxs_snapClassNT {
     
     function nxs_tmpltAddPostMeta($post, $ntOpt, $pMeta){ $nt = $this->ntInfo['lcode']; $ntU = $this->ntInfo['code']; $ntName = $this->ntInfo['name']; $ii = $ntOpt['ii']; $doNT = $ntOpt['do']; ?>
       <tr <?php if (!empty($ntOpt['fltrsOn']) && $ntOpt['fltrsOn']=='1') { ?> onmouseout="hidePopShAtt('FLT');" onmouseover="showPopShAtt('FLT', event);" <?php } ?>><th style="text-align:left;" colspan="2"> <?php 
-      if ($post->post_status != "publish" && (int)$ntOpt['do']>1 && !empty($ntOpt['fltrsOn']) && $ntOpt['fltrsOn']=='1'){ ?>
-        <input type="radio" id="rbtn<?php echo $ntU.$ii; ?>" value="2" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" checked="checked" class="nxsGrpDoChb" /> <?php } 
+      if ($post->post_status != "publish" && ((empty($pMeta) && !empty($ntOpt['fltrsOn']) && $ntOpt['fltrsOn']=='1')||($ntOpt['do']=='2'))){  $fltInfo = nxsAnalyzePostFilters($ntOpt['fltrs']); ?>
+        <input type="radio" id="rbtn<?php echo $ntU.$ii; ?>" value="2" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" checked="checked" class="nxsGrpDoChb" data-fltinfo="<?php echo $fltInfo; ?>"/> <?php } 
       else { ?>
-         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>" <?php if ($post->post_status == "publish") echo 'disabled="disabled"';?> type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$doNT == 1) echo 'checked="checked" title="def"';  ?> /> 
+         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>" type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$doNT == 1) echo 'checked="checked" title="def"';  ?> /> 
       <?php } ?>
         
       <?php if ($post->post_status == "publish") { ?> <input type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" value="<?php echo $doNT;?>"> <?php } ?> 
-      <div class="nsx_iconedTitle" id="ldo<?php echo $ntU.$ii; ?>" style="display: inline; font-size: 13px; background-image: url(<?php echo NXS_PLURL; ?>img/<?php echo (!empty($this->ntInfo['imgcode']))?$this->ntInfo['imgcode']:$nt;; ?>16.png);"><?php echo $ntName; ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)
+      <div class="nsx_iconedTitle" id="ldo<?php echo $ntU.$ii; ?>" style="display: inline; font-size: 13px; background-image: url(<?php echo NXS_PLURL; ?>img/<?php echo (!empty($this->ntInfo['imgcode']))?$this->ntInfo['imgcode']:$nt;; ?>16.png);"><?php echo $ntName; ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)&nbsp;<span class="nxs_ldos" id="bldo<?php echo $ntU.$ii; ?>"><?php echo !empty($ntOpt['do'])?'[-]':'[+]'; ?></span>
       </div></th><td><?php //## Only show RePost button if the post is "published"
       if ($post->post_status == "publish") { ?>
         <input alt="<?php echo $ii; ?>" style="float: right;" onmouseout="hidePopShAtt('SV');" onmouseover="showPopShAtt('SV', event);" onclick="return false;" data-ntname="<?php echo $ntName; ?>" type="button" class="button manualPostBtn" name="<?php echo $nt."-".$post->ID; ?>" value="<?php _e('Post to ', 'social-networks-auto-poster-facebook-twitter-g'); echo $ntName; ?>" />
@@ -241,23 +245,24 @@ class nxs_snapClassNT {
       <?php if (!empty($ntOpt['riComments']) && $ntOpt['riComments']=='1' && is_array($pMeta) && isset($pMeta[$ii]) && is_array($pMeta[$ii]) && !empty($pMeta[$ii]['pgID'])) { ?>
       <input alt="<?php echo $ii; ?>" style="float: right; " onclick="return false;" type="button" class="button" name="riTo<?php echo $ntU; ?>_repostButton" value="<?php _e('Import Comments/Replies', 'nxs_snap') ?>" />
       <?php } ?>
-                    <?php  if (is_array($pMeta) && isset($pMeta[$ii]) && is_array($pMeta[$ii]) && !empty($pMeta[$ii]['pgID'])) { ?> <span style="float: right;padding-top: 4px; padding-right: 10px;">
-                      <a id="pstd<?php echo $ntU; ?><?php echo $ii; ?>" style="font-size: 10px;" href="<?php echo $ntOpt['postURL'];  ?>" target="_blank"><?php printf( __( 'Posted on', 'nxs_snap' ), $ntName); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(" (".$pMeta[$ii]['pDate'].")"):""; ?></a>
-                    </span><?php } } ?>
+        <?php  if (is_array($pMeta) && isset($pMeta[$ii]) && is_array($pMeta[$ii]) && !empty($pMeta[$ii]['pgID'])) { ?> <span style="float: right;padding-top: 4px; padding-right: 10px;">
+          <a id="pstd<?php echo $ntU; ?><?php echo $ii; ?>" style="font-size: 10px;" href="<?php echo $pMeta[$ii]['postURL'];  ?>" target="_blank"><?php printf( __( 'Posted on', 'nxs_snap' ), $ntName); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(nxs_adjTime($pMeta[$ii]['pDate'])):""; ?></a>
+        </span><?php } } ?>
       </td></tr> <?php     
       if ($post->post_status != "publish" && function_exists('nxs_doSMAS5') ) { $ntOpt['postTime'] = get_post_time('U', false, $post->ID); nxs_doSMAS5($nt, $ii, $ntOpt); }
       
       if (((int)$ntOpt['do'] == 1) && $post->post_status == "publish" && isset($ntOpt['timeToRun']) && $ntOpt['timeToRun'] > time()) { ?> <tr><th style="text-align:left; color: purple;" colspan="2">
-                ===&gt;&gt;&gt;&gt;&nbsp;<?php _e('Autopost has been schedulled for', 'social-networks-auto-poster-facebook-twitter-g') ?> <?php echo date('F j, Y, g:i a', $ntOpt['timeToRun']) ?></th> <?php }         
+                ===&gt;&gt;&gt;&gt;&nbsp;<?php _e('Autopost has been schedulled for', 'social-networks-auto-poster-facebook-twitter-g') ?> <?php echo date('F j, Y, g:i a', $ntOpt['timeToRun']) ?></th> 
+      <?php } ?><tbody style="<?php echo !empty($ntOpt['do'])?'display:table-row-group;':'display:none;'; ?>" class="nxstbldo <?php echo 'nxstbldo'.strtoupper($nt).$ii; ?>" ><?php        
     }
     public function nxs_tmpltAddPostMetaEnd($ii){ $ntU = $this->ntInfo['code'];
-      ?><tr class="<?php echo 'nxstbldo'.$ntU.$ii; ?>"><td colspan="2" style="padding:5px;border-bottom:1px solid #F0F0F0;"></td></tr><?php
+      ?></tbody><tr class="nxstbldo <?php echo 'nxstbldo'.$ntU.$ii; ?>"><td colspan="2" style="padding:5px;border-bottom:1px solid #F0F0F0;"></td></tr><?php
     }
     
     public function adjMetaOptG($optMt, $pMeta) { $optMt['isPosted'] = isset($pMeta['isPosted'])?$pMeta['isPosted']:''; if (isset($pMeta['postType'])) $optMt['postType'] = $pMeta['postType']; 
       if (isset($pMeta['msgFormat'])) $optMt['msgFormat'] = $pMeta['msgFormat']; if (isset($pMeta['msgTFormat'])) $optMt['msgTFormat'] = $pMeta['msgTFormat'];     
       if (isset($pMeta['imgToUse'])) $optMt['imgToUse'] = $pMeta['imgToUse']; if (isset($pMeta['urlToUse'])) $optMt['urlToUse'] = $pMeta['urlToUse']; 
-      if (isset($pMeta['timeToRun']))  $optMt['timeToRun'] = $pMeta['timeToRun'];     
+      if (isset($pMeta['timeToRun']))  $optMt['timeToRun'] = $pMeta['timeToRun']; $optMt['do'] = 0;  
       if (isset($pMeta['do'])) $optMt['do'] = $pMeta['do']; else { if (isset($pMeta['msgFormat'])) $optMt['do'] = 0; }  // What is that?
       $optMt['do'.$this->ntInfo['code']] = $optMt['do']; //V3 COMP CHANGE
       return $optMt;                    
@@ -307,7 +312,7 @@ class nxs_snapClassNT {
       } else {  // ## All Good - log it.
         if (!empty($ret['msg'])) nxs_addToLogN('I', 'Message', $logNT, print_r($ret['msg'], true), $extInfo); 
         if (!empty($_POST['nxsact'])&&($_POST['nxsact']=='manPost' || $_POST['nxsact']=='testPost')) 
-          echo _e('SUCCESS <br/><br/>'.$logNT.' Page.<br/> Post link: <a href="'.$ret['postURL'].'" target="_blank">'.$ret['postURL'].'</a><br/><br/>', 'nxs_snap'); 
+          { _e('SUCCESS','nxs_snap'); echo '<br/><br/>'.$logNT.' Page.<br/>'.((!empty($ret['postURL']))?' Post link: <a href="'.$ret['postURL'].'" target="_blank">'.$ret['postURL'].'</a><br/><br/>':'').(!empty($ret['msg'])?print_r($ret['msg'], true):'').'<br/>'; }
         if (!empty($ret['ck'])) nxs_save_glbNtwrks($this->ntInfo['lcode'], $ii, $ret['ck'], 'ck');
         if ($postID=='0')  { nxs_addToLogN('S', 'Test', $logNT, 'OK - TEST Message Posted | <a href="'.$ret['postURL'].'" target="_blank">Post Link</a>');} 
           else { nxs_addToRI($postID); nxs_metaMarkAsPosted($postID, $this->ntInfo['code'], $ii, array('isPosted'=>'1', 'pgID'=>$ret['postID'], 'postURL'=>$ret['postURL'], 'pDate'=>date('Y-m-d H:i:s'))); 

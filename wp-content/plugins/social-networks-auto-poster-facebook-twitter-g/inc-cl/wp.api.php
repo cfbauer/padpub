@@ -35,7 +35,7 @@ if (!class_exists("nxs_class_SNAP_WP")) { class nxs_class_SNAP_WP {
       require_once ('apis/xmlrpc-client.php'); $nxsToWPclient = new NXS_XMLRPC_Client($options['wpURL']); $nxsToWPclient->debug = false;
       if ($imgURL!=='' && stripos($imgURL, 'http')!==false) {      
         // $handle = fopen($imgURL, "rb"); $filedata = ''; while (!feof($handle)) {$filedata .= fread($handle, 8192);} fclose($handle);
-        $filedata = wp_remote_get($imgURL); if (! is_wp_error($filedata) ) $filedata = $filedata['body']; // echo "AWC?";
+        $filedata = nxs_remote_get($imgURL); if (! is_nxs_error($filedata) ) $filedata = $filedata['body']; // echo "AWC?";
         $data = array('name'  => 'image-'.$message['orID'].'.jpg', 'type'  => 'image/jpg', 'bits'  => new NXS_XMLRPC_Base64($filedata), true); 
         $status = $nxsToWPclient->query('metaWeblog.newMediaObject', $message['orID'], $options['wpUName'], $pass, $data);  $imgResp = $nxsToWPclient->getResponse();  $gid = $imgResp['id'];
       } else $gid = '';

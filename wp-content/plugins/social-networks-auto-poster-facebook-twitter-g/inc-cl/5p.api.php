@@ -35,7 +35,7 @@ if (!class_exists("nxs_class_SNAP_5P")) { class nxs_class_SNAP_5P {
       if (!empty($message['pTitle'])) $msgT = $message['pTitle']; else $msgT = nxs_doFormatMsg($options['msgTFormat'], $message); 
       if ($options['inclTags']=='1') $tags = nsTrnc($message['tags'], 195, ',', ''); else $tags = ''; if (empty($options['imgSize'])) $options['imgSize'] = 'original';
       //## Make Post            
-      if (isset($message['imageURL'])) $imgURL = trim(nxs_getImgfrOpt($message['imageURL'], $options['imgSize'])); else $imgURL = '';  $postType = $options['postType'];       
+      if (isset($message['imageURL'])) $imgURL = trim(nxs_getImgfrOpt($message['imageURL'], $options['imgSize'])); else $imgURL = ''; // $postType = $options['postType'];       
       
       $tum_oauth = new nxs_OAuthBaseCl($options['appKey'], $options['appSec'], $options['accessToken'], $options['accessTokenSec']);
       $tum_oauth->baseURL = 'https://api.500px.com'; 
@@ -48,7 +48,7 @@ if (!class_exists("nxs_class_SNAP_5P")) { class nxs_class_SNAP_5P {
       
       
       $postArr = array('name' =>$msgT, 'description' =>$msg, 'tags'=>$tags, 'privacy'=>'0', 'category'=>$options['cat']); 
-      $postinfo = $tum_oauth->makeReq('https://api.500px.com/v1/photos/', $postArr, 'POST'); //prr($options['appAppUserID']); prr($postArr); prr($postinfo, 'POSTINFO');       
+      $postinfo = $tum_oauth->makeReq('https://api.500px.com/v1/photos/', $postArr, 'POST');// prr($options['appAppUserID']); prr($postArr); prr($postinfo, 'POSTINFO');       
       $uplk = $postinfo['upload_key']; $upid = $postinfo['photo']['id'];      
       $url = 'https://upload.500px.com/v1/upload';  $fields = array( 'photo_id' => $upid, 'upload_key' => $uplk, 'consumer_key' => $options['appKey'], 'access_key' => $options['accessToken'] ); $imgRes = nxs_curlUploadImg($imgURL, $url, $fields, 'file');
       if (!empty($imgRes) && !empty($imgRes['body']) && stripos($imgRes['body'], '"error":"None')!==false) {  

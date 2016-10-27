@@ -265,7 +265,11 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d3f5b2', end
 
 #nxs_spFltPopupX,  #nxs_spFltPopup .postbox{
   /*  background-image: url('http://www.nextscripts.com/imgs/ptbg2.png'); background-repeat: no-repeat; background-position: right bottom; */
-  border-color: #b5ea7c;
-    
-    
+  border-color: #b5ea7c;    
 }
+
+.nxsHiLightBorder {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); 
+}
+
+.nxs_ldos {color: #0073aa; cursor: pointer;}

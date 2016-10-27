@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts Pinterest Connection Class (##Can't replace - it has .png)
-$nxs_snapAvNts[] = array('code'=>'TG', 'lcode'=>'tg', 'name'=>'Telegram');
+$nxs_snapAvNts[] = array('code'=>'TG', 'lcode'=>'tg', 'name'=>'Telegram', 'type'=>'Messengers');
 
 if (!class_exists("nxs_snapClassTG")) { class nxs_snapClassTG extends nxs_snapClassNT { 
   var $ntInfo = array('code'=>'TG', 'lcode'=>'tg', 'name'=>'Telegram', 'defNName'=>'uName', 'tstReq' => false, 'instrURL'=>'http://www.nextscripts.com/instructions/telegram-auto-poster-setup-installation/');	

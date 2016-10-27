@@ -39,7 +39,7 @@ if (!class_exists("nxs_class_SNAP_FP")) { class nxs_class_SNAP_FP {
     
     function createFile($imgURL) {
       $remImgURL = urldecode($imgURL); $urlParced = pathinfo($remImgURL); $remImgURLFilename = $urlParced['basename']; 
-      $imgData = wp_remote_get($remImgURL); if (is_wp_error($imgData)) { $badOut['Error'] = print_r($imgData, true)." - ERROR"; return $badOut; }          
+      $imgData = nxs_remote_get($remImgURL); if (is_nxs_error($imgData)) { $badOut['Error'] = print_r($imgData, true)." - ERROR"; return $badOut; }          
       $imgData = $imgData['body'];
       $tmp=array_search('uri', @array_flip(stream_get_meta_data($GLOBALS[mt_rand()]=tmpfile())));  
       if (!is_writable($tmp)) return "Your temporary folder or file (file - ".$tmp.") is not witable. Can't upload images to Flickr";
@@ -56,7 +56,8 @@ if (!class_exists("nxs_class_SNAP_FP")) { class nxs_class_SNAP_FP {
       return $out;
     }
     
-    function doPostToNT($options, $message){ global $nxs_urlLen; $badOut = array('pgID'=>'', 'isPosted'=>0, 'pDate'=>date('Y-m-d H:i:s'), 'Error'=>'');
+    function doPostToNT($options, $message){ global $nxs_urlLen; $badOut = array('pgID'=>'', 'isPosted'=>0, 'pDate'=>date('Y-m-d H:i:s'), 'Error'=>''); 
+      if (!class_exists("nxsAPI_FP")){ $badOut['Error'] .= "Flipboard API Library not found"; return $badOut; } 
       //## Check settings
       if (!is_array($options)) { $badOut['Error'] = 'No Options'; return $badOut; }      
       if (!isset($options['uPass']) || trim($options['uPass'])=='') { $badOut['Error'] = 'Not Authorized'; return $badOut; }      
@@ -64,13 +65,12 @@ if (!class_exists("nxs_class_SNAP_FP")) { class nxs_class_SNAP_FP {
       //## Format Post
       if (!empty($message['pText'])) $text = $message['pText']; else $text = nxs_doFormatMsg($options['msgFrmt'], $message); 
       //## Make Post            
-      if (isset($message['imageURL'])) $imgURL = trim(nxs_getImgfrOpt($message['imageURL'], $options['imgSize'])); else $imgURL = '';       
+      if (isset($message['imageURL'])) $imgURL = trim(nxs_getImgfrOpt($message['imageURL'], $options['imgSize'])); else $imgURL = '';
       //## Make Post   
-      if (!empty($options['ck'])){$ck = maybe_unserialize($options['ck']); $loginError = doCheckFlipboard($ck);}
-      if (empty($ck) || $loginError!==false) { $pass = substr($options['uPass'], 0, 5)=='n5g9a'?nsx_doDecode(substr($options['uPass'], 5)):$options['uPass'];  
-          $loginInfo = doConnectToFlipboard($options['uName'], $pass);  if (!is_array($loginInfo))  {  $badOut['Error'] = print_r($loginInfo, true)." - ERROR"; return $badOut; } $ck = $loginInfo['ck']; 
-      } $post = array('url'=>$message['url'], 'mgzURL'=>$options['mgzURL'], 'imgURL'=>$imgURL, 'text'=>$text );
-      return doPostToFlipboard($ck, $post);            
+      if (!empty($options['ck'])) $ck = maybe_unserialize($options['ck']); else $ck='';  $pass = substr($options['uPass'], 0, 5)=='n5g9a'?nsx_doDecode(substr($options['uPass'], 5)):$options['uPass'];       
+      $nt = new nxsAPI_FP(); $nt->debug = false; if (!empty($ck)) $nt->ck = $ck; if (!empty($options['proxy'])&&!empty($options['proxyOn'])){ $nt->proxy['proxy'] = $options['proxy']['proxy']; if (!empty($options['proxy']['up'])) $nt->proxy['up'] = $options['proxy']['up'];};
+      $loginErr = $nt->connect($options['uName'], $pass); if ($loginErr) { $badOut['Error'] .= 'Can\'t Connect - '.print_r($loginErr, true); return $badOut; } $options['ck'] = $nt->ck; if (function_exists('nxs_save_glbNtwrks')) nxs_save_glbNtwrks('fp', $options['ii'], $nt->ck, 'ck');         
+      $post = array('url'=>$message['url'], 'mgzURL'=>$options['mgzURL'], 'imgURL'=>$imgURL, 'text'=>$text ); $ret = $nt->post($post); return $ret;
     }      
 }}
 ?>

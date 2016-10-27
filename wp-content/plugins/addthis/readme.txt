@@ -1,19 +1,19 @@
 === Share Buttons by AddThis ===
 Contributors: abramsm, srijith.v, vipinss, dnrahamim, jgrodel, bradaddthiscom, mkitzman, addthis_paul, addthis_matt, addthis_elsa, ribin_addthis, AddThis_Mike
-Tags: AddThis, share buttons, sharing buttons, share buttons plugin, plugin, widget, social buttons, social tools, Facebook, Twitter, LinkedIn, Pinterest, bookmark, bookmarking, email sharing, sharing, share, mobile, mobile sharing, mobile sharing buttons, sidebar, sharing sidebar
+Tags: AddThis, bookmark, bookmarking, Facebook, LinkedIn, mobile, mobile sharing, Pinterest, plugin, share, share button, share buttons, share buttons plugin, sharing, sharing buttons, sharing sidebar, sidebar, social buttons, social tools, twitter, widget
 Requires at least: 3.0
 Tested up to: 4.5
-Stable tag: 5.3.3
+Stable tag: 5.3.4
 
-AddThis Share Buttons help you to increase traffic to your website by getting more of your content shared on social media.
+Increase social traffic to your website with WordPress share buttons that connect directly to over 200 social networks.
 
 
 
 == Description ==
 
-Get more of your website’s content shared on social media by installing the AddThis Share Buttons plugin for WordPress. With AddThis, your users can easily share your content on some of the most popular social networks, including Facebook, Twitter, Pinterest, LinkedIn, and more. The more your content gets shared, the more traffic you’ll drive back to your site. You can also choose whether to display these share buttons on your homepage, category page, archive page, and other specific WordPress pages and posts.
+Get more of your website’s content shared on social media by installing the AddThis WordPress share buttons plugin. With AddThis, your users can easily share your content on the most popular social networks, including Facebook, Twitter, Pinterest, and more. You can also choose whether to display these share buttons on your homepage, category page, archive page, and other WordPress pages or posts.
 
-With the AddThis Share Buttons WordPress plugin, you get:
+With the AddThis WordPress share buttons plugin, you get:
 
 = Share Buttons =
 
@@ -31,10 +31,11 @@ With the AddThis Share Buttons WordPress plugin, you get:
 
 * Position the toolbar at the top or bottom of your page
 * Turn on or off displayed share count
+* Control how many buttons appear
 
-<a href="https://www.addthis.com/register">Sign up</a> and create a registered account with AddThis to access the AddThis mode for this plugin, which offers additional share button configurations and analytics via your AddThis dashboard. Analytics include your top performing content, services and tools.
+<a href="https://www.addthis.com/register">Create a registered account</a> with AddThis to access the AddThis mode for this plugin, which offers additional share button configurations and analytics via the AddThis dashboard. Analytics include your top performing content, services and tools.
 
-AddThis also has a <a href="https://wordpress.org/plugins/addthis-follow/">follow button plugin</a> for WordPress, which is great for getting more of your visitors to follow you on some of the most popular social networks, such as Facebook, Twitter, Instagram, and more. Get the AddThis follow button plugin for WordPress <a href="https://wordpress.org/plugins/addthis-follow/">here</a>.
+Also be sure to check out the <a href="https://wordpress.org/plugins/addthis-follow/">AddThis WordPress follow button plugin</a>, which is great for getting your website visitors to follow you on the most popular social networks, including Facebook, Twitter, Instagram, Snapchat, and more.
 
 <a href="http://www.addthis.com/academy/">AddThis Academy</a> | <a href="http://www.addthis.com/privacy">Privacy Policy</a>
 
@@ -110,6 +111,9 @@ In the screen options you can enable the AddThis meta box. Check the box and sav
 
 
 == Changelog ==
+
+= 5.3.4 =
+* Removing reporting of WordPress version for non-admin users
 
 = 5.3.3 =
 * Fixing PHP Notice: Undefined variable: displaySidebar in AddThisConfigs.php on line 450
@@ -458,6 +462,9 @@ Fixed nondeterministic bug with the_title(), causing the title to occasionally a
 
 
 == Upgrade Notice ==
+
+= 5.3.4 =
+Removing reporting of WordPress version for non-admin users.
 
 = 5.3.3 =
 Fixing PHP Notice: Undefined variable: displaySidebar in AddThisConfigs.php on line 450. Replacing a silly use of mysql_real_escape_string in title field value sanitization of widgets with sanitize_text_field, for improved PHP7 support.

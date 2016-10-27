@@ -15,7 +15,7 @@ if (!class_exists("nxs_class_SNAP_LI")) { class nxs_class_SNAP_LI {
       ($url!=''?'<content><title>'.htmlspecialchars($title, ENT_NOQUOTES, "UTF-8").'</title><submitted-url>'.$url.'</submitted-url>'.(!empty($imgURL)?'<submitted-image-url>'.$imgURL.'</submitted-image-url>':'').'<description>'.htmlspecialchars($dsc, ENT_NOQUOTES, "UTF-8").'</description></content>':'').
         '<visibility><code>anyone</code></visibility></share>'; $hdrsArr = array();  $hdrsArr['Content-Type']='application/xml';   //   prr($xml);
       $wprg = array( 'method' => 'POST', 'headers' => $hdrsArr, 'httpversion' => '1.1', 'timeout' => 45, 'redirection' => 0, 'body' => $xml);  $wprg['sslverify'] = false;      
-      $response  = wp_remote_post($nURL, $wprg); if (is_wp_error($response) || empty($response['body'])) return "ERROR: ".print_r($response, true);      
+      $response  = nxs_remote_post($nURL, $wprg); if (is_nxs_error($response) || empty($response['body'])) return "ERROR: ".print_r($response, true);      
       $post = json_decode($response['body'], true); return $post; 
     }
   
@@ -24,7 +24,7 @@ if (!class_exists("nxs_class_SNAP_LI")) { class nxs_class_SNAP_LI {
       $xml = '<?xml version="1.0" encoding="UTF-8"?><post><title>'.htmlspecialchars($title, ENT_NOQUOTES, "UTF-8").'</title>'."\n".'<summary>'.htmlspecialchars($msg, ENT_NOQUOTES, "UTF-8").'</summary>'."\n".'
         '.($url!=''?'<content><title>'.htmlspecialchars($title, ENT_NOQUOTES, "UTF-8").'</title>'."\n".'<submitted-url>'.$url.'</submitted-url>'."\n".(!empty($imgURL)?'<submitted-image-url>'.$imgURL.'</submitted-image-url>':'')."\n".'<description>'.htmlspecialchars($dsc, ENT_NOQUOTES, "UTF-8").'</description><category>discussion</category></content><category>discussion</category>':'').'</post>'; $hdrsArr = array();  $hdrsArr['Content-Type']='application/xml';      
       $wprg = array( 'method' => 'POST', 'headers' => $hdrsArr, 'httpversion' => '1.1', 'timeout' => 45, 'redirection' => 0, 'body' => $xml);  $wprg['sslverify'] = false;      
-      $response  = wp_remote_post($nURL, $wprg);if (is_wp_error($response) || $response['response']['code']!='201') return "ERROR: ".print_r($response, true);      
+      $response  = nxs_remote_post($nURL, $wprg);if (is_nxs_error($response) || $response['response']['code']!='201') return "ERROR: ".print_r($response, true);      
       return array('updateUrl'=>'https://www.linkedin.com/groups?home=&gid='.$groupID);
     }
     

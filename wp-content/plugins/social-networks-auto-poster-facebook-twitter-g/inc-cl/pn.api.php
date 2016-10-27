@@ -12,6 +12,7 @@ if (!class_exists("nxs_class_SNAP_PN")) { class nxs_class_SNAP_PN {
       return $out;
     }    
     function doPostToNT($options, $message){ global $nxs_gCookiesArr; $badOut = array('pgID'=>'', 'isPosted'=>0, 'pDate'=>date('Y-m-d H:i:s'), 'Error'=>'');
+      if (!class_exists("nxsAPI_PN")){ $badOut['Error'] .= "Pinterest API Library not found"; return $badOut; } 
       //## Check settings
       if (!is_array($options)) { $badOut['Error'] = 'No Options'; return $badOut; }      
       if (!isset($options['pnUName']) || trim($options['pnPass'])=='') { $badOut['Error'] = 'Not Configured'; return $badOut; }            
@@ -22,7 +23,7 @@ if (!class_exists("nxs_class_SNAP_PN")) { class nxs_class_SNAP_PN {
       if (isset($message['imageURL'])) $imgURL = trim(nxs_getImgfrOpt($message['imageURL'], $options['imgSize'])); else $imgURL = ''; if ($imgURL=='') $badOut['Error'] .= 'NO Image.';
       $urlToGo = (!empty($message['url']))?$message['url']:'';
             
-      $uname = $options['pnUName']; $ck = !empty($options['ck'])?maybe_unserialize(base64_decode($options['ck'])):''; 
+      $uname = $options['pnUName']; $ck = (!empty($options['ck']) && is_string($options['ck']))?maybe_unserialize(base64_decode($options['ck'])):''; 
       $nt = new nxsAPI_PN(); $nt->debug = false; if (!empty($ck)) $nt->ck = $ck; if (!empty($options['proxy'])&&!empty($options['proxyOn'])){ $nt->proxy['proxy'] = $options['proxy']['proxy']; if (!empty($options['proxy']['up'])) $nt->proxy['up'] = $options['proxy']['up'];};
       
       $loginErr = $nt->connect($uname, $pass); if ($loginErr) { $badOut['Error'] .= 'Can\'t Connect - '.print_r($loginErr, true); return $badOut; } $options['ck'] = $nt->ck; if (function_exists('nxs_save_glbNtwrks')) nxs_save_glbNtwrks('pn', $options['ii'], $nt->ck, 'ck');         

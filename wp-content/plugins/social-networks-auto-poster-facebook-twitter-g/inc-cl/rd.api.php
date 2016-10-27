@@ -44,8 +44,8 @@ if (!class_exists("nxs_class_SNAP_RD")) { class nxs_class_SNAP_RD {
       $mh = $loginInfo['mh']; $ck = $loginInfo['ck']; $post = array('uh'=>$mh, 'sr'=>$options['rdSubReddit'], 'title'=>$title, 'save'=>true);      
       if ($options['postType']=='A') { $post['url'] = $message['url']; $post['kind']='link'; $retNum = 16; } else { $post['text'] = $text; $post['kind']='self'; $retNum = 10; }         
       $url = "http://www.reddit.com/api/submit"; $postParams = array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0, 'extension'=>'json',  'headers' => $hdrsArr, 'body' => $post, 'cookies' => $ck);      
-      $response = wp_remote_post($url, $postParams); // prr($postParams); prr($response);
-      if (is_wp_error($response)) {  $badOut['Error'] = print_r($response, true)." - ERROR"; return $badOut; } 
+      $response = nxs_remote_post($url, $postParams); // prr($postParams); prr($response);
+      if (is_nxs_error($response)) {  $badOut['Error'] = print_r($response, true)." - ERROR"; return $badOut; } 
       $response = json_decode($response['body'], true); $rdNewPostID = 'http://www.reddit.com'; // prr($response);
       
       if (!isset($response['jquery']) || !is_array($response['jquery'])) {  $badOut['Error'] = print_r($response, true)." - ERROR"; return $badOut; } 

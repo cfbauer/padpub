@@ -99,7 +99,7 @@ $post = get_post($postID); $options = $plgn_NS_SNAutoPoster->nxs_options;
       if ($post->post_excerpt!="") $excerpt = strip_shortcodes(nxs_doQTrans($post->post_excerpt, $lng)); else $excerpt= nsTrnc(strip_tags(strip_shortcodes(nxs_doQTrans($post->post_content, $lng))), 300, " ", "..."); 
        $msg = str_ireplace("%RAWEXCERPTHTML%", $excerpt, $msg);
   }
-  if (preg_match('/%TAGS%/', $msg)) { $t = wp_get_object_terms($postID, 'product_tag'); if ( empty($t) || is_wp_error($pt) || !is_array($t) ) $t = wp_get_post_tags($postID);
+  if (preg_match('/%TAGS%/', $msg)) { $t = wp_get_object_terms($postID, 'product_tag'); if ( empty($t) || is_nxs_error($pt) || !is_array($t) ) $t = wp_get_post_tags($postID);
     $tggs = array(); foreach ($t as $tagA) {$tggs[] = $tagA->name;} $tags = implode(', ',$tggs); $msg = str_ireplace("%TAGS%", $tags, $msg);
   }
   if (preg_match('/%CATS%/', $msg)) { $t = wp_get_post_categories($postID); $cats = array();  foreach($t as $c){ $cat = get_category($c); $cats[] = str_ireplace('&','&amp;',$cat->name); } 
@@ -109,7 +109,7 @@ $post = get_post($postID); $options = $plgn_NS_SNAutoPoster->nxs_options;
     foreach($t as $c){ $cat = get_category($c);  $cats[] = "#".trim(str_replace(' ',$htS, str_replace('  ', ' ', trim(str_ireplace('&','',str_ireplace('&amp;','',$cat->name)))))); } 
     $ctts = implode($htSep,$cats); $msg = str_ireplace("%HCATS%", $ctts, $msg);
   }  
-  if (preg_match('/%HTAGS%/', $msg)) { $t = wp_get_object_terms($postID, 'product_tag'); if ( empty($t) || is_wp_error($pt) || !is_array($t) ) $t = wp_get_post_tags($postID);
+  if (preg_match('/%HTAGS%/', $msg)) { $t = wp_get_object_terms($postID, 'product_tag'); if ( empty($t) || is_nxs_error($pt) || !is_array($t) ) $t = wp_get_post_tags($postID);
     $tggs = array(); foreach ($t as $tagA){$tggs[] = "#".trim(str_replace(' ', $htS, preg_replace('/[^a-zA-Z0-9\p{L}\p{N}\s]/u', '', trim(nxs_ucwords(str_ireplace('&','',str_ireplace('&amp;','',$tagA->name)))))));} 
     $tags = implode($htSep,$tggs); $msg = str_ireplace("%HTAGS%", $tags, $msg);
   } 
@@ -142,7 +142,7 @@ if (!function_exists("nxs_noSing")) { function nxs_noSing( &$obj ) { $obj->is_si
 if (!function_exists("nxs_snapCheckFilters")) { function nxs_snapCheckFilters($options, $postObj) { $postID = $postObj->ID; //  prr($options, 'FLT1');
   if (!empty($options['fltrsOn']) && !empty($options['fltrs']) && empty($options['fltrAfter'])) {  $options['fltrs']['nxs_postID'] = $postID; $options['fltrs']['fullreturn']='1'; //echo "|Pre FLT 2|"; 
     add_filter( 'pre_get_posts', 'nxs_noSing' ); $pfidRet = get_posts_ids_by_filter( $options['fltrs'] ); /* prr($pfidRet); */ $pfid = $pfidRet['p']; remove_filter( 'pre_get_posts', 'nxs_noSing' ); // echo "|W|"; prr($pfidRet); prr($pfid);
-    if (empty($pfid) || empty($pfid[0]) || $pfid[0]!=$postID) { $msg = nxsAnalyzePostFilters($postObj, $options['fltrs']); 
+    if (empty($pfid) || empty($pfid[0]) || $pfid[0]!=$postID) { $msg = nxsAnalyzePostFilters($options['fltrs'], $postObj); 
       $postLogRec = "ID: ".$postObj->ID." | ".$postObj->post_title." (".$postObj->post_name.") | Author(ID): ".$postObj->post_author." |Status: ".$postObj->post_status.
         " | Format ".$postObj->filter." | Post Type: ".$postObj->post_type." | <br/>".$msg;        
       //return "\r\n<br/>".'| Args: '.print_r($pfidRet['a'], true).' '."\r\n<br/>".'| Query: '.$pfidRet['q']."\r\n<br/>".'| Post Filters: '.$msg;
@@ -150,50 +150,53 @@ if (!function_exists("nxs_snapCheckFilters")) { function nxs_snapCheckFilters($o
     }
   } return false;   
 }}
-if (!function_exists("nxsAnalyzePostFilters")) { function nxsAnalyzePostFilters($post, $filter) { $out = ''; //prr($post); prr($filter); 
+if (!function_exists("nxsAnalyzePostFilters")) { function nxsAnalyzePostFilters($filter, $post='' ) { $out = ''; //prr($post); prr($filter); 
     //## Cats
-    if (!empty($filter['nxs_cats_names'])) { $fltCats = ''; $postCats = '';
-      foreach ($filter['nxs_cats_names'] as $cctts) { $cInfo = get_term( $cctts, 'category'); $fltCats .= $cInfo->name.'|'; }
-      $gg = wp_get_object_terms( $post->ID, 'category'); foreach ($gg as $g) $postCats .= $g->name.'|';
-      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter Cats('.(empty($filter['nxs_ie_cats_names'])?'Autopost Only':'Excluded').'): '.$fltCats.' | Post Cats: '.$postCats;
+    if (!empty($filter['nxs_cats_names'])) { $fltCats = ''; $postCats = ''; foreach ($filter['nxs_cats_names'] as $cctts) { $cInfo = get_term( $cctts, 'category'); $fltCats .= $cInfo->name.'|'; }
+      if (!empty($post)) { $gg = wp_get_object_terms( $post->ID, 'category'); foreach ($gg as $g) $postCats .= $g->name.'|'; }
+      if (empty($post) || !empty($postCats) || (!empty($post) && empty($filter['nxs_ie_cats_names'])) ) { 
+          $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter: Cats ('.(empty($filter['nxs_ie_cats_names'])?'Autopost Only':'Excluded').'): '.$fltCats.(!empty($postCats)?' | Post Cats: '.$postCats:''); 
+      }
     }
     //## Tags    
     if (!empty($filter['nxs_tags_names'])) { $fltT = ''; $postT = '';
       foreach ($filter['nxs_tags_names'] as $cctts) { $cInfo = get_term( $cctts, 'post_tag'); $fltT .= $cInfo->name.'|'; }
-      $gg = wp_get_object_terms( $post->ID, 'post_tag'); foreach ($gg as $g) $postT .= $g->name.'|';
-      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter Tags('.(empty($filter['nxs_ie_tags_names'])?'Autopost Only':'Excluded').'): '.$fltT.' | Post Tags: '.$postT;
+      if (!empty($post)) {  $gg = wp_get_object_terms( $post->ID, 'post_tag'); foreach ($gg as $g) $postT .= $g->name.'|'; }
+      if (empty($post) || !empty($postT) || (!empty($post) && empty($filter['nxs_ie_tags_names'])) ) { 
+        $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter: Tags ('.(empty($filter['nxs_ie_tags_names'])?'Autopost Only':'Excluded').'): '.$fltT.(!empty($postT)?' | Post Tags: '.$postT:'');
+      }
     }
     //## Type
     if (!empty($filter['nxs_post_type'])) { $fltT = ''; foreach ($filter['nxs_post_type'] as $cInfo) $fltT .= $cInfo.'|'; 
-      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter Post Type('.(empty($filter['nxs_ie_posttypes'])?'Autopost Only':'Excluded').'): '.$fltT.' | Post Type: '.$post->post_type;
+      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter: Post Type ('.(empty($filter['nxs_ie_posttypes'])?'Autopost Only':'Excluded').'): '.$fltT.(!empty($post->post_type)?' | Post Type: '.$post->post_type:'');
     }
     //## Format
     if (!empty($filter['nxs_post_formats'])) { $fltT = ''; foreach ($filter['nxs_post_formats'] as $cInfo) $fltT .= $cInfo.'|'; 
-      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter Post Format(Autopost Only): '.$fltT.' | Post Format: '.$post->filter;
+      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter: Post Format (Autopost Only): '.$fltT.(!empty($post->filter)?' | Post Format: '.$post->filter:'');
     }
     //## Author
-    if (!empty($filter['nxs_user_names'])) { $fltT = ''; $postT = '';
-      $author = get_user_by('id', $post->post_author); $author = $author->user_login."(".$author->user_nicename.")";
+    if (!empty($filter['nxs_user_names'])) { $fltT = ''; $author = '';
+      if (!empty($post)) { $author = get_user_by('id', $post->post_author); $author = $author->user_login."(".$author->user_nicename.")"; }
       foreach ($filter['nxs_user_names'] as $cctts) { $cInfo = get_user_by( 'id', $cctts); $fltT .= $cInfo->user_login."(".$cInfo->user_nicename.")"; }
-      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter Users(Autopost Only): '.$fltT .' | Post Author: '.$author;
+      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter: Users (Autopost Only): '.$fltT .(!empty($author)?' | Post Author: '.$author:'');
     }
     //## Search
     if (!empty($filter['nxs_search_keywords'])) { 
-      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter - Search (Autopost Only): '.$filter['nxs_search_keywords'];
+      $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Filter: Search (Autopost Only): '.$filter['nxs_search_keywords'];
     }
     //## Meta
     if (!empty($filter['nxs_meta_key'])) { $count_compares =  (int)$filter['nxs_count_meta_compares']; 
       for( $i = 1; $i <= $count_compares; $i++ ) { $postfix = $i == 1 ? '' : '_'. $i; 
-        if (!empty($filter["nxs_meta_key$postfix"])) { $val = get_post_meta( $post->ID, $filter["nxs_meta_key$postfix"]); if (empty($val)) $val = 'NULL';
-            $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Custom Field: '. $filter["nxs_meta_key$postfix"].' '.$filter["nxs_meta_operator$postfix"].' '.$filter["nxs_meta_value$postfix"][0]." | Actual: ".print_r($val, true);
+        if (!empty($filter["nxs_meta_key$postfix"])) { if (!empty($post)) { $val = get_post_meta( $post->ID, $filter["nxs_meta_key$postfix"]); if (empty($val)) $val = 'NULL'; } else $val = '';
+            $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Custom Field: '. $filter["nxs_meta_key$postfix"].' '.$filter["nxs_meta_operator$postfix"].' '.$filter["nxs_meta_value$postfix"][0].(!empty($val)?' | Actual: '.print_r($val, true):'');
         }
       }          
     }
     //## Taxonomies
     if (!empty($filter['nxs_term_names'])) { $count_compares =  (int)$filter['nxs_count_term_compares']; 
       for( $i = 1; $i <= $count_compares; $i++ ) { $postfix = $i == 1 ? '' : '_'. $i;     
-        if (!empty($filter["nxs_tax_names$postfix"])) { $gg = wp_get_object_terms( $post->ID, $filter["nxs_tax_names$postfix"]);  
-            $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Custom Taxonomy: '. $filter["nxs_tax_names$postfix"].' '.$filter["nxs_term_operator$postfix"].' '.print_r($filter["nxs_term_names$postfix"], true)." | Actual: ".print_r($gg, true);
+        if (!empty($filter["nxs_tax_names$postfix"])) { if (!empty($post)) { $gg = wp_get_object_terms( $post->ID, $filter["nxs_tax_names$postfix"]); } else $gg = ''; 
+            $out .= "<br/>\r\n".'&nbsp;&nbsp;&nbsp;&nbsp;Custom Taxonomy: '. $filter["nxs_tax_names$postfix"].' '.$filter["nxs_term_operator$postfix"].' '.print_r($filter["nxs_term_names$postfix"], true).(!empty($gg)?' | Actual: '.print_r($gg, true):'');
         }
       }          
     }
@@ -215,7 +218,7 @@ if (!function_exists("nxs_getURL")){ function nxs_getURL($options, $postID, $add
   if (!isset($options['urlToUse']) || trim($options['urlToUse'])=='') $myurl =  trim(get_post_meta($postID, 'snap_MYURL', true));
   $ssl = (!empty($gOptions['ht']) && $gOptions['ht'] == ord('h')); if (!empty($myurl)) $options['urlToUse'] = $myurl;
   if ((isset($options['urlToUse']) && trim($options['urlToUse'])!='') || $ssl) { $options['atchUse'] = 'F'; } else $options['urlToUse'] = get_permalink($postID);      
-  $options['urlToUse'] = $ssl?$gOptions['useSSLCert']:$options['urlToUse']; // $addURLParams = trim($gOptions['addURLParams']);  
+  $options['urlToUse'] = $ssl?nsx_doDecode($gOptions['useSSLCert']):$options['urlToUse']; // $addURLParams = trim($gOptions['addURLParams']);  
   if($addURLParams!='') $options['urlToUse'] .= (strpos($options['urlToUse'],'?')!==false?'&':'?').$addURLParams;  $forceSURL = trim(get_post_meta($postID, '_snap_forceSURL', true));
   if (empty($forceSURL)) $forceSURL = !empty($options['forceSURL']); else $forceSURL = $forceSURL =='1'; if (!empty($options['suUName'])) $forceSURL = false; //## SU does not allow Shorteners
   if (!empty($gOptions['forcessl']) && $gOptions['forcessl'] == 'N') $options['urlToUse'] = str_ireplace('https','http',$options['urlToUse']); 
@@ -223,22 +226,29 @@ if (!function_exists("nxs_getURL")){ function nxs_getURL($options, $postID, $add
   if ($forceSURL) $options['urlToUse'] = nxs_mkShortURL($options['urlToUse'], $postID); return $options;
 }}
 
+if (!function_exists('nxsLstSort')){function nxsLstSort($a, $b) { if ($a['do']=='2') $a['do'] = 1;  if ($b['do']=='2') $b['do'] = 1; if ($a['do'] == $b['do']) { return strcasecmp($a['nName'],$b['nName']); }
+    return ($a['do'] > $b['do']) ? -1 : 1;
+    
+}}
+
 if (!function_exists('nxs_showListRow')){function nxs_showListRow($ntParams) { $ntInfo = $ntParams['ntInfo']; $nxs_plurl = $ntParams['nxs_plurl']; $ntOpts = $ntParams['ntOpts'];  ?>
-          <div class="nxs_box">
+          <div class="nxs_box" onmouseover="jQuery('.addMore<?php echo $ntInfo['code']; ?>').show();" onmouseout="jQuery('.addMore<?php echo $ntInfo['code']; ?>').hide();">
             <div class="nxs_box_header"> 
               <div class="nsx_iconedTitle" style="margin-bottom:1px;background-image:url(<?php echo $nxs_plurl;?>img/<?php echo $ntInfo['lcode']; ?>16.png);"><?php echo $ntInfo['name']; ?>
               <?php $cbo = count($ntOpts); ?> 
               <?php if ($cbo>1){ ?><div class="nsBigText"><?php echo "(".($cbo=='0'?'No':$cbo)." "; _e('accounts', 'social-networks-auto-poster-facebook-twitter-g'); echo ")"; ?></div><?php } ?>
+              <span style="display: none;" class="addMore<?php echo $ntInfo['code']; ?>">&nbsp;&nbsp;&nbsp;<a data-nt="<?php echo $ntInfo['code'].(1+max(array_keys($ntOpts))); ?>" style="font-size: 12px; text-decoration: none;" href="#" class="nxs_snapAddNew">[Add New <?php echo $ntInfo['name']; ?> account]</a></span>              
               </div>
             </div>
             <div class="nxs_box_inside">            
-            <?php if(!empty($ntParams['checkFunc']) && !function_exists($ntParams['checkFunc']['funcName']) && !class_exists($ntParams['checkFunc']['funcName'])) echo $ntParams['checkFunc']['msg']; 
-            else foreach ($ntOpts as $indx=>$pbo){ if (empty($pbo['nName'])) $pbo['nName'] = $ntInfo['name']; $pbo = nxs_FltrsV3toV4($pbo);
-              if (empty($pbo[$ntInfo['lcode'].'OK'])) $pbo[$ntInfo['lcode'].'OK'] = !empty($pbo[$ntParams['chkField']])?'1':''; ?>              
-              <p style="margin:0px;margin-left:5px;"> <img id="<?php echo $ntInfo['code'].$indx;?>LoadingImg" style="display: none;" src='<?php echo $nxs_plurl; ?>img/ajax-loader-sm.gif' />
+            <?php $jj = 0; if(!empty($ntParams['checkFunc']) && !function_exists($ntParams['checkFunc']['funcName']) && !class_exists($ntParams['checkFunc']['funcName'])) echo $ntParams['checkFunc']['msg']; 
+            else { foreach ($ntOpts as $indx=>$pbo){ if (empty($pbo['nName'])) $pbo['nName'] = $ntInfo['name']; if (!isset($pbo['do'])) $pbo['do'] = $pbo['do'.$ntInfo['code']];  $pbo = nxs_FltrsV3toV4($pbo); $ntOpts[$indx]=$pbo; } uasort($ntOpts, 'nxsLstSort'); 
+              foreach ($ntOpts as $indx=>$pbo){ $jj++; if (empty($pbo[$ntInfo['lcode'].'OK'])) $pbo[$ntInfo['lcode'].'OK'] = !empty($pbo[$ntParams['chkField']])?'1':''; ?>              
+              <div style="padding-bottom: 3px;<?php echo ($cbo>7 && $jj>5)?'display:none;" class="showMore'.$ntInfo['code'].'"':'"'; ?>  onmouseover="jQuery('.showInlineMenu<?php echo $ntInfo['code'].$indx; ?>').show();jQuery(this).addClass('nxsHiLightBorder');" onmouseout="jQuery('.showInlineMenu<?php echo $ntInfo['code'].$indx; ?>').hide();jQuery(this).removeClass('nxsHiLightBorder');"">
+              <div style="margin:0px;margin-left:5px;"> <img id="<?php echo $ntInfo['code'].$indx;?>LoadingImg" style="display: none;" src='<?php echo $nxs_plurl; ?>img/ajax-loader-sm.gif' />
               <?php if (function_exists('nxs_adminInitFunc')) { /* if standalone API - don't show checkbox */ ?> 
-              <?php  if ((int)$pbo['do'.$ntInfo['code']]>0 && isset($pbo['fltrsOn']) && (int)$pbo['fltrsOn'] == 1) {                     
-                ?> <input type="radio" id="rbtn<?php echo $ntInfo['lcode'].$indx; ?>" value="2" name="<?php echo $ntInfo['lcode']; ?>[<?php echo $indx; ?>][apDo<?php echo $ntInfo['code']; ?>]" checked="checked" onmouseout="nxs_hidePopUpInfo('popOnlyCat');" onmouseover="nxs_showPopUpInfo('popOnlyCat', event);" /> <?php } else { ?>
+              <?php  if ((int)$pbo['do'.$ntInfo['code']]>0 && isset($pbo['fltrsOn']) && (int)$pbo['fltrsOn'] == 1) {     $fltInfo = nxsAnalyzePostFilters($pbo['fltrs']);                 
+                ?> <input type="radio" id="rbtn<?php echo $ntInfo['lcode'].$indx; ?>" value="2" name="<?php echo $ntInfo['lcode']; ?>[<?php echo $indx; ?>][apDo<?php echo $ntInfo['code']; ?>]" class="nxs_acctcbR" checked="checked" data-fltinfo="<?php echo $fltInfo; ?>" /> <?php } else { ?>
                 <input value="0" name="<?php echo $ntInfo['lcode']; ?>[<?php echo $indx; ?>][apDo<?php echo $ntInfo['code']; ?>]" type="hidden" />             
                 <input value="1" name="<?php echo $ntInfo['lcode']; ?>[<?php echo $indx; ?>][apDo<?php echo $ntInfo['code']; ?>]" type="checkbox" <?php if ((int)$pbo['do'.$ntInfo['code']] > 0) echo "checked"; ?> />             
               <?php } ?>       
@@ -246,12 +256,14 @@ if (!function_exists('nxs_showListRow')){function nxs_showListRow($ntParams) { $
               <?php if (isset($pbo['rpstOn']) && (int)$pbo['rpstOn'] == 1) { ?> <span onmouseout="nxs_hidePopUpInfo('popReActive');" onmouseover="nxs_showPopUpInfo('popReActive', event);"><?php echo "*[R]*" ?></span><?php } ?>
               <?} else { ?>  <?php } ?>
               <strong><?php  _e('Auto-publish to', 'social-networks-auto-poster-facebook-twitter-g'); ?> <?php echo $ntInfo['name']; ?> <i style="color: #005800;"><?php if($pbo['nName']!='') echo "(".$pbo['nName'].")"; ?></i></strong>
-              &nbsp;&nbsp;<?php if ($ntInfo['tstReq'] && (!isset($pbo[$ntInfo['lcode'].'OK']) || $pbo[$ntInfo['lcode'].'OK']=='')){ ?><b style="color: #800000"><?php  _e('Attention required. Unfinished setup', 'social-networks-auto-poster-facebook-twitter-g'); ?> ==&gt;</b><?php } ?>              
+              <?php if ($ntInfo['tstReq'] && (!isset($pbo[$ntInfo['lcode'].'OK']) || $pbo[$ntInfo['lcode'].'OK']=='')){ ?><b style="color: #800000">&nbsp;&nbsp;<?php  _e('Attention required. Unfinished setup', 'social-networks-auto-poster-facebook-twitter-g'); ?> ==&gt;</b><?php } ?>              
               <?php if ($ntInfo['lcode']=='li' && !empty($pbo['grpID'])){ ?><b style="color: #800000"><?php  _e('Attention required. Groups are no longer supported by LinkedIn Native API', 'social-networks-auto-poster-facebook-twitter-g'); ?> ==&gt;</b><?php } ?>              
-              <a id="do<?php echo $ntInfo['code'].$indx; ?>AG" href="#" onclick="doGetHideNTBlock('<?php echo $ntInfo['code'];?>' , '<?php echo $indx; ?>');return false;">[<?php  _e('Show Settings', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>&nbsp;&nbsp;          
-              <a href="#" onclick="doDelAcct('<?php echo $ntInfo['lcode']; ?>', '<?php echo $indx; ?>', '<?php if (isset($pbo['bgBlogID'])) echo $pbo['nName']; ?>');return false;">[<?php  _e('Remove Account', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>
-              </p><div id="nxsNTSetDiv<?php echo $ntInfo['code'].$indx; ?>"></div>
-            <?php } ?>
+              
+              <span style="padding-left: 0px; display: none;" class="showInlineMenu<?php echo $ntInfo['code'].$indx; ?>"><a id="do<?php echo $ntInfo['code'].$indx; ?>AG" href="#" onclick="doGetHideNTBlock('<?php echo $ntInfo['code'];?>' , '<?php echo $indx; ?>');return false;">[<?php  _e('Show Settings', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>&nbsp;&nbsp;&nbsp;<a href="#" onclick="doDelAcct('<?php echo $ntInfo['lcode']; ?>', '<?php echo $indx; ?>', '<?php if (isset($pbo['bgBlogID'])) echo $pbo['nName']; ?>');return false;">[<?php  _e('Remove Account', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a></span>
+              
+              </div><div id="nxsNTSetDiv<?php echo $ntInfo['code'].$indx; ?>"></div>
+              </div>
+            <?php }} if ($jj>7) { ?> <div style="padding-left:5px;padding-top:5px;"><a href="#" onclick="jQuery('.showMore<?php echo $ntInfo['code']; ?>').show(); jQuery(this).parent().hide(); return false;">Show More[<?php echo ($cbo-5); ?>]</a></div>  <?php } ?>
             </div>
           </div> <?php            
         }
@@ -309,8 +321,9 @@ if (!function_exists("nxs_cron_check")){function nxs_cron_check() { if (stripos(
   } elseif (empty($cronCheckArray['status']) &&  is_array($cronCheckArray['cronChecks'])) $cronCheckArray['status'] = (count($cronCheckArray['cronChecks'])<17 && count($cronCheckArray['cronChecks'])>1)?1:0;
   update_option("NXS_cronCheck", $cronCheckArray);    
 }}}
-if (!function_exists("nxs_mkRemOptsArr")) {function nxs_mkRemOptsArr($hdrsArr, $ck='', $flds='', $p='', $rdr=0, $timt=45, $sslverify = false){ 
-  $a = array('headers' => $hdrsArr, 'httpversion' => '1.1', 'timeout' => $timt, 'redirection' => $rdr, 'sslverify'=>$sslverify); if (!empty($flds)) $a['body'] = $flds; if (!empty($p)) $a['proxy'] = $p;  if (!empty($ck)) $a['cookies'] = $ck; return $a;
+if (!function_exists("nxs_mkRemOptsArr")) {function nxs_mkRemOptsArr($hdrsArr, $ck='', $flds='', $p='', $rdr=0, $timt=45, $sslverify = false){ $ua = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.57 Safari/537.36';
+  if (empty($hdrsArr)) $hdrsArr = array('headers'=>array('Referer'=>'http://'.$_SERVER['HTTP_HOST'], 'User-Agent'=>$ua)); $a = array('headers' => $hdrsArr, 'httpversion' => '1.1', 'timeout' => $timt, 'redirection' => $rdr, 'sslverify'=>$sslverify, 'user-agent'=>$ua); 
+  if (!empty($flds)) $a['body'] = $flds; if (!empty($p)) $a['proxy'] = $p;  if (!empty($ck)) $a['cookies'] = $ck; return $a;
 }}
 if (!function_exists("nxs_show_noLibWrn")) {function nxs_show_noLibWrn($msg){ ?> <div style="border: 2px solid darkred; padding: 25px 15px 15px 15px; margin: 3px; background-color: #fffaf0;"> 
             <span style="font-size: 16px; color:darkred;"><?php echo $msg ?></span>&nbsp;<a href="http://www.nextscripts.com/faq/third-party-libraries-autopost-google-pinterest/" target="_blank">More info about third party libraries.</a><br/><hr/> <div style="font-size: 16px; color:#005800; font-weight: bold; margin-top: 12px; margin-bottom: 7px;">You can get API library from NextScripts.</div>
@@ -343,6 +356,23 @@ function nxs_toolbar_link_to_mypage( $wp_admin_bar ) {
     );
     $wp_admin_bar->add_node( $args );
 }
+//## Yo Account 
+if (!function_exists("nxs_adjTime")){ function nxs_adjTime($dateTime){ if (!function_exists('get_option')) return $dateTime;
+    $tmCorr = get_option( 'gmt_offset' ) * HOUR_IN_SECONDS; $tm = strtotime($dateTime); $frmt = get_option( 'date_format' ).' '.get_option( 'time_format' ); return date($frmt, ($tm+$tmCorr)); 
+}}
+
+if (!function_exists("nxs_getCurrTime")){ function nxs_getCurrTime(){ $tm = microtime(); $tma = explode(' ',$tm); $tmCorr = (function_exists('get_option'))?get_option( 'gmt_offset' ) * HOUR_IN_SECONDS :0; $tm = number_format((float)$tma[0]+(float)$tma[1], 8, '.', ''); return $tm+$tmCorr; }}
+
+if (!function_exists("nxs_show_yo_profile_fields")) { function nxs_show_yo_profile_fields( $user ) { ?><h3>Yo account information</h3>
+    <table class="form-table"><tr><th><label for="twitter">Yo Username</label></th>
+      <td><input type="text" name="nxs_yo" id="nxs_yo" value="<?php echo esc_attr( get_the_author_meta( 'nxs_yo', $user->ID ) ); ?>" class="regular-text" /><br /><span class="description">Please enter your Yo username to receive notifications.</span></td>
+    </tr></table><?php 
+}}
+if (!function_exists("nxs_save_yo_profile_fields")) { function nxs_save_yo_profile_fields( $user_id ) { if ( !current_user_can( 'edit_user', $user_id ) ) return false; update_user_meta( $user_id, 'nxs_yo', $_POST['nxs_yo'] );}}
+
+if (!function_exists("nxs_add_array_sort")) {  function nxs_add_array_sort($a, $b){ $c = array('Social Networks'=>1, 'Blogs/Publishing Platforms'=>2, 'Link Sharing/Boormarks'=>3, 'Email Marketing'=>4, 'Messengers'=>5,  'Image Sharing'=>6,  'Forums'=>7, 'Other'=>8);
+    return $c[$a]>$c[$b] ? 1: -1;
+}}
 
 //## Delete Account
 if (!function_exists("ns_delNT_ajax")) { function ns_delNT_ajax(){ check_ajax_referer('nxsSsPageWPN'); $indx = (int)$_POST['id']; 
@@ -461,29 +491,22 @@ if (!function_exists('nxs_altCurlUploadImg')){ function nxs_altCurlUploadImg( $c
     unset($r['headers']['nxsPstArr']); unset($r['headers']['nxsUplFile']); unset($r['headers']['nxsPstField']);    
     if (function_exists('curl_file_create')) $file  = curl_file_create($tmp); else $file = '@'.$tmp;  $pstArray[$fld] = $file; $r['body'] = http_build_query($pstArray);  
     if ( !empty( $r['headers'] ) ) { $headers = array(); foreach ( $r['headers'] as $name => $value ) if ($name!=='Content-Length')  $headers[] = "{$name}: $value"; curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );}
-    curl_setopt($ch, CURLOPT_POST, TRUE); curl_setopt($ch, CURLOPT_POSTFIELDS, $pstArray);
+    curl_setopt($ch, CURLOPT_POST, TRUE); curl_setopt($ch, CURLOPT_POSTFIELDS, $pstArray); return array('ch'=>$ch, 'r'=>$r);
 }}
 if (!function_exists('nxs_curlUploadImg')){ function nxs_curlUploadImg($imgURL, $uplURL, $pstArray, $pstField, $ck='') { $remImgURL = urldecode($imgURL); $urlParced = pathinfo($remImgURL); $remImgURLFilename = $urlParced['basename']; 
-  $imgType = substr(  $remImgURL, strrpos( $remImgURL , '.' )+1 ); $hdrsArr = array('User-Agent'=>'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.57 Safari/537.36', 'Referer'=>$remImgURL); 
+  $imgType = substr(  $remImgURL, strrpos( $remImgURL , '.' )+1 ); $ia = array("jpg", "png", "gif", "jpeg"); if (!in_array($imgType, $ia)) $imgType = 'jpg';
+  $hdrsArr = array('User-Agent'=>'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.57 Safari/537.36', 'Referer'=>$remImgURL); 
   $advSet = nxs_mkRemOptsArr($hdrsArr);  $imgData = nxs_remote_get($remImgURL, $advSet);// prr($remImgURL);  // prr($imgData);
   if(is_nxs_error($imgData) || empty($imgData['body']) || (!empty($imgData['headers']['content-length']) && (int)$imgData['headers']['content-length']<200) || 
     $imgData['headers']['content-type'] == 'text/html' ||  $imgData['response']['code'] == '403' ) return array('err'=>print_r($imgData, true)); else $imgData = $imgData['body'];  
   $tmpX=array_search('uri', @array_flip(stream_get_meta_data($GLOBALS[mt_rand()]=tmpfile()))); if (!is_writable($tmpX)) return array('err'=>"Your temporary folder or file (file - ".$tmpX.") is not writable. Can't upload image to IG");
   rename($tmpX, $tmpX.='.'.$imgType);  register_shutdown_function(create_function('', "@unlink('{$tmpX}');")); file_put_contents($tmpX, $imgData);  
-  $hdrsArr['Content-type'] = 'multipart/form-data'; $hdrsArr['nxsUplFile'] = $tmpX; $hdrsArr['nxsPstArr'] = serialize($pstArray); $hdrsArr['nxsPstField'] = $pstField;  $advSet = nxs_mkRemOptsArr($hdrsArr, $ck, $pstArray); //  prr($advSet);
-  add_action( 'http_api_curl','nxs_altCurlUploadImg', 10, 2);  $rep = nxs_remote_post($uplURL, $advSet);  remove_action( 'http_api_curl', 'nxs_altCurlUploadImg');
-  if(is_nxs_error($rep)) return array('err'=>print_r($rep, true)); else return $rep;  
+  $hdrsArr['Content-type'] = 'multipart/form-data'; $hdrsArr['nxsUplFile'] = $tmpX; $hdrsArr['nxsPstArr'] = serialize($pstArray); $hdrsArr['nxsPstField'] = $pstField;  $advSet = nxs_mkRemOptsArr($hdrsArr, $ck, $pstArray); $advSet['postAsArray'] = 1; 
+  $rep = nxs_remote_post($uplURL, $advSet); @unlink($tmpX); if(is_nxs_error($rep)) return array('err'=>print_r($rep, true)); else return $rep;  
 }}
 
 if (!function_exists('nxs_altCurlProxy')){ function nxs_altCurlProxy( $ch, $r='' ){ if (empty($r['proxy'])) return; curl_setopt($ch, CURLOPT_PROXY, $r['proxy']['proxy']);  
   if (!empty($r['proxy']['up'])) curl_setopt($ch, CURLOPT_PROXYUSERPWD, $r['proxy']['up']); if (!empty($r['proxy']['proxys5']))  curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
 }}
-
-if (!function_exists('nxs_remote_request')){function nxs_remote_request($url, $args = array()) { return wp_remote_request($url, $args); }}
-if (!function_exists('nxs_remote_get')){function nxs_remote_get($url, $args = array()) { return wp_remote_get($url, $args); }}
-if (!function_exists('nxs_remote_post')){function nxs_remote_post($url, $args = array()) { return wp_remote_post($url, $args); }}
-if (!function_exists('nxs_remote_head')){function nxs_remote_head($url, $args = array()) { return wp_remote_head($url, $args); }}
-if (!function_exists('is_nxs_error')){function is_nxs_error($thing) { return is_wp_error($thing); }}
-if (!function_exists('nxs_parse_args')){function nxs_parse_args($args, $defaults='') { return wp_parse_args($args, $defaults); }}
-//## Move from Main file.
+if (!function_exists('nxs_getCKVal')){ function nxs_getCKVal($name, $ck) { foreach ($ck as $c) if ($c->name==$name) return($c->value); return false; } }
 ?>

@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts XING Connection Class
-$nxs_snapAvNts[] = array('code'=>'XI', 'lcode'=>'xi', 'name'=>'XING');
+$nxs_snapAvNts[] = array('code'=>'XI', 'lcode'=>'xi', 'name'=>'XING', 'type'=>'Social Networks');
 
 if (!class_exists("nxs_snapClassXI")) { class nxs_snapClassXI extends nxs_snapClassNT { 
   var $ntInfo = array('code'=>'XI', 'lcode'=>'xi', 'name'=>'XING', 'defNName'=>'', 'tstReq' => true, 'instrURL'=>'http://www.nextscripts.com/instructions/setup-installation-xing-social-networks-auto-poster/');  
@@ -84,7 +84,7 @@ if (!class_exists("nxs_snapClassXI")) { class nxs_snapClassXI extends nxs_snapCl
         
         $this->nxs_tmpltAddPostMeta($post, $ntOpt, $pMeta); ?> 
         
-        <tr class="<?php echo 'nxstbldo'.strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 0px; padding-right:10px;"> <?php _e('Post Type:', 'social-networks-auto-poster-facebook-twitter-g') ?> <br/></th><td>     
+        <tr class="nxstbldo <?php echo 'nxstbldo'.strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 0px; padding-right:10px;"> <?php _e('Post Type:', 'social-networks-auto-poster-facebook-twitter-g') ?> <br/></th><td>     
         <input type="radio" name="<?php echo $nt; ?>[<?php echo $ii; ?>][postType]" value="T" <?php if ($postType == 'T') echo 'checked="checked"'; ?> /> <?php _e('Text Post', 'social-networks-auto-poster-facebook-twitter-g') ?>  - <i><?php _e('just text message', 'social-networks-auto-poster-facebook-twitter-g') ?></i><br/>
         <input type="radio" name="<?php echo $nt; ?>[<?php echo $ii; ?>][postType]" value="A" <?php if ( !isset($postType) || $postType == '' || $postType == 'A') echo 'checked="checked"'; ?> /><?php _e('Text Post with "attached" blogpost', 'social-networks-auto-poster-facebook-twitter-g') ?>
      </td></tr><?php $this->elemEdMsgFormat($ii, __('Message Format:', 'social-networks-auto-poster-facebook-twitter-g'),$msgFormat); 

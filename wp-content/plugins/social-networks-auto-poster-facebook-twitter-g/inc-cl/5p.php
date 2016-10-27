@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts 500Px Connection Class
-$nxs_snapAvNts[] = array('code'=>'5P', 'lcode'=>'5p', 'name'=>'500Px');
+$nxs_snapAvNts[] = array('code'=>'5P', 'lcode'=>'5p', 'name'=>'500Px',  'type'=>'Image Sharing');
 
 if (!class_exists("nxs_snapClass5P")) { class nxs_snapClass5P extends nxs_snapClassNT { 
   var $ntInfo = array('code'=>'5P', 'lcode'=>'5p', 'name'=>'500Px', 'defNName'=>'', 'tstReq' => true, 'instrURL'=>'http://www.nextscripts.com/instructions/setup-installation-500px-social-networks-auto-poster/');      
@@ -99,7 +99,7 @@ if (!class_exists("nxs_snapClass5P")) { class nxs_snapClass5P extends nxs_snapCl
         <input name="<?php echo $nt; ?>[<?php echo $ii; ?>][gal]"  style="width: 50%;" value="<?php echo htmlentities($ntOpt['gal'], ENT_COMPAT, "UTF-8"); ?>" />
      </td></tr>
      <?php */ ?>
-     <tr class="<?php echo 'nxstbldo'.strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 0px; padding-right:10px;"> <?php _e('Category', 'social-networks-auto-poster-facebook-twitter-g'); ?> <br/></th><td>     
+     <tr class="nxstbldo <?php echo 'nxstbldo'.strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 0px; padding-right:10px;"> <?php _e('Category', 'social-networks-auto-poster-facebook-twitter-g'); ?> <br/></th><td>     
         <select name="5p[<?php echo $ii; ?>][cat]"><option value="error" selected="selected" disabled=""><?php _e('Select Category', 'social-networks-auto-poster-facebook-twitter-g'); ?></option>
             <?php $suCats = $this->pCats(); if (isset($ntOpt['cat']) && $ntOpt['cat']!='') $suCats = str_replace('"'.$ntOpt['cat'].'"', '"'.$ntOpt['cat'].'" selected="selected"', $suCats);  echo $suCats; ?>
           </select>

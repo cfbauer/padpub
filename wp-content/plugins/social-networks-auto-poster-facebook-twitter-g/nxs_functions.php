@@ -25,12 +25,6 @@ if (!function_exists('nxs_convertEntity')){ function nxs_convertEntity($matches,
   // else 
   return $destroy ? '' : $matches[0];
 }}
-if (!function_exists('nxs_decodeEntities')){function nxs_decodeEntities($text) {
-    $text= html_entity_decode($text,ENT_QUOTES,"ISO-8859-1"); #NOTE: UTF-8 does not work!
-    $text= preg_replace('/&#(\d+);/me',"chr(\\1)",$text); #decimal notation
-    $text= preg_replace('/&#x([a-f0-9]+);/mei',"chr(0x\\1)",$text);  #hex notation
-    return $text;
-}}
 if (!function_exists('nsFindImgsInPost')){function nsFindImgsInPost($post, $advImgFnd=false) { global $ShownAds; if (isset($ShownAds)) $ShownAdsL = $ShownAds;  $postImgs = array(); if (!is_object($post)) return;
   if ($advImgFnd) $postCntEx = apply_filters('the_content', $post->post_excerpt); else $postCntEx = $post->post_excerpt;   
   if ($advImgFnd) $postCnt = apply_filters('the_content', $post->post_content); else $postCnt = $post->post_content; 
@@ -52,9 +46,9 @@ if (!function_exists('nsFindAudioInPost')){function nsFindAudioInPost($post, $ra
   foreach ($matches[0] as $match) { $postAu[] = $match; } $postAu = array_unique($postAu); if (isset($ShownAds)) $ShownAds = $ShownAdsL; return $postAu;
 }}
 if (!function_exists('nsGetYTThumb')){function nsGetYTThumb($yt) {  
-  $out = 'http://img.youtube.com/vi/'.$yt.'/maxresdefault.jpg'; $response  = wp_remote_get($out); 
-  if (is_wp_error($response) || $response['response']['code']!='200' ) { $out = 'http://img.youtube.com/vi/'.$yt.'/sddefault.jpg';  
-    $response  = wp_remote_get($out); if (is_wp_error($response) || $response['response']['code']!='200' ) $out = 'http://img.youtube.com/vi/'.$yt.'/0.jpg';
+  $out = 'http://img.youtube.com/vi/'.$yt.'/maxresdefault.jpg'; $response  = nxs_remote_get($out); 
+  if (is_nxs_error($response) || $response['response']['code']!='200' ) { $out = 'http://img.youtube.com/vi/'.$yt.'/sddefault.jpg';  
+    $response  = nxs_remote_get($out); if (is_nxs_error($response) || $response['response']['code']!='200' ) $out = 'http://img.youtube.com/vi/'.$yt.'/0.jpg';
   } return $out;  
 }}
 if (!function_exists('nsFindVidsInPost')){function nsFindVidsInPost($post, $raw=true) {  //### !!!  $raw=false ## Breaks ob_start() [ref.outcontrol]: Cannot use output buffering in output buffering display handlers - Investigate
@@ -84,16 +78,14 @@ if (!function_exists('nxs_snapCleanHTML')){ function nxs_snapCleanHTML($html) {
     $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', "", $html); $html = preg_replace('/<!--(.*)-->/Uis', "", $html); return $html;
 }}
 if (!function_exists("nxs_getNXSHeaders")) {  function nxs_getNXSHeaders($ref='', $post=false){ $hdrsArr = array(); 
- $hdrsArr['Connection']='keep-alive'; $hdrsArr['Referer']=$ref;
- $hdrsArr['User-Agent']='Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.22 Safari/537.11';
- if($post) $hdrsArr['Content-Type']='application/x-www-form-urlencoded'; 
- $hdrsArr['Accept']='application/json, text/javascript, */*; q=0.01';  
- if (function_exists('gzdeflate')) $hdrsArr['Accept-Encoding']='gzip,deflate,sdch'; 
+ $hdrsArr['Connection']='keep-alive'; $hdrsArr['Referer']=$ref; $hdrsArr['Accept']='application/json, text/javascript, */*; q=0.01';  
+ $hdrsArr['User-Agent']='Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.80 Safari/537.36';
+ if($post) $hdrsArr['Content-Type']='application/x-www-form-urlencoded';  if (function_exists('gzdeflate')) $hdrsArr['Accept-Encoding']='gzip,deflate,sdch'; 
  $hdrsArr['Accept-Language']='en-US,en;q=0.8'; $hdrsArr['Accept-Charset']='ISO-8859-1,utf-8;q=0.7,*;q=0.3'; return $hdrsArr;
 }}
 if (!function_exists('nxs_chckRmImage')){function nxs_chckRmImage($url, $chType='head'){ if( ini_get('allow_url_fopen')=='1' && @getimagesize($url)!==false) return true;
-  $hdrsArr = nxs_getNXSHeaders(); $nxsWPRemWhat = 'wp_remote_'.$chType; $rsp  = $nxsWPRemWhat($url, array('headers' => $hdrsArr));  
-  if(is_wp_error($rsp)) { nxs_addToLogN('E', 'Error', 'IMAGE', '-=ERROR=- Server can\'t access it\'s own images. (Image URL: '.$url.') Most probably it\'s a DNS problem. Please contact your hosting provider. '.serialize($rsp), ''); return false; }
+  $hdrsArr = nxs_getNXSHeaders('http://www.google.com'); $nxsWPRemWhat = 'nxs_remote_'.$chType; $url = str_replace(' ', '%20', $url);  $advSet = nxs_mkRemOptsArr($hdrsArr); $rsp  = $nxsWPRemWhat($url, $advSet);  
+  if(is_nxs_error($rsp)) { nxs_addToLogN('E', 'Error', 'IMAGE', '-=ERROR=- Server can\'t access it\'s own images. (Image URL: '.$url.') Most probably it\'s a DNS problem. Please contact your hosting provider. '.serialize($rsp), ''); return false; }
   if (is_array($rsp) && ($rsp['response']['code']=='200' || ( $rsp['response']['code']=='403' &&  $rsp['headers']['server']=='cloudflare-nginx') )) return true; 
     else { if ($chType=='head') { return  nxs_chckRmImage($url, 'get'); } else { nxs_addToLogN('E', 'Error', 'IMAGE', '-=ERROR=- Server can\'t access it\'s own images. (Image URL: '.$url.') Most probably it\'s a DNS problem. Please contact your hosting provider. '.serialize($rsp), $url); return false; }
     } 
@@ -101,7 +93,7 @@ if (!function_exists('nxs_chckRmImage')){function nxs_chckRmImage($url, $chType=
 if (!function_exists('nxs_getPostImage')){ function nxs_getPostImage($postID, $size='large', $def='') { $imgURL = '';  global $plgn_NS_SNAutoPoster;  if (!isset($plgn_NS_SNAutoPoster)) return; $options = $plgn_NS_SNAutoPoster->nxs_options; $options['sImg'] = (defined('NXSAPIVER') && NXSAPIVER == '2.15.11')?1:0; 
   if (empty($options['imgNoCheck']) || $options['imgNoCheck'] != '1') { $indx = rand(0, 2); 
     $iTstArr = array('https://www.bing.com/s/a/hpc12.png','https://www.apple.com/global/elements/flags/16x16/usa_2x.png','https://s.yimg.com/rz/l/yahoo_en-US_f_p_142x37.png'); 
-    $imgURL = $iTstArr[$indx]; $res = nxs_chckRmImage($imgURL); $imgURL = ''; if (!$res) $options['imgNoCheck'] = '1'; } if ($options['sImg']==1) return $options['useSSLCert'].'/logo2.png';
+    $imgURL = $iTstArr[$indx]; $res = nxs_chckRmImage($imgURL); $imgURL = ''; if (!$res) $options['imgNoCheck'] = '1'; } if ($options['sImg']==1) return nsx_doDecode($options['useSSLCert']).'/logo2.png';
   //## Featured Image from Specified Location
   if ((int)$postID>0 && isset($options['featImgLoc']) && $options['featImgLoc']!=='') {  $afiLoc= get_post_meta($postID, $options['featImgLoc'], true); 
     if (is_array($afiLoc) && $options['featImgLocArrPath']!='') { $cPath = $options['featImgLocArrPath'];
@@ -220,7 +212,9 @@ if (!function_exists("jsPostToSNAP")) { function jsPostToSNAP() {  global $nxs_s
     jQuery(document).on('change', '#tinXXymce', function() {
         nxs_updateGetImgs();
     });       
-    jQuery(document).ready(function($) {          
+    jQuery(document).ready(function($) {
+    
+      //jQuery('.nxstbldo').hide();          
             
       jQuery('input#riToFB_button').click(function() { var data = { action: 'rePostToFB', id: jQuery('input#post_ID').val(), ri:1, nid:jQuery(this).attr('alt'), _wpnonce: jQuery('input#nxsSsPageWPN_wpnonce').val()}; callAjSNAP(data, 'Facebook'); });            
       jQuery('input#riToTW_button').click(function() { var data = { action: 'rePostToTW', id: jQuery('input#post_ID').val(), ri:1, nid:jQuery(this).attr('alt'), _wpnonce: jQuery('input#nxsSsPageWPN_wpnonce').val()}; callAjSNAP(data, 'Twitter'); });
@@ -249,6 +243,13 @@ if (!function_exists("nxs_jsPostToSNAP2")){ function nxs_jsPostToSNAP2() { globa
 ?>
             
 <script type="text/javascript">   
+
+  jQuery(document).ready(function($) {<?php  if (!empty($options['howToShowNTS']) && $options['howToShowNTS']=='C') { ?> 
+      jQuery('.nxstbldo').hide();  jQuery('.nxs_ldos').html('[+]');  <?php } elseif (!empty($options['howToShowNTS']) && $options['howToShowNTS']=='E') { ?> jQuery('.nxstbldo').show();  jQuery('.nxs_ldos').html('[-]'); 
+    <?php } ?>
+  });
+
+
 
   function seFBA(pgID,fbAppID,fbAppSec){ var data = { pgID: pgID, action: 'nsAuthFBSv', _wpnonce: jQuery('input#nxsSsPageWPN_wpnonce').val()}; 
     jQuery.post(ajaxurl, data, function(response) {  
@@ -361,7 +362,19 @@ if (!function_exists("nxs_jsPostToSNAP2")){ function nxs_jsPostToSNAP2() { globa
       }); 
     }
     
+    function nxs_doAllManPost(obj){ jQuery('#nxs_gPopup').bPopup({ modalClose: false, appendTo: '#nsStForm', opacity: 0.6, positionStyle: 'fixed'}); jQuery('#nxs_gPopupContent').html('<p></p>');  
+      jQuery('.nxsGrpDoChb:checked').each(function() { var nnm = jQuery(this).attr('name').replace(']','');  var res = nnm.split("["); var nt = res[0]; var ii = res[1]; var ntn = nt; var pid = jQuery('input#post_ID').val();
+        var data = {  action:'nxs_snap_aj', nxsact: 'manPost', nt:nt, id: pid, nid: ii, et_load_builder_modules:1, _wpnonce: jQuery('input#nxsSsPageWPN_wpnonce').val()};
+        jQuery('#nxs_gPopupContent').append("<div id='nxsTempImg"+nt+ii+"'><p>Sending update to "+ntn+" ....</p>" + "<p><img src='<?php echo NXS_PLURL; ?>img/ajax-loader-med.gif' /></p></div>");        
+        jQuery.post(ajaxurl, data, function(response) { if (response=='') response = 'Message Posted';
+          jQuery('#nxsTempImg'+nt+ii).html('<p> ' + response + '</p>');
+        });         
+      }); jQuery('#nxs_gPopupContent').append('<input type="button" class="bClose" value="Close" />');
+    }
+    
     jQuery( ".manualPostBtn" ).on( "click", nxs_doManPost);
+    jQuery( ".manualAllPostBtn" ).on( "click", nxs_doAllManPost);
+    
   });
 </script>
 
@@ -388,7 +401,7 @@ if (!function_exists("nxs_jsPostToSNAP2")){ function nxs_jsPostToSNAP2() { globa
     background:-moz-linear-gradient( center top, #096aa8 5%, #038bc4 100% );
     filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#096aa8', endColorstr='#038bc4');    
 }.NXSButtonB:active {color:#ffffff; position:relative; top:1px;}.NXSButton:focus {color:#ffffff; position:relative; top:1px;} .nsBigText{font-size: 14px; color: #585858; font-weight: bold; display: inline;}
-#nxs_ntType {width: 150px;}
+#nxs_ntType {width: 250px;}
 #nsx_addNT {width: 600px;}
 .nxsInfoMsg{  margin: 1px auto; padding: 3px 10px 3px 5px; border: 1px solid #ffea90;  background-color: #fdfae4; display: inline; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
 .blnkg{text-decoration:blink; font-size: 17px; color: #0CB107; font-weight: bold; display: inline;}
@@ -401,7 +414,7 @@ div.popShAtt { display: none; position: absolute; width: 600px; padding: 10px; b
 
 ul.nsx_tabs {margin: 0;padding: 0; margin-top:5px;float: left;list-style: none;height: 32px;border-bottom: 1px solid #999;border-left: 1px solid #999;width: 99%;}
 ul.nsx_tabs li {float: left;margin: 0;padding: 0;height: 31px;line-height: 31px;border: 1px solid #999;border-left: none;margin-bottom: -1px;overflow: hidden;position: relative;background: #e0e0e0;}
-ul.nsx_tabs li a {text-decoration: none;color: #000; display: block; font-size: 1.2em; padding: 0 20px; border: 1px solid #fff; outline: none;}
+ul.nsx_tabs li a {text-decoration: none;color: #000; display: block; font-size: 1.2em; padding: 0 15px; border: 1px solid #fff; outline: none;}
 ul.nsx_tabs li a:hover { background: #ccc;}
 html ul.nsx_tabs li.active, html ul.nsx_tabs li.active a:hover  { background: #fff; border-bottom: 1px solid #fff; }
 .nsx_tab_container {border: 1px solid #999; border-top: none; overflow: hidden; clear: both; float: left; width: 99%; background: #fff;}
@@ -591,54 +604,54 @@ if (!function_exists("nxs_hideTip_ajax")) { function nxs_hideTip_ajax() {  check
 
 if (!function_exists("nxs_mkShortURL")) { function nxs_mkShortURL($url, $postID=''){ $rurl = '';  global $plgn_NS_SNAutoPoster;  if (!isset($plgn_NS_SNAutoPoster)) return; $options = $plgn_NS_SNAutoPoster->nxs_options;
     if ($options['nxsURLShrtnr']=='B' && trim($options['bitlyUname']!='') && trim($options['bitlyAPIKey']!='')) {      
-      $response  = wp_remote_get('http://api-ssl.bitly.com/v3/shorten?login='.$options['bitlyUname'].'&apiKey='.$options['bitlyAPIKey'].'&longUrl='.urlencode($url)); 
-      if (is_wp_error($response)) { nxs_addToLogN('E', 'bit.ly', '', '-=ERROR=- '.print_r($response, true));  return $url; }
+      $response  = nxs_remote_get('http://api-ssl.bitly.com/v3/shorten?login='.$options['bitlyUname'].'&apiKey='.$options['bitlyAPIKey'].'&longUrl='.urlencode($url), nxs_mkRemOptsArr('')); 
+      if (is_nxs_error($response)) { nxs_addToLogN('E', 'bit.ly', '', '-=ERROR=- '.print_r($response, true));  return $url; }
       $rtr = json_decode($response['body'],true);
       if ($rtr['status_code']=='200') $rurl = $rtr['data']['url'];
     } //echo "###".$rurl;
     if ($options['nxsURLShrtnr']=='A' && trim($options['adflyUname']!='') && trim($options['adflyAPIKey']!='')) {      
-      $response  = wp_remote_get('http://api.adf.ly/api.php?key='.$options['adflyAPIKey'].'&uid='.$options['adflyUname'].'&advert_type=int&domain='.$options['adflyDomain'].'&url='.urlencode($url));       
-      if (is_wp_error($response)) {   nxs_addToLogN('E', 'adf.ly', '', '-=ERROR=- '.print_r($response, true));  return $url; }     
+      $response  = nxs_remote_get('http://api.adf.ly/api.php?key='.$options['adflyAPIKey'].'&uid='.$options['adflyUname'].'&advert_type=int&domain='.$options['adflyDomain'].'&url='.urlencode($url), nxs_mkRemOptsArr(''));       
+      if (is_nxs_error($response)) {   nxs_addToLogN('E', 'adf.ly', '', '-=ERROR=- '.print_r($response, true));  return $url; }     
       if ( $response['body']!='error')  $rurl = $response['body']; else {  nxs_addToLogN('E', 'adf.ly', '', '-=ERROR=- '.print_r($response, true)); return $url; }
     }
     if ($options['nxsURLShrtnr']=='C' && trim($options['clkimAPIKey']!='')) {    
-      $response  = wp_remote_get('http://clk.im/api?api='.$options['clkimAPIKey'].'&url='.urlencode($url));
-      if (is_wp_error($response)) { nxs_addToLogN('E', 'clk.im', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = json_decode($response['body'], true); //prr($r); die();
-      if (!is_array($r) || $r['error']!='0') { nxs_addToLogN('E', 'clk.im', '', '-=ERROR (JSON)=- '.print_r($response['body'], true)); return $url; } else $rurl = urldecode($r['short']);
+      $response  = nxs_remote_get('http://api.clkim.com/?key='.$options['clkimAPIKey'].'&url='.urlencode($url), nxs_mkRemOptsArr(''));
+      if (is_nxs_error($response)) { nxs_addToLogN('E', 'clk.im', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = json_decode($response['body'], true); //prr($r); die();
+      if (!is_array($r) || $r['error']!='0') { nxs_addToLogN('E', 'clk.im', '', '-=ERROR (JSON)=- '.print_r($response['body'], true)); return $url; } else $rurl = urldecode($r['short']);      
     }
     if ($options['nxsURLShrtnr']=='X' && trim($options['xcoAPIKey']!='')) {    
-      $response  = wp_remote_get('http://api.x.co/Squeeze.svc/text/'.$options['xcoAPIKey'].'?url='.urlencode($url)); 
-      if (is_wp_error($response)) { nxs_addToLogN('E', 'x.co', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = $response['body'];
+      $response  = nxs_remote_get('http://api.x.co/Squeeze.svc/text/'.$options['xcoAPIKey'].'?url='.urlencode($url), nxs_mkRemOptsArr('')); 
+      if (is_nxs_error($response)) { nxs_addToLogN('E', 'x.co', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = $response['body'];
       if (empty($r) || stripos($r, 'http://')===false) { nxs_addToLogN('E', 'x.co', '', '-=ERROR (RES)=- '.print_r($r, true)); return $url; } else $rurl = $r;
     }
     
     if ($options['nxsURLShrtnr']=='U') {    
-      $flds = array('a'=>'add', 'url'=>$url); $response  = wp_remote_post('http://u.to/', array('body' => $flds)); 
-      if (is_wp_error($response)) { nxs_addToLogN('E', 'u.to', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = $response['body'];
+      $flds = array('a'=>'add', 'url'=>$url); $response  = nxs_remote_post('http://u.to/', array('body' => $flds)); 
+      if (is_nxs_error($response)) { nxs_addToLogN('E', 'u.to', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = $response['body'];
       if (empty($r) || stripos($r, "#shurlout').val('")===false) { nxs_addToLogN('E', 'x.co', '', '-=ERROR (RES)=- '.print_r($r, true)); return $url; } else $rurl = CutFromTo($r,"#shurlout').val('","'");
     }
     
     if ($options['nxsURLShrtnr']=='P' && trim($options['postAPIKey']!='')) {      
-      $response  = wp_remote_get('http://po.st/api/shorten?longUrl='.urlencode($url).'&apiKey='.$options['postAPIKey']);       
-      if (is_wp_error($response)) { nxs_addToLogN('E', 'po.st', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = json_decode($response['body'], true); 
+      $response  = nxs_remote_get('http://po.st/api/shorten?longUrl='.urlencode($url).'&apiKey='.$options['postAPIKey'], nxs_mkRemOptsArr(''));       
+      if (is_nxs_error($response)) { nxs_addToLogN('E', 'po.st', '', '-=ERROR (SYS)=- '.print_r($response, true)); return $url; }  $r = json_decode($response['body'], true); 
       if (!is_array($r) || $r['status_txt']!='OK') { nxs_addToLogN('E', 'po.st', '', '-=ERROR (JSON)=- '.print_r($response['body'], true)); return $url; } else $rurl = $r['short_url'];
     }
     if ($options['nxsURLShrtnr']=='W' && function_exists('wp_get_shortlink')) { global $post; $post = get_post($postID);  $rurl = wp_get_shortlink($postID, 'post'); }
     if ($options['nxsURLShrtnr']=='Y' && trim($options['YOURLSKey']!='') && trim($options['YOURLSURL']!='')) { $timestamp = time(); $signature = md5( $timestamp . $options['YOURLSKey'] ); 
       $flds = array('signature'=>$signature, 'action' => 'shorturl', 'url'=>$url, 'format'=>'json', 'timestamp'=>$timestamp);  
-      $response  = wp_remote_post(($options['YOURLSURL']), array('body' => $flds)); 
-      if (is_wp_error($response)) {  nxs_addToLogN('E', 'YOURLS', '', '-=ERROR=- '.print_r($response, true)); return $url; } 
+      $response  = nxs_remote_post(($options['YOURLSURL']), array('body' => $flds)); 
+      if (is_nxs_error($response)) {  nxs_addToLogN('E', 'YOURLS', '', '-=ERROR=- '.print_r($response, true)); return $url; } 
       $rtr = json_decode($response['body'],true);  if (!is_array($rtr) || !isset($rtr['shorturl']) ) {   nxs_addToLogN('E', 'goo.gl', '', '-=ERROR=- '.print_r($response, true));  return $url; }      
       $rurl = $rtr['shorturl'];
     
     }   
-    if ($options['nxsURLShrtnr']=='O' || $options['nxsURLShrtnr']=='' || $options['nxsURLShrtnr']=='G') {   
-      $response  = wp_remote_post('https://www.googleapis.com/urlshortener/v1/url'.($options['gglAPIKey']!=''?'?key='.$options['gglAPIKey']:''), array('headers' => array('Content-Type'=>'application/json'), 'body' => '{"longUrl": "'.$url.'"}')); 
-      if (is_wp_error($response)) {   nxs_addToLogN('E', 'goo.gl', '', '-=ERROR=- '.print_r($response, true));  return $url; } 
+    if ($options['nxsURLShrtnr']=='O' || $options['nxsURLShrtnr']=='' || $options['nxsURLShrtnr']=='G') { $hdrsArr = array('Content-Type'=>'application/json', 'Referer'=>'http://'.$_SERVER['HTTP_HOST']); 
+      $advSet = nxs_mkRemOptsArr($hdrsArr,'','{"longUrl": "'.$url.'"}'); $response  = nxs_remote_post('https://www.googleapis.com/urlshortener/v1/url'.($options['gglAPIKey']!=''?'?key='.$options['gglAPIKey']:''), $advSet); 
+      if (is_nxs_error($response)) {   nxs_addToLogN('E', 'goo.gl', '', '-=ERROR=- '.print_r($response, true));  return $url; } 
       $rtr = json_decode($response['body'],true); if (!is_array($rtr) || isset($rtr['error']) || !isset($rtr['id']) ) {   nxs_addToLogN('E', 'goo.gl', '', '-=ERROR=- '.print_r($response, true));  return $url; }      
       $rurl = $rtr['id'];
     }    
-    //if ($rurl=='') { $response  = wp_remote_get('http://gd.is/gtq/'.$url); if ((is_array($response) && ($response['response']['code']=='200'))) $rurl = $response['body']; }
+    //if ($rurl=='') { $response  = nxs_remote_get('http://gd.is/gtq/'.$url); if ((is_array($response) && ($response['response']['code']=='200'))) $rurl = $response['body']; }
     if ($rurl!='') $url = $rurl;  return $url;
 }}
 //## Comments - DISQUS native function has global $post; overwriting $post parameter in the middle of it.
@@ -689,7 +702,7 @@ if (!function_exists("nxs_postNewComment")) { function nxs_postNewComment($cmnt,
   $cmnt['comment_parent'] = ( 'approved' == $parent_status || 'unapproved' == $parent_status ) ? $cmnt['comment_parent'] : 0;
   $cmnt['comment_author_IP'] = ''; if (empty($cmnt['comment_agent'])) $cmnt['comment_agent'] = 'SNAP'; $cmnt['comment_date'] =  get_date_from_gmt( $cmnt['comment_date_gmt'] );    
   $cmnt = wp_filter_comment($cmnt); if ($aa) $cmnt['comment_approved'] = 1; else $cmnt['comment_approved'] = nxs_wp_allow_comment($cmnt); // echo "INSERT";  prr($cmnt);
-  if ( $cmnt['comment_approved'] != 'spam' && $cmnt['comment_approved']>1 ) return $cmnt['comment_approved'];  else  $cmntID = wp_insert_comment($cmnt); 
+  if ( $cmnt['comment_approved'] != 'spam' && $cmnt['comment_approved']>1 ) return $cmnt['comment_approved'];  else  { $cmntID = wp_insert_comment($cmnt); do_action( 'comment_post', $cmntID, $cmnt['comment_approved'] ); }
   if (empty($cmntID)) {  nxs_addToLogN('E', 'Error', 'Comments', '-=ERROR=-', print_r($cmnt, true)); return; }
   
   if ( 'spam' !== $cmnt['comment_approved'] ) { if ( '0' == $cmnt['comment_approved'] ) wp_notify_moderator($cmntID); $post = get_post($cmnt['comment_post_ID']);
@@ -740,7 +753,7 @@ if (!function_exists('nxs_doProcessTags')){ function nxs_doProcessTags($tags){ $
   $tags['tags'] =  implode(', ', $tags['tagsA']); $tags['htags'] = implode(', ', $tags['htagsA']);
   return $tags;
 }}            
-if (!function_exists('nxs_doFormatMsg')){ function nxs_doFormatMsg($format, $message, $addURLParams=''){ global $nxs_urlLen; $msg = nxs_doSpin($format);// prr($msg); prr($message);// Make "message default"
+if (!function_exists('nxs_doFormatMsg')){ function nxs_doFormatMsg($format, $message, $addURLParams=''){ global $nxs_urlLen; $msg = nxs_doSpin($format); // prr($msg); prr($message);// Make "message default"
   $msgDef = array('title'=>'','announce'=>'','text'=>'','url'=>'','surl'=>'','urlDescr'=>'','urlTitle'=>'','imageURL' => array(),'videoCode'=>'','videoURL'=>'','siteName'=>'','tags'=>'','cats'=>'','authorName'=>'','orID'=>''); $message = array_merge($msgDef, $message);
   if (preg_match('/%URL%/', $msg)) { $url = $message['url']; if($addURLParams!='') $url .= (strpos($url,'?')!==false?'&':'?').$addURLParams;  $nxs_urlLen = nxs_strLen($url); $msg = str_ireplace("%URL%", $url, $msg);}
   if (preg_match('/%SURL%/', $msg)) { 
@@ -788,7 +801,7 @@ if (!function_exists('nxs_doFormatMsg')){ function nxs_doFormatMsg($format, $mes
 }}
 //## Common Dialogs
 if (!function_exists('nxs_showImgToUseDlg')){ function nxs_showImgToUseDlg($nt, $ii, $imgToUse, $hide=false){ ?>
- <tr id="altFormatIMG<?php echo $nt.$ii; ?>" style="<?php echo $hide?'display:none;':''; ?>"><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Image(s) to use:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
+ <tr class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" id="altFormatIMG<?php echo $nt.$ii; ?>" style="<?php echo $hide?'display:none;':''; ?>"><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Image(s) to use:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
                   <td><input type="checkbox" class="isAutoImg" <?php if ($imgToUse=='') { ?>checked="checked"<?php } ?>  id="isAutoImg-<?php echo $nt; ?><?php echo $ii; ?>" name="<?php echo $nt; ?>[<?php echo $ii; ?>][isAutoImg]" value="A"/> <?php _e('Auto', 'social-networks-auto-poster-facebook-twitter-g'); ?>
                   <?php if ($imgToUse!='') { ?> <a onclick="nxs_clPrvImgShow('<?php echo $nt; ?><?php echo $ii; ?>');return false;" href="#"><?php _e('Show all', 'social-networks-auto-poster-facebook-twitter-g'); ?></a><br/>  
                     <div class="nxs_prevImagesDiv" id="nxs_<?php echo $nt; ?><?php echo $ii; ?>_idivD"><img class="nxs_prevImages" src="<?php echo $imgToUse; ?>"><div style="display:block;" class="nxs_checkIcon"><div class="media-modal-icon"></div></div></div>
@@ -798,11 +811,11 @@ if (!function_exists('nxs_showImgToUseDlg')){ function nxs_showImgToUseDlg($nt, 
                 </td></tr> 
 <?php }}
 if (!function_exists('nxs_showURLToUseDlg')){ function nxs_showURLToUseDlg($nt, $ii, $urlToUse){ ?>
- <tr id="altFormat1" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('URL to use:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
+ <tr class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('URL to use:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
                   <td><input type="checkbox" class="isAutoURL" <?php if ($urlToUse=='') { ?>checked="checked"<?php } ?>  id="isAutoURL-<?php echo $nt; ?><?php echo $ii; ?>" name="<?php echo $nt; ?>[<?php echo $ii; ?>][isAutoURL]" value="A"/> <?php _e('Auto', 'social-networks-auto-poster-facebook-twitter-g'); ?> - <i><?php _e('Post URL or globally defined URL will be used', 'social-networks-auto-poster-facebook-twitter-g'); ?></i>
                   
-                    <div class="nxs_prevURLDiv" <?php if (trim($urlToUse)=='') { ?> style="display:none;"<?php } ?> id="isAutoURLFld-<?php echo $nt; ?><?php echo $ii; ?>">
-                      &nbsp;&nbsp;&nbsp;<?php _e('URL:', 'social-networks-auto-poster-facebook-twitter-g') ?> <input size="90" type="text" name="<?php echo $nt; ?>[<?php echo $ii; ?>][urlToUse]" value="<?php echo $urlToUse ?>" id="URLToUse-<?php echo $nt; ?><?php echo $ii; ?>" /> 
+                    <div class="nxs_prevURLDiv" <?php if (trim($urlToUse)=='') { ?> style="display:none;"<?php } ?> id="isAutoURLFld-<?php echo $nt.$ii; ?>">
+                      &nbsp;&nbsp;&nbsp;<?php _e('URL:', 'social-networks-auto-poster-facebook-twitter-g') ?> <input size="90" type="text" name="<?php echo $nt; ?>[<?php echo $ii; ?>][urlToUse]" value="<?php echo $urlToUse ?>" id="URLToUse-<?php echo $nt.$ii; ?>" /> 
                       <br/><span><?php _e('This will trigger "Network will decide attachment info". Image and other settings will be ignored.', 'social-networks-auto-poster-facebook-twitter-g') ?></span>
                     </div>
                   
@@ -869,7 +882,7 @@ if (!function_exists('nxs_FltrsV3toV4')){ function nxs_FltrsV3toV4($o) { if (emp
   if (!empty($o['tagsSel'])) { $o['fltrsOn']='1';
      $ccts = trim($o['tagsSel']); $ccts = explode(',',$ccts); foreach ($ccts as $jj=>$cct) $ccts[$jj] = trim($cct);  $o['fltrs']['nxs_tags_names'] = array_merge($ccts, $o['fltrs']['nxs_tags_names']); unset($o['tagsSel']); unset($o['tagsSelX']);     
      if (isset($o['fltrs']['nxs_tags_names'])) { foreach ($o['fltrs']['nxs_tags_names'] as $jj=>$tag) if (empty($tag)) unset($o['fltrs']['nxs_tags_names'][$jj]); else { $exT=''; if (is_numeric($tag)) $exT = term_exists((int)$tag, 'post_tag'); else $exT = term_exists($tag, 'post_tag'); 
-          if (empty($exT)) $exT = wp_insert_term($tag, 'post_tag'); if(!is_wp_error($exT)) $o['fltrs']['nxs_tags_names'][$jj]= $exT['term_id'];
+          if (empty($exT)) $exT = wp_insert_term($tag, 'post_tag'); if(!is_nxs_error($exT)) $o['fltrs']['nxs_tags_names'][$jj]= $exT['term_id'];
         } 
       }      
   } return $o;

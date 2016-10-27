@@ -121,13 +121,13 @@ class nxs_Filters {
         if (!empty($_POST['nxs_cats_names'])) { $toIns = array(); $nCats = array(); 
             $cats = get_categories(array('hide_empty'=>false));  if($cats) foreach($cats as $cat) $nCats[] = $cat->term_id;
             foreach ($_POST['nxs_cats_names'] as $ctp) { //prr($ctp);
-                if (!in_array($ctp, $nCats)) { $ctp = wp_insert_term( $ctp, 'category'); if (!is_wp_error($ctp)) $ctp = $ctp['term_id']; else continue; } $toIns[] = $ctp;
+                if (!in_array($ctp, $nCats)) { $ctp = wp_insert_term( $ctp, 'category'); if (!is_nxs_error($ctp)) $ctp = $ctp['term_id']; else continue; } $toIns[] = $ctp;
             } $_POST['nxs_cats_names'] = $toIns;// prr($toIns);
         } 
         if (!empty($_POST['nxs_tags_names'])) { $nTags = array(); $toIns = array(); 
             $tags = get_tags( array( 'hide_empty' => false ) ); if($tags) foreach($tags as $tag) $nTags[] = $tag->term_id;
             foreach ($_POST['nxs_tags_names'] as $ctp) { // prr($ctp);
-                if (!in_array($ctp, $nTags))  { $ctp = wp_insert_term( $ctp, 'post_tag'); if (!is_wp_error($ctp)) $ctp = $ctp['term_id']; else continue; } $toIns[] = $ctp;
+                if (!in_array($ctp, $nTags))  { $ctp = wp_insert_term( $ctp, 'post_tag'); if (!is_nxs_error($ctp)) $ctp = $ctp['term_id']; else continue; } $toIns[] = $ctp;
             } $_POST['nxs_tags_names'] = $toIns; // prr($toIns);
         } 
         
@@ -909,7 +909,7 @@ function get_posts_ids_by_filter( $filter ) { $args = array(); //prr($filter);
     if( !empty( $filter['order'] ) ) $args['order'] = $filter['order'];
     if( !empty( $filter['posts_per_page'] ) ) $args['posts_per_page'] = $filter['posts_per_page'];
         //prr($args); // Summary column Info
-    $args['suppress_filters'] = false;  $postsRet = nxs_get_posts( $args ); $posts = $postsRet['p']; $qu = $postsRet['q'];  //prr($postsRet);  // Summary column Info
+    $args['suppress_filters'] = true;  $postsRet = nxs_get_posts( $args ); $posts = $postsRet['p']; $qu = $postsRet['q'];  //prr($postsRet);  // Summary column Info
         
     $post_ids = array();
     

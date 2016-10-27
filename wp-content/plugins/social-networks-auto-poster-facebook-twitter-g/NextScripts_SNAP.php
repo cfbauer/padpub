@@ -4,20 +4,19 @@ Plugin Name: NextScripts: Social Networks Auto-Poster
 Plugin URI: http://www.nextscripts.com/social-networks-auto-poster-for-wordpress
 Description: This plugin automatically publishes posts from your blog to multiple accounts on Facebook, Twitter, and Google+ profiles and/or pages.
 Author: NextScripts
-Version: 3.6.5
+Version: 3.7.5
 Author URI: http://www.nextscripts.com
 Text Domain: nxs_snap
 Copyright 2012-2016  NextScripts, Inc
 */
-define( 'NextScripts_SNAP_Version' , '3.6.5' ); 
-
+define( 'NextScripts_SNAP_Version' , '3.7.5' ); 
 
 $nxs_mLimit = ini_get('memory_limit'); if (strpos($nxs_mLimit, 'G')) {$nxs_mLimit = (int)$nxs_mLimit * 1024;} else {$nxs_mLimit = (int)$nxs_mLimit;}
   if ($nxs_mLimit>0 && $nxs_mLimit<64) { add_filter('plugin_action_links','ns_add_nomem_link', 10, 2 );
 if (!function_exists("ns_add_nomem_link")) { function ns_add_nomem_link($links, $file) { global $nxs_mLimit; static $this_plugin; if (!$this_plugin) $this_plugin = plugin_basename(__FILE__);
   if ($file == $this_plugin){ $settings_link = '<b style="color:red;">Not Enough Memory allowed for PHP.</b> <br/> You have '.$nxs_mLimit.' MB. You need at least 64MB'; array_unshift($links, $settings_link);} return $links;}}
 } else {    
-require_once "nxs_functions.php"; require_once "inc/nxs_functions_adv.php"; require_once "inc/nxs_flt_class.php"; require_once "inc/nxs_snap_class.php";  require_once "inc/nxs_ntlist_class.php"; require_once "inc/nxs_oauth_class.php";
+require_once "nxs_functions.php"; require_once "inc/nxs-http.php"; require_once "inc/nxs_functions_adv.php"; require_once "inc/nxs_flt_class.php"; require_once "inc/nxs_snap_class.php";  require_once "inc/nxs_ntlist_class.php"; require_once "inc/nxs_oauth_class.php";
 //## Include All Available Networks            
 //error_reporting(E_ALL); ini_set('display_errors', '1');
 global $nxs_snapAvNts, $nxs_snapThisPageUrl, $nxs_snapSetPgURL, $nxs_plurl, $nxs_plpath, $nxs_isWPMU, $nxs_tpWMPU, $nxs_skipSSLCheck; define( 'NXS_PLPATH', plugin_dir_path(__FILE__) );  define( 'NXS_PLURL', plugin_dir_url(__FILE__));  define( 'NXS_SETV', 350); 
@@ -76,10 +75,11 @@ if (!function_exists("nxs_snapLogPublishTo")) { function nxs_snapLogPublishTo( $
     nxs_snapPublishTo($post);
   }
 }}
-if (!function_exists("nxs_snapPublishTo")) { function nxs_snapPublishTo($postArr, $type='', $aj=false) {  global $plgn_NS_SNAutoPoster, $nxs_snapAvNts, $blog_id, $nxs_tpWMPU;  //  echo " | nxs_doSMAS2 | "; prr($postArr);
-  if (!isset($plgn_NS_SNAutoPoster)) return; $options = $plgn_NS_SNAutoPoster->nxs_options; 
+if (!function_exists("nxs_snapPublishTo")) { function nxs_snapPublishTo($postArr, $type='', $aj=false) {  global $plgn_NS_SNAutoPoster, $nxs_snapAvNts, $blog_id, $nxs_tpWMPU;  if(is_object($postArr)) $postID = $postArr->ID; else { $postID = $postArr; $postArr = get_post($postID); }
+  if (!isset($plgn_NS_SNAutoPoster)) { if (class_exists("NS_SNAutoPoster")) { nxs_checkAddLogTable(); $plgn_NS_SNAutoPoster = new NS_SNAutoPoster(); new nxs_Filters;  } else nxs_LogIt('I', 'Cancelled', '', '', 'Autopost Aborted', 'SNAP Class is not found. Post ID:('.$postID.')');}
+  if (!isset($plgn_NS_SNAutoPoster)) { nxs_LogIt('I', 'Cancelled', '', '', 'Autopost Aborted', 'SNAP is not loaded. Post ID:('.$postID.')'); return; } $options = $plgn_NS_SNAutoPoster->nxs_options; 
   if (!empty($_POST['nxs_snapPostOptions'])) { $NXS_POSTX = $_POST['nxs_snapPostOptions'];  $NXS_POST = array(); $NXS_POST = NXS_parseQueryStr($NXS_POSTX); } else $NXS_POST = $_POST;
-  if(is_object($postArr)) $postID = $postArr->ID; else { $postID = $postArr; $postArr = get_post($postID);  } $isPost = isset($NXS_POST["snapEdIT"]);  $post = get_post($postID);   
+  $isPost = isset($NXS_POST["snapEdIT"]);  $post = get_post($postID);   
   if ($post->post_status != 'publish') { sleep(5);  $post = get_post($postID); $postArr = $post;
     if ($post->post_status != 'publish') {  nxs_addToLogN('I', 'Cancelled', '', 'Autopost Cancelled - Post is not "Published" Right now - Post ID:('.$postID.') - Current Post status -'.$post->post_status ); return; }
   }  
@@ -123,11 +123,9 @@ if (!function_exists("nxs_snapPublishTo")) { function nxs_snapPublishTo($postArr
           }                    
         if (!isset($optMt['do'])) $optMt['do'] = $optMt['do'.$avNt['code']];  
         
-        
-        
-        if ($optMt['do']=='1') { $optMt['ii'] = 0;  
-            if ($publtype=='A' && ($optMt['nMin']>0 || $optMt['nHrs']>0 || $optMt['nTime']!='')) $publtype='S';        
-            if ($publtype=='S') { if ( $optMt['timeToRun']<$curTime && (isset($optMt['nHrs']) && isset($optMt['nMin']) && ((int)$optMt['nDays']>0 || (int)$optMt['nHrs']>0 || (int)$optMt['nMin']>0) )) {
+        if ($optMt['do']=='1') { $optMt['ii'] = 0;  if (!isset($optMt['nDays'])) $optMt['nDays'] = 0; if (!isset($optMt['nHrs'])) $optMt['nHrs'] = 0; if (!isset($optMt['nMin'])) $optMt['nMin'] = 0;
+            if ($publtype=='A' && (!empty($optMt['nMin']) || !empty($optMt['nHrs']) || !empty($optMt['nTime']))) $publtype='S';        
+            if ($publtype=='S') { if ( !empty($optMt['timeToRun']) && $optMt['timeToRun']<$curTime && ((int)$optMt['nDays']>0 || (int)$optMt['nHrs']>0 || (int)$optMt['nMin']>0) ) {
                 $delay = $delay+(int)$optMt['nDays']*86400+(int)$optMt['nHrs']*3600+(int)$optMt['nMin']*60;
                 nxs_LogIt('I','Delayed',$avNt['name'].' ('.$optMt['nName'].')',$avNt['code'],'Post has been delayed for '.$delay.' Seconds ('.($optMt['nDays']>0?$optMt['nDays'].' Days':'')." ".($optMt['nHrs']>0?$optMt['nHrs'].' Hours':'')." ".($optMt['nMin']>0?$optMt['nMin'].' Minutes':'').')' );
               } else $delay = rand(2,10); $optMt['timeToRun'] = time()+$delay; 
@@ -185,7 +183,7 @@ function nxs_end_flush_ob(){ if (!is_admin()) @ob_end_flush();}
 function nxs_ogtgCallback($content){ global $post, $plgn_NS_SNAutoPoster;  
   if (stripos($content, 'og:title')!==false) $ogOut = "\r\n"; else {
     if (!isset($plgn_NS_SNAutoPoster)) $options = get_option('NS_SNAutoPoster'); else $options = $plgn_NS_SNAutoPoster->nxs_options;    $ogimgs = array();  
-    if (!empty($post) && !is_object($post) && int($post)>0) $post = get_post($post); if (empty($options['advFindOGImg'])) $options['advFindOGImg'] = 0;       
+    if (!empty($post) && !is_object($post) && (int)$post>0) $post = get_post($post); if (empty($options['advFindOGImg'])) $options['advFindOGImg'] = 0;       
     $title = preg_match( '/<title>(.*)<\/title>/', $content, $title_matches );  
     if ($title !== false && count( $title_matches) == 2 ) $ogT ='<meta property="og:title" content="' . $title_matches[1] . '" />'."\r\n"; else {
       if (is_home() || is_front_page() )  $ogT = get_bloginfo( 'name' ); else $ogT = get_the_title();
@@ -313,12 +311,11 @@ function nxs_showNewPostForm($options, $air = true) { global $nxs_snapAvNts, $nx
 function nxs_doNewNPPost($options){ global $nxs_snapAvNts, $nxs_plurl; $postResults = '';
     if (!empty($_POST['mNts']) && is_array($_POST['mNts'])) { nxs_addToLogN('S', '-=== New Form Post requested ===-', 'Form', count($_POST['mNts']).' Networks', print_r($_POST['mNts'], true));
       $message = array('title'=>'', 'text'=>'', 'siteName'=>'', 'url'=>'', 'imageURL'=>'', 'videoURL'=>'', 'tags'=>'', 'urlDescr'=>'', 'urlTitle'=>'');  
-      if (get_magic_quotes_gpc() || $_POST['nxs_mqTest']=="\'") { $_POST['mText'] = stripslashes($_POST['mText']); $_POST['mTitle'] = stripslashes($_POST['mTitle']); }
-      $message['pText'] = $_POST['mText'];   $message['pTitle'] = $_POST['mTitle'];
+      if (!empty($_POST['nxs_mqTest']) && (get_magic_quotes_gpc() || $_POST['nxs_mqTest']=="\'")) { $_POST['mText'] = stripslashes($_POST['mText']); $_POST['mTitle'] = stripslashes($_POST['mTitle']); }      
       //## Get URL info
       if (!empty($_POST['mLink']) && substr($_POST['mLink'], 0, 4)=='http') { $message['url'] = $_POST['mLink'];            
-        $flds = array('id'=>$message['url'], 'scrape'=>'true');      $response =  wp_remote_post('https://graph.facebook.com/v2.3/', array('body' => $flds)); 
-        if (is_wp_error($response)) $badOut['Error'] = print_r($response, true)." - ERROR"; else { $response = json_decode($response['body'], true);  
+        $flds = array('id'=>$message['url'], 'scrape'=>'true');      $response =  nxs_remote_post('https://graph.facebook.com/v2.3/', array('body' => $flds)); 
+        if (is_nxs_error($response)) $badOut['Error'] = print_r($response, true)." - ERROR"; else { $response = json_decode($response['body'], true);  
           if (!empty($response['description'])) $message['urlDescr'] = $response['description'];  if (!empty($response['title'])) $message['urlTitle'] =  $response['title'];
           if (!empty($response['site_name'])) $message['siteName'] = $response['site_name'];
           if (!empty($response['image'][0]['url'])) $message['imageURL'] = $response['image'][0]['url'];
@@ -327,10 +324,10 @@ function nxs_doNewNPPost($options){ global $nxs_snapAvNts, $nxs_plurl; $postResu
       if (!empty($_POST['mImg']) && substr($_POST['mImg'], 0, 4)=='http') $message['imageURL'] = $_POST['mImg']; 
           
       foreach ($_POST['mNts'] as $ntC){ $ntA = explode('--',$ntC); $ntOpts = $options[$ntA[0]][$ntA[1]]; 
-        if (!empty($ntOpts) && is_array($ntOpts)) { $logNT = $ntA[0];  $clName = 'nxs_class_SNAP_'.strtoupper($logNT);                  
+        if (!empty($ntOpts) && is_array($ntOpts)) { $logNT = $ntA[0];  $clName = 'nxs_class_SNAP_'.strtoupper($logNT); $message['pText'] = nxs_doSpin($_POST['mText']); $message['pTitle'] = nxs_doSpin($_POST['mTitle']);               
           $logNT = '<span style="color:#800000">'.strtoupper($logNT).'</span> - '.$ntOpts['nName'];      
           $ntOpts['postType'] = $_POST['mType']; $ntToPost = new $clName(); $ret = $ntToPost->doPostToNT($ntOpts, $message);      
-          if (!is_array($ret) || $ret['isPosted']!='1') { //## Error 
+          if (!is_array($ret) || empty($ret['isPosted']) || $ret['isPosted']!='1') { //## Error 
              nxs_addToLogN('E', 'Error', $logNT, '-=ERROR=- '.print_r($ret, true), ''); $postResults .= $logNT ." - Error (Please see log)<br/>";
           } else {  // ## All Good - log it.            
              if (!empty($ret['postURL'])) $extInfo = '<a href="'.$ret['postURL'].'" target="_blank">Post Link</a>'; 
@@ -403,6 +400,14 @@ if (isset($plgn_NS_SNAutoPoster)) { //## Actions
   
   add_action( 'http_api_curl','nxs_altCurlProxy', 15, 2); 
   
+  if (!empty($suOptions['yo'])) {
+    //##Show
+    add_action( 'show_user_profile', 'nxs_show_yo_profile_fields' );
+    add_action( 'edit_user_profile', 'nxs_show_yo_profile_fields' );
+    //##Edit/Save
+    add_action( 'personal_options_update', 'nxs_save_yo_profile_fields' );
+    add_action( 'edit_user_profile_update', 'nxs_save_yo_profile_fields' );
+  }
                        
   if ($isO || $isS) {    
     add_action( 'transition_post_status', 'nxs_snapLogPublishTo', 10, 3 );

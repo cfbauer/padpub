@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts Instagram Connection Class (##Can't replace - it has .png)
-$nxs_snapAvNts[] = array('code'=>'IG', 'lcode'=>'ig', 'name'=>'Instagram', 'type'=>'Social Networks');
+$nxs_snapAvNts[] = array('code'=>'IG', 'lcode'=>'ig', 'name'=>'Instagram', 'type'=>'Social Networks', 'type'=>'Social Networks');
 
 if (!class_exists("nxs_snapClassIG")) { class nxs_snapClassIG extends nxs_snapClassNT {   
   var $ntInfo = array('code'=>'IG', 'lcode'=>'ig', 'name'=>'Instagram', 'defNName'=>'uName', 'tstReq' => false, 'imgAct'=>'E', 'instrURL'=>'http://www.nextscripts.com/instructions/instagram-auto-poster-setup-installation/');

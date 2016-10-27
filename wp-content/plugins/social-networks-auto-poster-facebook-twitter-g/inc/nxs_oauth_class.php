@@ -138,8 +138,8 @@ if (!class_exists('nxs_OAuthBaseCl')) { class nxs_OAuthBaseCl{
 	  $url = $this->baseURL.$this->request_token_path.'?oauth_nonce='.$args['oauth_nonce'].'&oauth_timestamp='.$args['oauth_timestamp'].'&oauth_consumer_key='.$this->consumer_key.'&oauth_signature_method='.$args['oauth_signature_method'].'&oauth_version='.$args['oauth_version'].'&oauth_callback='.$cbu.'&oauth_signature='.$args['oauth_signature'];      
 	  echo "<br/>REQ Token URL: ".$url."<br/>";
 	  $hdrsArr = $this->makeHTTPHeaders($url); $ckArr = '';   
-	  $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
-	  if ( is_wp_error($response) ) return print_r($response, true);
+	  $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
+	  if ( is_nxs_error($response) ) return print_r($response, true);
 	  $this->http_code = $response['response']['code']; //  prr($response);
 	  if (stripos($response['body'],'oauth_token_secret=')===false) echo 'Bad oAuth Login:'.$response['body']; else return $this->oAuthRespToArr($response['body']);
 	}
@@ -160,8 +160,8 @@ if (!class_exists('nxs_OAuthBaseCl')) { class nxs_OAuthBaseCl{
 	  $url = $this->baseURL.$this->access_token_path.'?oauth_nonce='.$args['oauth_nonce'].'&oauth_timestamp='.$args['oauth_timestamp'].'&oauth_token_secret='.$this->access_secret.'&oauth_signature_method='.$args['oauth_signature_method'].'&oauth_consumer_key='.$this->consumer_key.'&oauth_verifier='.$verifier.'&oauth_version='.$args['oauth_version'].'&oauth_token='.$this->access_token.'&oauth_signature='.$args['oauth_signature'];
 	  echo "<br/>REQ Token URL: ".$url."<br/>";
 	  $hdrsArr = $this->makeHTTPHeaders($url); $ckArr = '';   
-	  $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
-	  if ( is_wp_error($response) ) return $response;
+	  $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));  
+	  if ( is_nxs_error($response) ) return $response;
 	  $this->http_code = $response['response']['code']; 
 	  if (stripos($response['body'],'oauth_token_secret=')===false) echo 'Bad oAuth Login:'.$response['body']; else return $this->oAuthRespToArr($response['body']);        
 	}
@@ -189,11 +189,11 @@ if (!class_exists('nxs_OAuthBaseCl')) { class nxs_OAuthBaseCl{
       //prr($url);
 	   
 	  if ( $type=='GET') {  $url .= '?'.$argsStr;  $hdrsArr = $this->makeHTTPHeaders($url);  $ckArr = ''; // prr($url);
-		  $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr)); //prr($response);
+		  $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr)); //prr($response);
 	  } else { $hdrsArr = $this->makeHTTPHeaders($url, true); if (!empty($argsAddStr)) $argsStr .= $argsAddStr; // prr($argsStr); //prr($url);  prr($hdrsArr); prr($argsStr);  prr($argsT);
-		  $response = wp_remote_post($url, array( 'timeout' => 45, 'redirection' => 0, 'body'=>$argsStr,  'headers' => $hdrsArr)); // prr($argsStr, 'ARRRRG'); prr($argsT);   prr($response);
+		  $response = nxs_remote_post($url, array( 'timeout' => 45, 'redirection' => 0, 'body'=>$argsStr,  'headers' => $hdrsArr)); // prr($argsStr, 'ARRRRG'); prr($argsT);   prr($response);
 	  }
-	  if ( is_wp_error($response) ) return $response;
+	  if ( is_nxs_error($response) ) return $response;
 	  $this->http_code = $response['response']['code']; $body = $response['body']; $body = maybe_unserialize($body); if (is_array($body)) return $body; else  return json_decode($body, true);   
 	}
 	

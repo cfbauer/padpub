@@ -38,15 +38,15 @@
  * @link       http://scripts.incutio.com/xmlrpc/ Site/manual
  * 
  * Modified Nov 2014 by NextScripts.com to provide SSL compatiblity. 
+ * Modified Oct 2016 by NextScripts.com - removed Server part due to PHP7 incompatibility.
  */
-
 
 class NXS_XMLRPC_Value
 {
     var $data;
     var $type;
 
-    function NXS_XMLRPC_Value($data, $type = false)
+    function __construct($data, $type = false)
     {
         $this->data = $data;
         if (!$type) {
@@ -190,7 +190,7 @@ class NXS_XMLRPC_Message
     // The XML parser
     var $_parser;
 
-    function NXS_XMLRPC_Message($message)
+    function __construct($message)
     {
         $this->message =& $message;
     }
@@ -335,209 +335,6 @@ class NXS_XMLRPC_Message
     }
 }
 
-/**
- * NXS_XMLRPC_Server
- *
- * @package IXR
- * @since 1.5
- */
-class NXS_XMLRPC_Server
-{
-    var $data;
-    var $callbacks = array();
-    var $message;
-    var $capabilities;
-
-    function NXS_XMLRPC_Server($callbacks = false, $data = false, $wait = false)
-    {
-        $this->setCapabilities();
-        if ($callbacks) {
-            $this->callbacks = $callbacks;
-        }
-        $this->setCallbacks();
-        if (!$wait) {
-            $this->serve($data);
-        }
-    }
-
-    function serve($data = false)
-    {
-        if (!$data) {
-            if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] !== 'POST') {
-                header('Content-Type: text/plain'); // merged from WP #9093
-                die('XML-RPC server accepts POST requests only.');
-            }
-
-            global $HTTP_RAW_POST_DATA;
-            if (empty($HTTP_RAW_POST_DATA)) {
-                // workaround for a bug in PHP 5.2.2 - http://bugs.php.net/bug.php?id=41293
-                $data = file_get_contents('php://input');
-            } else {
-                $data =& $HTTP_RAW_POST_DATA;
-            }
-        }
-        $this->message = new NXS_XMLRPC_Message($data);
-        if (!$this->message->parse()) {
-            $this->error(-32700, 'parse error. not well formed');
-        }
-        if ($this->message->messageType != 'methodCall') {
-            $this->error(-32600, 'server error. invalid xml-rpc. not conforming to spec. Request must be a methodCall');
-        }
-        $result = $this->call($this->message->methodName, $this->message->params);
-
-        // Is the result an error?
-        if (is_a($result, 'NXS_XMLRPC_Error')) {
-            $this->error($result);
-        }
-
-        // Encode the result
-        $r = new NXS_XMLRPC_Value($result);
-        $resultxml = $r->getXml();
-
-        // Create the XML
-        $xml = <<<EOD
-<methodResponse>
-  <params>
-    <param>
-      <value>
-      $resultxml
-      </value>
-    </param>
-  </params>
-</methodResponse>
-
-EOD;
-      // Send it
-      $this->output($xml);
-    }
-
-    function call($methodname, $args)
-    {
-        if (!$this->hasMethod($methodname)) {
-            return new NXS_XMLRPC_Error(-32601, 'server error. requested method '.$methodname.' does not exist.');
-        }
-        $method = $this->callbacks[$methodname];
-
-        // Perform the callback and send the response
-        if (count($args) == 1) {
-            // If only one paramater just send that instead of the whole array
-            $args = $args[0];
-        }
-
-        // Are we dealing with a function or a method?
-        if (is_string($method) && substr($method, 0, 5) == 'this:') {
-            // It's a class method - check it exists
-            $method = substr($method, 5);
-            if (!method_exists($this, $method)) {
-                return new NXS_XMLRPC_Error(-32601, 'server error. requested class method "'.$method.'" does not exist.');
-            }
-
-            //Call the method
-            $result = $this->$method($args);
-        } else {
-            // It's a function - does it exist?
-            if (is_array($method)) {
-                if (!method_exists($method[0], $method[1])) {
-                    return new NXS_XMLRPC_Error(-32601, 'server error. requested object method "'.$method[1].'" does not exist.');
-                }
-            } else if (!function_exists($method)) {
-                return new NXS_XMLRPC_Error(-32601, 'server error. requested function "'.$method.'" does not exist.');
-            }
-
-            // Call the function
-            $result = call_user_func($method, $args);
-        }
-        return $result;
-    }
-
-    function error($error, $message = false)
-    {
-        // Accepts either an error object or an error code and message
-        if ($message && !is_object($error)) {
-            $error = new NXS_XMLRPC_Error($error, $message);
-        }
-        $this->output($error->getXml());
-    }
-
-    function output($xml)
-    {
-        $xml = '<?xml version="1.0"?>'."\n".$xml;
-        $length = strlen($xml);
-        header('Connection: close');
-        header('Content-Length: '.$length);
-        header('Content-Type: text/xml');
-        header('Date: '.date('r'));
-        echo $xml;
-        exit;
-    }
-
-    function hasMethod($method)
-    {
-        return in_array($method, array_keys($this->callbacks));
-    }
-
-    function setCapabilities()
-    {
-        // Initialises capabilities array
-        $this->capabilities = array(
-            'xmlrpc' => array(
-                'specUrl' => 'http://www.xmlrpc.com/spec',
-                'specVersion' => 1
-        ),
-            'faults_interop' => array(
-                'specUrl' => 'http://xmlrpc-epi.sourceforge.net/specs/rfc.fault_codes.php',
-                'specVersion' => 20010516
-        ),
-            'system.multicall' => array(
-                'specUrl' => 'http://www.xmlrpc.com/discuss/msgReader$1208',
-                'specVersion' => 1
-        ),
-        );
-    }
-
-    function getCapabilities($args)
-    {
-        return $this->capabilities;
-    }
-
-    function setCallbacks()
-    {
-        $this->callbacks['system.getCapabilities'] = 'this:getCapabilities';
-        $this->callbacks['system.listMethods'] = 'this:listMethods';
-        $this->callbacks['system.multicall'] = 'this:multiCall';
-    }
-
-    function listMethods($args)
-    {
-        // Returns a list of methods - uses array_reverse to ensure user defined
-        // methods are listed before server defined methods
-        return array_reverse(array_keys($this->callbacks));
-    }
-
-    function multiCall($methodcalls)
-    {
-        // See http://www.xmlrpc.com/discuss/msgReader$1208
-        $return = array();
-        foreach ($methodcalls as $call) {
-            $method = $call['methodName'];
-            $params = $call['params'];
-            if ($method == 'system.multicall') {
-                $result = new NXS_XMLRPC_Error(-32600, 'Recursive calls to system.multicall are forbidden');
-            } else {
-                $result = $this->call($method, $params);
-            }
-            if (is_a($result, 'NXS_XMLRPC_Error')) {
-                $return[] = array(
-                    'faultCode' => $result->code,
-                    'faultString' => $result->message
-                );
-            } else {
-                $return[] = array($result);
-            }
-        }
-        return $return;
-    }
-}
 
 /**
  * NXS_XMLRPC_Request
@@ -551,7 +348,7 @@ class NXS_XMLRPC_Request
     var $args;
     var $xml;
 
-    function NXS_XMLRPC_Request($method, $args)
+    function __construct($method, $args)
     {
         $this->method = $method;
         $this->args = $args;
@@ -604,7 +401,7 @@ class NXS_XMLRPC_Client
     // Storage place for an error message
     var $error = false;
 
-    function NXS_XMLRPC_Client($server, $path = false, $port = 80, $timeout = 25)
+    function __construct($server, $path = false, $port = 80, $timeout = 25)
     {
         if (!$path) {
             // Assume we have been given a URL instead
@@ -829,7 +626,7 @@ class NXS_XMLRPC_Error
     var $code;
     var $message;
 
-    function NXS_XMLRPC_Error($code, $message)
+    function __construct($code, $message)
     {
         $this->code = $code;
         $this->message = htmlspecialchars($message);
@@ -875,7 +672,7 @@ class NXS_XMLRPC_Date {
     var $second;
     var $timezone;
 
-    function NXS_XMLRPC_Date($time)
+    function __construct($time)
     {
         // $time can be a PHP timestamp or an ISO one
         if (is_numeric($time)) {
@@ -933,7 +730,7 @@ class NXS_XMLRPC_Base64
 {
     var $data;
 
-    function NXS_XMLRPC_Base64($data)
+    function __construct($data)
     {
         $this->data = $data;
     }
@@ -941,169 +738,6 @@ class NXS_XMLRPC_Base64
     function getXml()
     {
         return '<base64>'.base64_encode($this->data).'</base64>';
-    }
-}
-
-/**
- * NXS_XMLRPC_IntrospectionServer
- *
- * @package IXR
- * @since 1.5
- */
-class NXS_XMLRPC_IntrospectionServer extends NXS_XMLRPC_Server
-{
-    var $signatures;
-    var $help;
-
-    function NXS_XMLRPC_IntrospectionServer()
-    {
-        $this->setCallbacks();
-        $this->setCapabilities();
-        $this->capabilities['introspection'] = array(
-            'specUrl' => 'http://xmlrpc.usefulinc.com/doc/reserved.html',
-            'specVersion' => 1
-        );
-        $this->addCallback(
-            'system.methodSignature',
-            'this:methodSignature',
-            array('array', 'string'),
-            'Returns an array describing the return type and required parameters of a method'
-        );
-        $this->addCallback(
-            'system.getCapabilities',
-            'this:getCapabilities',
-            array('struct'),
-            'Returns a struct describing the XML-RPC specifications supported by this server'
-        );
-        $this->addCallback(
-            'system.listMethods',
-            'this:listMethods',
-            array('array'),
-            'Returns an array of available methods on this server'
-        );
-        $this->addCallback(
-            'system.methodHelp',
-            'this:methodHelp',
-            array('string', 'string'),
-            'Returns a documentation string for the specified method'
-        );
-    }
-
-    function addCallback($method, $callback, $args, $help)
-    {
-        $this->callbacks[$method] = $callback;
-        $this->signatures[$method] = $args;
-        $this->help[$method] = $help;
-    }
-
-    function call($methodname, $args)
-    {
-        // Make sure it's in an array
-        if ($args && !is_array($args)) {
-            $args = array($args);
-        }
-
-        // Over-rides default call method, adds signature check
-        if (!$this->hasMethod($methodname)) {
-            return new NXS_XMLRPC_Error(-32601, 'server error. requested method "'.$this->message->methodName.'" not specified.');
-        }
-        $method = $this->callbacks[$methodname];
-        $signature = $this->signatures[$methodname];
-        $returnType = array_shift($signature);
-
-        // Check the number of arguments
-        if (count($args) != count($signature)) {
-            return new NXS_XMLRPC_Error(-32602, 'server error. wrong number of method parameters');
-        }
-
-        // Check the argument types
-        $ok = true;
-        $argsbackup = $args;
-        for ($i = 0, $j = count($args); $i < $j; $i++) {
-            $arg = array_shift($args);
-            $type = array_shift($signature);
-            switch ($type) {
-                case 'int':
-                case 'i4':
-                    if (is_array($arg) || !is_int($arg)) {
-                        $ok = false;
-                    }
-                    break;
-                case 'base64':
-                case 'string':
-                    if (!is_string($arg)) {
-                        $ok = false;
-                    }
-                    break;
-                case 'boolean':
-                    if ($arg !== false && $arg !== true) {
-                        $ok = false;
-                    }
-                    break;
-                case 'float':
-                case 'double':
-                    if (!is_float($arg)) {
-                        $ok = false;
-                    }
-                    break;
-                case 'date':
-                case 'dateTime.iso8601':
-                    if (!is_a($arg, 'NXS_XMLRPC_Date')) {
-                        $ok = false;
-                    }
-                    break;
-            }
-            if (!$ok) {
-                return new NXS_XMLRPC_Error(-32602, 'server error. invalid method parameters');
-            }
-        }
-        // It passed the test - run the "real" method call
-        return parent::call($methodname, $argsbackup);
-    }
-
-    function methodSignature($method)
-    {
-        if (!$this->hasMethod($method)) {
-            return new NXS_XMLRPC_Error(-32601, 'server error. requested method "'.$method.'" not specified.');
-        }
-        // We should be returning an array of types
-        $types = $this->signatures[$method];
-        $return = array();
-        foreach ($types as $type) {
-            switch ($type) {
-                case 'string':
-                    $return[] = 'string';
-                    break;
-                case 'int':
-                case 'i4':
-                    $return[] = 42;
-                    break;
-                case 'double':
-                    $return[] = 3.1415;
-                    break;
-                case 'dateTime.iso8601':
-                    $return[] = new NXS_XMLRPC_Date(time());
-                    break;
-                case 'boolean':
-                    $return[] = true;
-                    break;
-                case 'base64':
-                    $return[] = new NXS_XMLRPC_Base64('base64');
-                    break;
-                case 'array':
-                    $return[] = array('array');
-                    break;
-                case 'struct':
-                    $return[] = array('struct' => 'struct');
-                    break;
-            }
-        }
-        return $return;
-    }
-
-    function methodHelp($method)
-    {
-        return $this->help[$method];
     }
 }
 
@@ -1117,9 +751,9 @@ class NXS_XMLRPC_ClientMulticall extends NXS_XMLRPC_Client
 {
     var $calls = array();
 
-    function NXS_XMLRPC_ClientMulticall($server, $path = false, $port = 80)
+    function __construct($server, $path = false, $port = 80)
     {
-        parent::NXS_XMLRPC_Client($server, $path, $port);
+        parent::__construct($server, $path, $port);
         $this->useragent = 'The Incutio XML-RPC PHP Library (multicall client)';
     }
 
@@ -1188,9 +822,9 @@ class NXS_XMLRPC_ClientSSL extends NXS_XMLRPC_Client
      * @param string $server URL of the Server to connect to
      * @since 0.1.0
      */
-    function NXS_XMLRPC_ClientSSL($server, $path = false, $port = 443, $timeout = false)
+    function __construct($server, $path = false, $port = 443, $timeout = false)
     {
-        parent::NXS_XMLRPC_Client($server, $path, $port, $timeout);
+        parent::__construct($server, $path, $port, $timeout);
         $this->useragent = 'The Incutio XML-RPC PHP Library for SSL';
 
         // Set class fields
@@ -1359,101 +993,4 @@ class NXS_XMLRPC_ClientSSL extends NXS_XMLRPC_Client
     }
 }
 
-/**
- * Extension of the {@link NXS_XMLRPC_Server} class to easily wrap objects.
- *
- * Class is designed to extend the existing XML-RPC server to allow the
- * presentation of methods from a variety of different objects via an
- * XML-RPC server.
- * It is intended to assist in organization of your XML-RPC methods by allowing
- * you to "write once" in your existing model classes and present them.
- *
- * @author Jason Stirk <jstirk@gmm.com.au>
- * @version 1.0.1 19Apr2005 17:40 +0800
- * @copyright Copyright (c) 2005 Jason Stirk
- * @package IXR
- */
-class NXS_XMLRPC_ClassServer extends NXS_XMLRPC_Server
-{
-    var $_objects;
-    var $_delim;
-
-    function NXS_XMLRPC_ClassServer($delim = '.', $wait = false)
-    {
-        $this->NXS_XMLRPC_Server(array(), false, $wait);
-        $this->_delimiter = $delim;
-        $this->_objects = array();
-    }
-
-    function addMethod($rpcName, $functionName)
-    {
-        $this->callbacks[$rpcName] = $functionName;
-    }
-
-    function registerObject($object, $methods, $prefix=null)
-    {
-        if (is_null($prefix))
-        {
-            $prefix = get_class($object);
-        }
-        $this->_objects[$prefix] = $object;
-
-        // Add to our callbacks array
-        foreach($methods as $method)
-        {
-            if (is_array($method))
-            {
-                $targetMethod = $method[0];
-                $method = $method[1];
-            }
-            else
-            {
-                $targetMethod = $method;
-            }
-            $this->callbacks[$prefix . $this->_delimiter . $method]=array($prefix, $targetMethod);
-        }
-    }
-
-    function call($methodname, $args)
-    {
-        if (!$this->hasMethod($methodname)) {
-            return new NXS_XMLRPC_Error(-32601, 'server error. requested method '.$methodname.' does not exist.');
-        }
-        $method = $this->callbacks[$methodname];
-
-        // Perform the callback and send the response
-        if (count($args) == 1) {
-            // If only one paramater just send that instead of the whole array
-            $args = $args[0];
-        }
-
-        // See if this method comes from one of our objects or maybe self
-        if (is_array($method) || (substr($method, 0, 5) == 'this:')) {
-            if (is_array($method)) {
-                $object=$this->_objects[$method[0]];
-                $method=$method[1];
-            } else {
-                $object=$this;
-                $method = substr($method, 5);
-            }
-
-            // It's a class method - check it exists
-            if (!method_exists($object, $method)) {
-                return new NXS_XMLRPC_Error(-32601, 'server error. requested class method "'.$method.'" does not exist.');
-            }
-
-            // Call the method
-            $result = $object->$method($args);
-        } else {
-            // It's a function - does it exist?
-            if (!function_exists($method)) {
-                return new NXS_XMLRPC_Error(-32601, 'server error. requested function "'.$method.'" does not exist.');
-            }
-
-            // Call the function
-            $result = $method($args);
-        }
-        return $result;
-    }
-}
 ?>

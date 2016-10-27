@@ -29,7 +29,7 @@ if (!class_exists("nxs_class_SNAP_DI")) { class nxs_class_SNAP_DI {
       if (!empty($message['pTitle'])) $msgT = $message['pTitle']; else $msgT = nxs_doFormatMsg($options['msgTFormat'], $message);       
       $flds = array(); $flds['key']=$options['apiKey']; $flds['url']=$message['url']; $flds['title']=nsTrnc($msgT, 250); $flds['desc']=nsTrnc($msg, 250); $flds['tags']=$message['tags']; $flds['shared']='yes';   //   prr($flds); die();
       $hdrsArr = $this->nxs_getDIHeaders('https://www.diigo.com/api/v2/bookmarks', $email, $pass, true);
-      $cnt = wp_remote_post( 'https://www.diigo.com/api/v2/bookmarks', array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0, 'headers' => $hdrsArr, 'body' => $flds)); 
+      $cnt = nxs_remote_post( 'https://www.diigo.com/api/v2/bookmarks', array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0, 'headers' => $hdrsArr, 'body' => $flds)); 
       //## Return      
       if (is_array($cnt) &&  stripos($cnt['body'],'"code":1')!==false) {         
          return array('postID'=>'DI', 'isPosted'=>1, 'postURL'=>'https://www.diigo.com/user/'.$options['uName'], 'pDate'=>date('Y-m-d H:i:s'));          

@@ -19,14 +19,14 @@ if (!class_exists("nxs_class_SNAP_VB")) { class nxs_class_SNAP_VB {
       if (function_exists('gzdeflate')) $hdrsArr['Accept-Encoding']='gzip,deflate,sdch'; $hdrsArr['Accept-Language']='en-US,en;q=0.8'; $hdrsArr['Accept-Charset']='ISO-8859-1,utf-8;q=0.7,*;q=0.3'; return $hdrsArr;
     }
     function nxs_doCheckVB($url){ global $nxs_vbCkArray; $hdrsArr = $this->nxs_getVBHeaders($url); $ckArr = $nxs_vbCkArray;   
-      $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));   
+      $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));   
       if (stripos($response['body'],'logouthash=')===false) return 'Bad Saved Login';  
       if ( stripos($response['body'], 'usercp.php')!==false && stripos($response['body'], 'logouthash')!==false){ /*echo "You are IN"; */ return false; 
       } else return 'No Saved Login';
       return false;  
     }
     function nxs_doConnectToVB($u, $p, $url){ global $nxs_vbCkArray; $hdrsArr = $this->nxs_getVBHeaders($url); $mids = '';//   echo "LOGGIN";
-      $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => '')); if(is_wp_error($response)) return "Invalid Connection. ".print_r($response, true);
+      $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => '')); if(is_nxs_error($response)) return "Invalid Connection. ".print_r($response, true);
       $contents = $response['body']; //$response['body'] = htmlentities($response['body']);  prr($response);    die();
       $ckArr = $response['cookies']; $mdhashLoc = stripos($contents, 'md5hash(vb_login_password');
       if ($mdhashLoc===false) return "No VB found";
@@ -39,18 +39,18 @@ if (!class_exists("nxs_class_SNAP_VB")) { class nxs_class_SNAP_VB {
       // $logURL = substr($contents, $mdhashLoc-250, 250); $logURL = CutFromTo($logURL, 'action="', '"');          
       if (stripos($contents, 'base href="')!==false) $baseURL = trim(CutFromTo($contents,'base href="', '"')); else { $uarr = explode('/',$url);  $dd = $uarr[count($uarr)-1]; $baseURL = str_replace($dd, '', $url);}
       $hdrsArr = $this->nxs_getVBHeaders($url, true);
-      $r2 = wp_remote_post( $baseURL.'login.php?do=login', array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'body' => $flds, 'cookies' => $ckArr)); // prr($r2);
+      $r2 = nxs_remote_post( $baseURL.'login.php?do=login', array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'body' => $flds, 'cookies' => $ckArr)); // prr($r2);
       if (stripos($r2['body'],'exec_refresh()')!==false) { $ckArr = nxsMergeArraysOV($ckArr, $r2['cookies']); $nxs_vbCkArray = $ckArr; return false; } else return "Bad Username/Password";
     }    
     function nxs_doPostToVB($url, $subj, $msg, $lnk, $tags){ global $nxs_vbCkArray; $hdrsArr = $this->nxs_getVBHeaders($url); $ckArr = $nxs_vbCkArray; $mids='';
-      $response = wp_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));   
-      if(is_wp_error($response)) return "Invalid Connection. ".print_r($response, true);
+      $response = nxs_remote_get($url, array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr));   
+      if(is_nxs_error($response)) return "Invalid Connection. ".print_r($response, true);
       $contents = $response['body']; // $response['body'] = htmlentities($response['body']);  prr($response);    die();
       if (stripos($contents, 'base href="')!==false) $baseURL = trim(CutFromTo($contents,'base href="', '"')); else { $uarr = explode('/',$url); $dd = $uarr[count($uarr)-1]; $baseURL = str_replace($dd, '', $url);}
       if (stripos($contents, 'newthread.php?do=newthread')!==false) $mdd='t'; elseif (stripos($contents, 'newreply.php?')!==false) $mdd='p'; else return "No Thread/Post Controls found";
   
       if ($mdd=='t'){ $fid = CutFromTo($contents, 'newthread.php?do=newthread','"'); // echo  $baseURL.'newthread.php?do=newthread'.str_replace('&amp;','&',$fid);
-        $response = wp_remote_get( $baseURL.'newthread.php?do=newthread'.str_replace('&amp;','&',$fid), array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr)); $contents = $response['body'];
+        $response = nxs_remote_get( $baseURL.'newthread.php?do=newthread'.str_replace('&amp;','&',$fid), array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr)); $contents = $response['body'];
         $frmTxt = CutFromTo($contents, 'newthread.php?do=postthread','</form>'); $md = array(); $flds  = array(); //prr($frmTxt);
         while (stripos($frmTxt, '<input')!==false){ $inpField = trim(CutFromTo($frmTxt,'<input', '>')); $name = trim(CutFromTo($inpField,'name="', '"')); 
           if ( stripos($inpField, '"hidden"')!==false && $name!='' && !in_array($name, $md)) { $md[] = $name; $val = trim(CutFromTo($inpField,'value="', '"')); $flds[$name]= $val; $mids .= "&".$name."=".$val;}
@@ -59,7 +59,7 @@ if (!class_exists("nxs_class_SNAP_VB")) { class nxs_class_SNAP_VB {
         $smURL = $baseURL.'newthread.php?do=postthread'.str_replace('&amp;','&',$fid);
       } //prr($flds);
       if ($mdd=='p'){ $fid = CutFromTo($contents, 'newreply.php?do=newreply','"');
-        $response = wp_remote_get( $baseURL.'newreply.php?do=newreply'.str_replace('&amp;','&',$fid), array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr)); $contents = $response['body'];
+        $response = nxs_remote_get( $baseURL.'newreply.php?do=newreply'.str_replace('&amp;','&',$fid), array( 'method' => 'GET', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'cookies' => $ckArr)); $contents = $response['body'];
         $frmTxt = CutFromTo($contents, 'newreply.php?do=postreply','</form>'); $md = array(); $flds  = array(); //prr($frmTxt);
     
         while (stripos($frmTxt, '<input')!==false){ $inpField = trim(CutFromTo($frmTxt,'<input', '>')); $name = trim(CutFromTo($inpField,'name="', '"')); 
@@ -68,13 +68,13 @@ if (!class_exists("nxs_class_SNAP_VB")) { class nxs_class_SNAP_VB {
         }  $flds['title'] = $subj; $flds['message'] = $msg; $flds['message_backup'] = $msg; $flds['wysiwyg'] = '1'; $flds['do'] = 'postreply';  $flds['parseurl'] = '1';  $flds['sbutton'] = 'Submit+Reply';  
         $smURL = $baseURL.'newreply.php?do=postreply'.str_replace('&amp;','&',$fid);
       } //prr($flds);
-      $r2 = wp_remote_post( $smURL, array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'body' => $flds, 'cookies' => $ckArr));
+      $r2 = nxs_remote_post( $smURL, array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'body' => $flds, 'cookies' => $ckArr));
         // prr($r2['response']);  prr(htmlentities($r2['body'])); $r2['body'] = ''; prr($r2); die();
-      if(is_wp_error($r2)) return "Invalid Connection. ".print_r($r2, true);  
+      if(is_nxs_error($r2)) return "Invalid Connection. ".print_r($r2, true);  
       if (stripos($r2['body'], 'tag can only be ')!==false) { $lgLim =  trim(CutFromTo($r2['body'], 'tag can only be ',' characters')); $flds['taglist'] = substr($flds['taglist'], 0, $lgLim); 
-        $r2 = wp_remote_post( $smURL, array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'body' => $flds, 'cookies' => $ckArr));
+        $r2 = nxs_remote_post( $smURL, array( 'method' => 'POST', 'timeout' => 45, 'redirection' => 0,  'headers' => $hdrsArr, 'body' => $flds, 'cookies' => $ckArr));
       }
-      if(is_wp_error($r2)) return "Invalid Connection. ".print_r($r2, true);  
+      if(is_nxs_error($r2)) return "Invalid Connection. ".print_r($r2, true);  
       if (stripos($r2['body'], 'errorblock')!==false) return trim(strip_tags( CutFromTo($r2['body'], 'errorblock','</div>')));
       if (stripos($r2['body'], 'exec_refresh()')!==false && stripos($r2['body'], 'blockrow restore">')!==false) return trim(strip_tags( CutFromTo($r2['body'], 'blockrow restore">','</p>')));
       if (stripos($r2['body'], '<error>')!==false) return trim(strip_tags( CutFromTo($r2['body'], '<error>','</error>')));

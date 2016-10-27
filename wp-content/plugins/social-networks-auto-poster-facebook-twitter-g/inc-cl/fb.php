@@ -1,6 +1,6 @@
 <?php    
 //## NextScripts Facebook Connection Class
-$nxs_snapAvNts[] = array('code'=>'FB', 'lcode'=>'fb', 'name'=>'Facebook');
+$nxs_snapAvNts[] = array('code'=>'FB', 'lcode'=>'fb', 'name'=>'Facebook', 'type'=>'Social Networks');
 
 if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = array('code'=>'FB', 'lcode'=>'fb', 'name'=>'Facebook', 'defNName'=>'', 'tstReq' => false);
   //#### Show Common Settings  
@@ -12,28 +12,28 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
      $sturl = explode('?',$nxs_snapSetPgURL); $nxs_snapSetPgURL = $sturl[0].((!empty($gGet))?'?'.http_build_query($gGet):''); $fbo = $ntOpts[$ii]; $wprg = array('sslverify'=>false, 'timeout' => 30); 
      if (isset($fbo['fbPgID'])){ echo "-="; prr($fbo);// die();
       $tknURL = 'https://graph.facebook.com/v2.3/oauth/access_token?client_id='.$fbo['fbAppID'].'&state=nxs-fb-'.$ii.'&redirect_uri='.urlencode($nxs_snapSetPgURL).'&client_secret='.$fbo['fbAppSec'].'&code='.$at;       
-      $response  = wp_remote_get($tknURL, $wprg); echo "<br/>TKN URL: "; prr($tknURL);   
+      $response  = nxs_remote_get($tknURL, $wprg); echo "<br/>TKN URL: "; prr($tknURL);   
       if ( (is_object($response) && (isset($response->errors))) || (is_array($response) && stripos($response['body'],'"error":')!==false )) { prr($response); die(); }      
       if (substr($response['body'],0,1)=='{') $params = json_decode($response['body'], true); else parse_str($response['body'], $params);  
       $at = $params['access_token']; echo "<br/>TKN PARAMS: "; prr($params); echo "<br/>TKN RESP: "; prr($response);  
-      $response  = wp_remote_get('https://graph.facebook.com/v2.3/oauth/access_token?client_secret='.$fbo['fbAppSec'].'&client_id='.$fbo['fbAppID'].'&grant_type=fb_exchange_token&fb_exchange_token='.$at, $wprg); 
+      $response  = nxs_remote_get('https://graph.facebook.com/v2.3/oauth/access_token?client_secret='.$fbo['fbAppSec'].'&client_id='.$fbo['fbAppID'].'&grant_type=fb_exchange_token&fb_exchange_token='.$at, $wprg); 
       if ((is_object($response) && isset($response->errors))) {  prr($response); die();}
       if (substr($response['body'],0,1)=='{') $params = json_decode($response['body'], true); else parse_str($response['body'], $params);  $at = $params['access_token']; $fbo['fbAppAuthToken'] = $at; 
       $appsecret_proof = hash_hmac('sha256', $fbo['fbAppAuthToken'], $fbo['fbAppSec']); 
       $aacct = array('access_token'=>$fbo['fbAppAuthToken'], 'appsecret_proof'=>$appsecret_proof, 'method'=>'get');  
-      $uurl = "https://graph.facebook.com/v2.3/me?".http_build_query($aacct, null, '&'); prr($uurl); $res = wp_remote_get( $uurl, $wprg); 
-      if (is_wp_error($res) || empty($res['body'])) {  echo "Can't get Facebook User."; prr($res); die();} else {
+      $uurl = "https://graph.facebook.com/v2.3/me?".http_build_query($aacct, null, '&'); prr($uurl); $res = nxs_remote_get( $uurl, $wprg); 
+      if (is_nxs_error($res) || empty($res['body'])) {  echo "Can't get Facebook User."; prr($res); die();} else {
         $user = json_decode($res['body'], true); if (empty($user)) {echo "Can't get Facebook User. JSON Error. "; prr($res); die();} else {
           if (!empty($user['id'])) {        echo "-= Got user: "; prr($user);            
             if (stripos($fbo['fbURL'], '/groups/')!==false) { $fbo['destType'] = 'gr'; $fbo['fbAppPageAuthToken'] = $fbo['fbAppAuthToken']; } else {            
               $page_id = $fbo['fbPgID']; echo "-= Authorizing Page =-<br/>";                        
               $aacct = array('access_token'=>$fbo['fbAppAuthToken'], 'appsecret_proof'=>$appsecret_proof, 'method'=>'get');  $fbo['destType'] = '';              
               echo "-= Getting List of Pages =-<br/>";  
-              $resP = wp_remote_get('https://graph.facebook.com/v2.3/'.$user['id'].'/accounts?'.http_build_query($aacct, null, '&'), $wprg); prr($resP); $pages = json_decode($resP['body'], true);  prr($pages);
+              $resP = nxs_remote_get('https://graph.facebook.com/v2.3/'.$user['id'].'/accounts?'.http_build_query($aacct, null, '&'), $wprg); prr($resP); $pages = json_decode($resP['body'], true);  prr($pages);
               echo "-= Getting Page Token =-<br/>";                
               echo "https://graph.facebook.com/v2.3/$page_id?fields=access_token&".http_build_query($aacct, null, '&');
-              $res = wp_remote_get( "https://graph.facebook.com/v2.3/$page_id?fields=access_token&".http_build_query($aacct, null, '&'), $wprg); prr($res);
-              if (is_wp_error($res) || empty($res['body'])) {  echo "Can't get Page Token."; prr($res); die();} else {
+              $res = nxs_remote_get( "https://graph.facebook.com/v2.3/$page_id?fields=access_token&".http_build_query($aacct, null, '&'), $wprg); prr($res);
+              if (is_nxs_error($res) || empty($res['body'])) {  echo "Can't get Page Token."; prr($res); die();} else {
                   $token = json_decode($res['body'], true); if (empty($token)) {echo "Can't get Page Token. JSON Error. "; prr($res); die();} else {
                     if (!empty($token['error'])) if (!empty($token['error']['message'])) { $errMsg = $token['error']['message'];
                       if ( stripos($errMsg, 'Unknown fields: access_token')!==false || stripos($errMsg, 'Cannot query users by their username')!==false || stripos($errMsg, 'node type (User)')!==false) {
@@ -141,9 +141,9 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
           &lt;-- (<a id="showShAtt" onmouseout="hidePopShAtt('<?php echo $ii; ?>');" onmouseover="showPopShAtt('<?php echo $ii; ?>', event);" onclick="return false;" class="underdash" href="http://www.nextscripts.com/blog/"><?php _e('What\'s the difference?', 'social-networks-auto-poster-facebook-twitter-g'); ?></a>)
           <br/>
         <strong><?php _e('What should fill attachment info:', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;</strong> 
-          <input value="F" type="radio" name="fb[<?php echo $ii; ?>][atchUse]" <?php if ($options['atchUse'] == 'F') echo "checked"; ?> onchange="if (jQuery(this).is(':checked')) { jQuery('#apFBMsgAFrmtDiv<?php echo $ii; ?>').hide(); jQuery('#nxsRBVidThumb<?php echo $ii; ?>').prop('disabled', true); }"/><?php _e('Facebook', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;&nbsp;
-          <input value="A" type="radio" name="fb[<?php echo $ii; ?>][atchUse]" <?php if ($options['atchUse'] == 'A') echo "checked"; ?> onchange="if (jQuery(this).is(':checked')) { jQuery('#apFBMsgAFrmtDiv<?php echo $ii; ?>').hide(); jQuery('#nxsRBVidThumb<?php echo $ii; ?>').prop('disabled', false);}"/><?php _e('Plugin/API', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;&nbsp;
-          <input value="M" type="radio" name="fb[<?php echo $ii; ?>][atchUse]" <?php if ($options['atchUse'] == 'M') echo "checked"; ?> onchange="if (jQuery(this).is(':checked')) { jQuery('#apFBMsgAFrmtDiv<?php echo $ii; ?>').show(); jQuery('#nxsRBVidThumb<?php echo $ii; ?>').prop('disabled', false);}"/><?php _e('Set your own', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;
+          <input value="F" type="radio" name="fb[<?php echo $ii; ?>][atchUse]" <?php if ($options['atchUse'] == 'F') echo "checked"; ?> onchange="if (jQuery(this).is(':checked')) { jQuery('#apFBMsgAFrmtDiv<?php echo $ii; ?>').hide(); jQuery('#nxsRBVidThumb<?php echo $ii; ?>').prop('disabled', true); jQuery('#nxsRBVidThumbV<?php echo $ii; ?>').prop('disabled', true);}"/><?php _e('Facebook', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;&nbsp;
+          <input value="A" type="radio" name="fb[<?php echo $ii; ?>][atchUse]" <?php if ($options['atchUse'] == 'A') echo "checked"; ?> onchange="if (jQuery(this).is(':checked')) { jQuery('#apFBMsgAFrmtDiv<?php echo $ii; ?>').hide(); jQuery('#nxsRBVidThumb<?php echo $ii; ?>').prop('disabled', false); jQuery('#nxsRBVidThumbV<?php echo $ii; ?>').prop('disabled', false);}"/><?php _e('Plugin/API', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;&nbsp;
+          <input value="M" type="radio" name="fb[<?php echo $ii; ?>][atchUse]" <?php if ($options['atchUse'] == 'M') echo "checked"; ?> onchange="if (jQuery(this).is(':checked')) { jQuery('#apFBMsgAFrmtDiv<?php echo $ii; ?>').show(); jQuery('#nxsRBVidThumb<?php echo $ii; ?>').prop('disabled', false);jQuery('#nxsRBVidThumbV<?php echo $ii; ?>').prop('disabled', false);}"/><?php _e('Set your own', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;
           &lt;-- (<a id="showShAtt" onmouseout="hidePopShAtt('<?php echo $ii; ?>Fill');" onmouseover="showPopShAtt('<?php echo $ii; ?>Fill', event);" onclick="return false;" class="underdash" href="#"><?php _e('What\'s the difference?', 'social-networks-auto-poster-facebook-twitter-g'); ?></a>)<br/>
           
           <div id="apFBMsgAFrmtDiv<?php echo $ii; ?>" style="<?php if ($options['atchUse'] != 'M') echo "display:none;"; ?>" >
@@ -154,7 +154,7 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
         <strong><?php _e('If post has a video:', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;</strong> 
           <input value="N" type="radio" name="fb[<?php echo $ii; ?>][fbAttchAsVid]" <?php if ($options['fbAttchAsVid'] == 'N') echo 'checked="checked"'; ?> /><?php _e('Do nothing', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;&nbsp;
           <input value="A" id="nxsRBVidThumb<?php echo $ii; ?>" <?php if ($options['atchUse'] == 'F') echo "disabled"; ?>  type="radio" name="fb[<?php echo $ii; ?>][fbAttchAsVid]" <?php if ($options['fbAttchAsVid'] == 'A') echo 'checked="checked"'; ?> /><?php _e('Use as thumbnail', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;&nbsp;
-          <input value="V" type="radio" name="fb[<?php echo $ii; ?>][fbAttchAsVid]" <?php if ($options['fbAttchAsVid'] == 'V') echo 'checked="checked"'; ?> /> 
+          <input value="V" id="nxsRBVidThumbV<?php echo $ii; ?>" type="radio" name="fb[<?php echo $ii; ?>][fbAttchAsVid]" <?php if ($options['fbAttchAsVid'] == 'V') echo 'checked="checked"'; ?> <?php if ($options['atchUse'] == 'F') echo "disabled"; ?> /> 
           <?php _e('Attach Video(!)', 'social-networks-auto-poster-facebook-twitter-g'); ?>&nbsp;&nbsp;
           &lt;-- (<a id="showShAtt" onmouseout="hidePopShAtt('<?php echo $ii; ?>Video');" onmouseover="showPopShAtt('<?php echo $ii; ?>Video', event);" onclick="return false;" class="underdash" href="#"><?php _e('What\'s the difference?', 'social-networks-auto-poster-facebook-twitter-g'); ?></a>)
           <br/>   
@@ -167,7 +167,7 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
 <div class="popShAtt" style="z-index: 9999" id="popShAtt<?php echo $ii; ?>X"><h3><?php _e('Facebook Post Types', 'social-networks-auto-poster-facebook-twitter-g'); ?></h3><img src="<?php echo $nxs_plurl; ?>img/fbPostTypesDiff6.png" width="600" height="398" alt="<?php _e('Facebook Post Types', 'social-networks-auto-poster-facebook-twitter-g'); ?>"/></div>
 
 <div class="popShAtt" style="z-index: 9999; width: 350px;" id="popShAtt<?php echo $ii; ?>Fill"><h3><?php _e('What should fill attachment info', 'social-networks-auto-poster-facebook-twitter-g'); ?></h3> <b><?php _e('(Facebook)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('Recommended. Facebook will automatically take attached/shared link info from OG: tags or other sources.', 'social-networks-auto-poster-facebook-twitter-g'); ?>  <br/><br/><b><?php _e('(Pluign/API)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('Plugin will generate attachment title and description using info from SEO Plugins, then post excerpt, then post text and title.', 'social-networks-auto-poster-facebook-twitter-g'); ?><br/><br/><b><?php _e('(Set your own)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('Set the format by yourself using message formatting tags', 'social-networks-auto-poster-facebook-twitter-g'); ?></div>  
-<div class="popShAtt" style="z-index: 9999; width: 350px;" id="popShAtt<?php echo $ii; ?>Video"><h3><?php _e('If post has a video', 'social-networks-auto-poster-facebook-twitter-g'); ?></h3> <b><?php _e('(Do Nothing)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('Plugin is not going to do anything specific about video', 'social-networks-auto-poster-facebook-twitter-g'); ?>  <br/><br/><b><?php _e('(Use as thumbnail)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('Video thumbnail will be used as attachment image. Please note - <b>it won\'t be playable.</b> This option is not compatible with "What should fill attachment info: Facebook"', 'social-networks-auto-poster-facebook-twitter-g'); ?><br/><br/><b><?php _e('(Attach video page to the Facebook post)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('If you choose this, YouTube or Vimeo page will be attached to the Facebook post as <b>playable thumbnail</b>. Please note! <b>There will be no link to your site.</b> Please use %URL% in the message format if you need a backlink', 'social-networks-auto-poster-facebook-twitter-g'); ?></div>  
+<div class="popShAtt" style="z-index: 9999; width: 350px;" id="popShAtt<?php echo $ii; ?>Video"><h3><?php _e('If post has a video', 'social-networks-auto-poster-facebook-twitter-g'); ?></h3> <b><?php _e('(Do Nothing)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('Plugin is not going to do anything specific about video', 'social-networks-auto-poster-facebook-twitter-g'); ?><br/><br/> <?php _e('** "Use as thumbnail" and "Attach Video" options are not compatible with "Facebook" option in "What should fill attachment info"', 'social-networks-auto-poster-facebook-twitter-g'); ?> <br/><br/><b><?php _e('(Use as thumbnail)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('Video thumbnail will be used as attachment image. Please note - <b>it won\'t be playable.</b> This option is not compatible with "What should fill attachment info: Facebook"', 'social-networks-auto-poster-facebook-twitter-g'); ?><br/><br/><b><?php _e('(Attach video page to the Facebook post)', 'social-networks-auto-poster-facebook-twitter-g'); ?></b> <?php _e('If you choose this, YouTube or Vimeo page will be attached to the Facebook post as <b>playable thumbnail</b>. Please note! <b>There will be no link to your site.</b> Please use %URL% in the message format if you need a backlink', 'social-networks-auto-poster-facebook-twitter-g'); ?></div>  
 
 
 
@@ -306,12 +306,12 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
       <?php  if ($post->post_status != "publish" && (int)$ntOpt['do']>0 && !empty($ntOpt['fltrsOn']) && $ntOpt['fltrsOn']=='1'){ ?>
         <input type="radio" id="rbtn<?php echo $ntU.$ii; ?>" value="2" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" checked="checked" class="nxsGrpDoChb" /> <?php } 
       else { ?>
-         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>" <?php if ($post->post_status == "publish") echo 'disabled="disabled"';?> type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
+         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>"  type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> /> 
       <?php }
       if ($post->post_status == "publish") { ?> <input type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" value="<?php echo $ntOpt['do'];?>"> <?php } ?> 
     <?php } ?>
       
-      <div class="nsx_iconedTitle" style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/fb16.png);">Facebook - <?php _e('publish to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)</div></th><td><?php //## Only show RePost button if the post is "published"
+      <div class="nsx_iconedTitle" id="ldo<?php echo $ntU.$ii; ?>"  style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/fb16.png);">Facebook - <?php _e('publish to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)&nbsp;<span class="nxs_ldos" id="bldo<?php echo $ntU.$ii; ?>"><?php echo !empty($ntOpt['do'])?'[-]':'[+]'; ?></span></div></th><td><?php //## Only show RePost button if the post is "published"
     if ($post->post_status == "publish" && $isAvailFB) { ?><?php $ntName = $this->ntInfo['name']; ?><input alt="<?php echo $ii; ?>" style="float: right;" onmouseout="hidePopShAtt('SV');" onmouseover="showPopShAtt('SV', event);" onclick="return false;" data-ntname="<?php echo $ntName; ?>" type="button" class="button manualPostBtn" name="<?php echo $nt."-".$post->ID; ?>" value="<?php _e('Post to ', 'social-networks-auto-poster-facebook-twitter-g'); echo $ntName; ?>" />                    
     <?php if ($ntOpt['riComments']=='1' && (is_array($pMeta) && !empty($pMeta[$ii]) && is_array($pMeta[$ii]) && isset($pMeta[$ii]['pgID']) && strpos($pMeta[$ii]['pgID'],'_')!==false ) ) { ?>
        <input alt="<?php echo $ii; ?>" style="float: right; " onclick="return false;" type="button" class="button" name="riToFB_repostButton" id="riToFB_button" value="<?php _e('Import Comments from Facebook', 'social-networks-auto-poster-facebook-twitter-g') ?>" />
@@ -322,29 +322,29 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
                     <?php  if (is_array($pMeta) && isset($pMeta[$ii]) && is_array($pMeta[$ii]) && isset($pMeta[$ii]['pgID']) && strpos($pMeta[$ii]['pgID'],'_')!==false ) { $pid = explode('_', $pMeta[$ii]['pgID']);
                         
                         ?> <span id="pstdFB<?php echo $ii; ?>" style="float: right;padding-top: 4px; padding-right: 10px;">
-                      <a style="font-size: 10px;" href="http://www.facebook.com/permalink.php?story_fbid=<?php echo $pid[1].'&id='.$pid[0]; ?>" target="_blank"><?php $nType="Facebook"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(" (".$pMeta[$ii]['pDate'].")"):""; ?></a>
+                      <a style="font-size: 10px;" href="http://www.facebook.com/permalink.php?story_fbid=<?php echo $pid[1].'&id='.$pid[0]; ?>" target="_blank"><?php $nType="Facebook"; printf( __( 'Posted on', 'social-networks-auto-poster-facebook-twitter-g' ), $nType); ?>  <?php echo (isset($pMeta[$ii]['pDate']) && $pMeta[$ii]['pDate']!='')?(nxs_adjTime($pMeta[$ii]['pDate'])):""; ?></a>
                     </span><?php } ?>
                     
                 </td></tr>
-                <?php if (!$isAvailFB) { ?><tr><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;"></th> <td><b>Setup and Authorize your Facebook Account to AutoPost to Facebook</b>
+                <?php if (!$isAvailFB) { ?><tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;"></th> <td><b>Setup and Authorize your Facebook Account to AutoPost to Facebook</b>
                 <?php }  else { if ($post->post_status != "publish" && function_exists('nxs_doSMAS5') ) { $ntOpt['postTime'] = get_post_time('U', false, $post_id); nxs_doSMAS5($nt, $ii, $ntOpt); }  ?>
                 
                 <?php if ($ntOpt['rpstOn']=='1') { ?> 
                 
-                <tr id="altFormat1" style=""><th scope="row" class="nxsTHRow">
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" class="nxsTHRow">
                 <input value="0"  type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][rpstPostIncl]"/><input value="nxsi<?php echo $ii; ?>fb" type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][rpstPostIncl]"  <?php if (!empty($ntOpt['rpstPostIncl'])) echo "checked"; ?> /> 
                 </th>
                 <td> <?php _e('Include in "Auto-Reposting" to this network.', 'social-networks-auto-poster-facebook-twitter-g') ?>               
                 </td></tr> <?php } ?>
                 
-                <tr><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;">
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; padding-top: 5px; padding-right:10px;">
                   
                   <b></b>
                 </th>
                 <td></td>
                 </tr>
                 
-             <tr><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 0px; padding-right:10px;"> <?php _e('Post Type:', 'social-networks-auto-poster-facebook-twitter-g'); ?> <br/>
+             <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>"><th scope="row" style="text-align:right; width:150px; vertical-align:top; padding-top: 0px; padding-right:10px;"> <?php _e('Post Type:', 'social-networks-auto-poster-facebook-twitter-g'); ?> <br/>
                 (<a id="showShAtt" style="font-weight: normal" onmouseout="hidePopShAtt('<?php echo $ii; ?>X');" onmouseover="showPopShAtt('<?php echo $ii; ?>X', event);" onclick="return false;" class="underdash" href="http://www.nextscripts.com/blog/"><?php _e('What\'s the difference?', 'social-networks-auto-poster-facebook-twitter-g'); ?></a>)</th><td>     
         
         <input class="nxs_postEditCtrl"  type="radio" name="fb[<?php echo $ii; ?>][postType]" value="T" <?php if ($fbPostType == 'T') echo 'checked="checked"'; ?> /> <?php _e('Text Post', 'social-networks-auto-poster-facebook-twitter-g'); ?>  - <i><?php _e('just text message', 'social-networks-auto-poster-facebook-twitter-g'); ?></i><br/>       
@@ -361,7 +361,7 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
      </td></tr>
                               
                     
-                <tr id="altFormat1" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Message Format:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
+                <tr style="<?php echo !empty($ntOpt['do'])?'display:table-row;':'display:none;'; ?>" class="nxstbldo nxstbldo<?php echo strtoupper($nt).$ii; ?>" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Message Format:', 'social-networks-auto-poster-facebook-twitter-g') ?></th>
                 <td>
                 <?php if (1==1) { ?>
                 <textarea class="nxs_postEditCtrl"  cols="150" rows="2" id="fb<?php echo $ii; ?>SNAPformat" name="fb[<?php echo $ii; ?>][SNAPformat]"  style="width:60%;max-width: 610px;" onfocus="jQuery('#fb<?php echo $ii; ?>SNAPformat').attr('rows', 4); jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apFBTMsgFrmt<?php echo $ii; ?>');"><?php echo $fbMsgFormat ?></textarea>
@@ -390,8 +390,8 @@ if (!class_exists("nxs_snapClassFB")) { class nxs_snapClassFB { var $ntInfo = ar
 if (!function_exists("nxs_getBackFBComments")) { function nxs_getBackFBComments($postID, $options, $po) { $ci = 0;  if (empty($options['fbAppPageAuthToken'])) return;    
     $options['appsecret_proof'] = hash_hmac('sha256', $options['fbAppPageAuthToken'], $options['fbAppSec']);    $wprg = array('sslverify'=>false, 'timeout' => 30);  
     $aacct = array('access_token'=>$options['fbAppPageAuthToken'], 'appsecret_proof'=>$options['appsecret_proof'], 'method'=>'get');  $ptype =  get_post_type( $postID ); 
-    $res = wp_remote_get( "https://graph.facebook.com/v2.3/".$po['pgID']."/comments?filter=toplevel&limit=250&".http_build_query($aacct, null, '&'), $wprg); 
-    if (is_wp_error($res) || empty($res['body'])) $badOut['Error'] = ' [ERROR] '.print_r($res, true); else { //prr($res);
+    $res = nxs_remote_get( "https://graph.facebook.com/v2.3/".$po['pgID']."/comments?filter=toplevel&limit=250&".http_build_query($aacct, null, '&'), $wprg); 
+    if (is_nxs_error($res) || empty($res['body'])) $badOut['Error'] = ' [ERROR] '.print_r($res, true); else { //prr($res);
     $ret = json_decode($res['body'], true); if (empty($ret)) $badOut['Error'] .= "JSON ERROR: ".print_r($res, true); else { //   prr($ret);    
       $impCmnts = get_post_meta($postID, 'snapImportedFBComments', true); if (!is_array($impCmnts)) $impCmnts = array(); //prr($impCmnts);   
       if (is_array($ret) && !empty($ret['data']) && is_array($ret['data'])) foreach ($ret['data'] as $comment){ $cid = $comment['id']; if (trim($cid)=='') continue;
@@ -407,7 +407,7 @@ if (!function_exists("nxs_getBackFBComments")) { function nxs_getBackFBComments(
           } $ci++; $impCmnts[$wpCid] = 'fbxcw'.$cid; 
       } else $wpCid = array_search('fbxcw'.$cid, $impCmnts);      
             
-      $res = wp_remote_get( "https://graph.facebook.com/v2.3/".$cid."/comments?".http_build_query($aacct, null, '&'), $wprg); $replRet = json_decode($res['body'], true);
+      $res = nxs_remote_get( "https://graph.facebook.com/v2.3/".$cid."/comments?".http_build_query($aacct, null, '&'), $wprg); $replRet = json_decode($res['body'], true);
       if (is_array($replRet) && is_array($replRet['data'])) foreach ($replRet['data'] as $rComment){ $rCid = $rComment['id']; 
         if (trim($rCid)!='' && !in_array('fbxcw'.$rCid, $impCmnts)) {  // prr($impCmnts);          
           if ($ptype=='topic'){ $my_post = array('post_title' => '', 'post_content' => $rComment['message'], 'post_status' => 'publish', 'post_parent' => $postID, 'post_author' => 0, 'post_type' => 'reply');
@@ -521,13 +521,13 @@ if (!function_exists("nxs_doPublishToFB")) { //## Second Function to Post to FB
           if (strlen($vids[0])==11) { $vidURL = 'http://www.youtube.com/v/'.$vids[0]; $imgURL = nsGetYTThumb($vids[0]); }
           if (strlen($vids[0])==8 || strlen($vids[0])==9) { // $vidURL = 'https://secure.vimeo.com/moogaloop.swf?clip_id='.$vids[0].'&autoplay=1';            
             $vidURL = 'https://f.vimeocdn.com/p/flash/moogaloop/6.0.37/moogaloop.swf?autoplay=1&clip_id='.$vids[0];
-            $apiURL = "http://vimeo.com/api/v2/video/".$vids[0].".json?callback=showThumb"; $json = wp_remote_get($apiURL, $wprg);
-            if (!is_wp_error($json)) { $json = $json['body'];  $json = str_replace('/**/','',$json);
+            $apiURL = "http://vimeo.com/api/v2/video/".$vids[0].".json?callback=showThumb"; $json = nxs_remote_get($apiURL, $wprg);
+            if (!is_nxs_error($json)) { $json = $json['body'];  $json = str_replace('/**/','',$json);
             $json = str_replace('showThumb(','',$json); $json = str_replace('])',']',$json);  $json = json_decode($json, true); $imgURL = $json[0]['thumbnail_large']; }           
           }
           if (strlen($vids[0])==15) { // $vidURL = 'https://secure.vimeo.com/moogaloop.swf?clip_id='.$vids[0].'&autoplay=1';            
-            $vidURL = 'https://www.facebook.com/video.php?v='.$vids[0]; $apiURL = "https://graph.facebook.com/v2.3/".$vids[0]; $json = wp_remote_get($apiURL, $wprg);
-            if (!is_wp_error($json)) { $json = $json['body']; $json = json_decode($json, true); $frmts = $json['format']; $imgURL = array_pop($frmts); $imgURL = $imgURL['picture'];  }           
+            $vidURL = 'https://www.facebook.com/video.php?v='.$vids[0]; $apiURL = "https://graph.facebook.com/v2.3/".$vids[0]; $json = nxs_remote_get($apiURL, $wprg);
+            if (!is_nxs_error($json)) { $json = $json['body']; $json = json_decode($json, true); $frmts = $json['format']; $imgURL = array_pop($frmts); $imgURL = $imgURL['picture'];  }           
           }
       }}
       if (!empty($options['imgToUse'])) $imgURL = $options['imgToUse'];  if (preg_match("/noImg.\.png/i", $imgURL)) $imgURL = 'http://www.noimage.faketld';//$imgURL = 'http://cdn.gtln.us/img/t1x1.gif'; 
